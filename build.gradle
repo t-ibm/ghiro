@@ -1,0 +1,42 @@
+/*
+ * Build script configuration
+ */
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+/*
+ * Plugins configurations
+ */
+plugins {
+    id 'project-report'
+}
+/*
+ * Root-project only configuration
+ */
+description = 'A minimal viable transaction oriented middleware approach.'
+apply from: 'settings/dependencies.gradle'
+apply from: 'settings/groups.gradle'
+apply from: 'settings/ide-eclipse.gradle'
+apply from: 'settings/ide-idea.gradle'
+/*
+ * Common configuration for all projects
+ */
+allprojects {
+    defaultTasks 'assemble'
+    configurations.all {
+        resolutionStrategy {
+            // Cache dynamic versions for $project.sag.ttl seconds
+            cacheDynamicVersionsFor project.sag.ttl, 'seconds'
+            cacheChangingModulesFor project.sag.ttl, 'seconds'
+        }
+    }
+    // We care mostly about the dependency report for projects that actually publish something to the repository
+    project.plugins.withType( BasePlugin.class) {
+        project.apply plugin: 'project-report'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
