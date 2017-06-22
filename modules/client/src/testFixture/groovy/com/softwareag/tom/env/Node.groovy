@@ -2,8 +2,11 @@ package com.softwareag.tom.env
 node {
     name = 'default'
     host {
-        ip = '127.0.0.1'
-        port = 46657
+        ip = '0.0.0.0'
+        port = 1337
+        tendermint {
+            port = 36657
+        }
     }
 }
 
