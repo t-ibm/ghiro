@@ -2,7 +2,7 @@ package com.softwareag.tom.env
 node {
     name = 'default'
     host {
-        ip = '0.0.0.0'
+        ip = '127.0.0.1'
         port = 1337
         tendermint {
             port = 36657
@@ -11,19 +11,19 @@ node {
 }
 
 environments {
-    one {
+    zero {
         node {
-            name = 'ghirouno'
+            name = 'niue'
+            host { ip = '10.128.48.26' }
         }
+    }
+    one {
+        node { name = 'ghirouno' }
     }
     two {
-        node {
-            name = 'ghirodue'
-        }
+        node { name = 'ghirodue' }
     }
     three {
-        node {
-            name = 'ghirotre'
-        }
+        node { name = 'ghirotre' }
     }
 }
