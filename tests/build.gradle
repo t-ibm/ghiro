@@ -1,5 +1,38 @@
 description = 'Inter-module level integration tests'
 /*
+ * Integration test fixture configuration
+ */
+task clean(type:Delete, group:'test fixture') {
+    description = 'Cleans up the Burrow node.'
+    delete project.buildDir
+}
+task initBurrow(type:Sync, group:'test fixture') {
+    description = 'Initializes a new Burrow node.'
+    from 'src/integTest/fixture/burrow'
+    into file("$project.buildDir/workingDir")
+}
+task runBurrow(type:Exec, group:'test fixture', dependsOn:project.tasks.initBurrow) {
+    description = 'Starts a new Burrow process.'
+    workingDir project.tasks.initBurrow.destinationDir
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        commandLine 'cmd', '/c', 'burrow', 'serve'
+    } else {
+        commandLine 'burrow', 'serve'
+    }
+    doFirst {
+        standardOutput new FileOutputStream("$project.tasks.initBurrow.destinationDir/std.out")
+        errorOutput new FileOutputStream("$project.tasks.initBurrow.destinationDir/err.out")
+        project.logger.lifecycle("$path See directory '${project.uri(project.projectDir).relativize(project.uri(project.tasks.initBurrow.destinationDir))}' for the logging output.")
+    }
+}
+task spawnBurrow(type:SpawnTask, group:'test fixture', dependsOn:project.tasks.initBurrow) {
+    description = 'Starts a new Burrow process and continues task execution.'
+    doLast {
+        project.logger.info("$path Waiting for startup to complete.")
+        Thread.currentThread().sleep(5*1000)
+    }
+}
+/*
  * Project domain specific configuration
  */
 subprojects {
@@ -45,5 +78,22 @@ subprojects {
         classpath {
             plusConfigurations += [project.configurations.integTestRuntime]
         }
+    }
+}
+/*
+ * Additional task types
+ */
+class SpawnTask extends DefaultTask {
+    java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2)
+    @TaskAction def run() {
+        executor.execute({
+            try {
+                project.logger.info("$path Submitting task $project.tasks.runBurrow.path asynchronously.")
+                project.tasks.runBurrow.execute()
+            }
+            catch (TaskExecutionException e) {
+                project.logger.info("$path Task '$project.tasks.runBurrow.path' interrupted.")
+            }
+        } as Runnable)
     }
 }
