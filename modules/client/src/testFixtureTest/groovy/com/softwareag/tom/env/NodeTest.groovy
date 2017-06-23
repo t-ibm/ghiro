@@ -16,7 +16,7 @@ class NodeTest extends Specification {
     def "test default configuration"() {
         expect: 'the default configuration'
         defaultConfig.node.name == 'default'
-        defaultConfig.node.host.ip == '0.0.0.0'
+        defaultConfig.node.host.ip == '127.0.0.1'
         defaultConfig.node.host.port == 1337
     }
 
