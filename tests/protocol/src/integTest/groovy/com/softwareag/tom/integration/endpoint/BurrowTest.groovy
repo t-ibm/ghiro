@@ -13,11 +13,15 @@ import groovyx.net.http.RESTClient
 import spock.lang.Shared
 import spock.lang.Specification
 
+/**
+ * System under specification: Burrow endpoints.
+ * @author tglaeser
+ */
 class BurrowTest extends Specification {
 
     @Shared @Node protected ConfigObject config
 
-    public "test 'client version'"() {
+    public "test 'client version' via http"() {
         given: 'a REST client'
         RESTClient client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
 
@@ -30,5 +34,23 @@ class BurrowTest extends Specification {
         resp.contentType == ContentType.TEXT.toString()
         println "response payload - $resp.data"
         resp.data == ['client_version': '0.8.0']
+    }
+
+    public "test 'client version' via rpc"() {
+        given: 'a REST client'
+        RESTClient client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
+
+        and: 'a valid JSON-RPC request'
+        def requestParams = ['jsonrpc': '2.0', 'id': '1', 'method': 'burrow.getClientVersion']
+
+        when: 'we post the request'
+        HttpResponseDecorator resp = client.post(path: '/rpc', contentType: ContentType.JSON.toString(), body: requestParams) as HttpResponseDecorator
+
+        then: 'we receive a valid response'
+        resp.success
+        resp.status == 200
+        resp.contentType == ContentType.TEXT.toString()
+        println "response payload - $resp.data"
+        resp.data.result.client_version == '0.8.0'
     }
 }

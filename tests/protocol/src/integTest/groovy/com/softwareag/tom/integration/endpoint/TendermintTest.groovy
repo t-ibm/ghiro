@@ -13,6 +13,10 @@ import groovyx.net.http.RESTClient
 import spock.lang.Shared
 import spock.lang.Specification
 
+/**
+ * System under specification: Tendermint endpoints.
+ * @author tglaeser
+ */
 class TendermintTest extends Specification {
 
     @Shared @Node protected ConfigObject config
