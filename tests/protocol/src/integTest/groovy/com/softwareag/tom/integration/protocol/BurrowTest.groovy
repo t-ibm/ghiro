@@ -4,7 +4,7 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.integration.endpoint
+package com.softwareag.tom.integration.protocol
 
 import com.softwareag.tom.extension.Node
 import groovyx.net.http.ContentType
