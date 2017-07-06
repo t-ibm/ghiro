@@ -1,0 +1,57 @@
+syntax = "proto3";
+package com.softwareag.tom.protocol.abi;
+/*
+ * Code Types.
+ */
+enum CodeType {
+    OK                          = 0;
+    
+    // General response codes, 0 ~ 99
+    InternalError               = 1;
+    EncodingError               = 2;
+    BadNonce                    = 3;
+    Unauthorized                = 4;
+    InsufficientFunds           = 5;
+    UnknownRequest              = 6;
+}
+/*
+ * Request Types.
+ */
+message Request {
+	oneof value{
+		RequestWeb3ClientVersion web3ClientVersion = 1;
+		RequestNetListening netListening = 2;
+	}
+}
+message RequestWeb3ClientVersion {
+}
+message RequestNetListening {
+}
+/*
+ * Response Types.
+ */
+message Response {
+	oneof value{
+		ResponseException exception = 1;
+		ResponseWeb3ClientVersion web3ClientVersion = 2;
+		ResponseNetListening netListening = 3;
+	}
+}
+message ResponseException{
+	CodeType code = 1;
+	string message = 2;
+	bytes data = 3;
+}
+message ResponseWeb3ClientVersion {
+	string client_version = 1;
+}
+message ResponseNetListening {
+	bool listening = 1;
+}
+/*
+ * Service Definition.
+ */
+service AbiService {
+	rpc Web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
+	rpc NetListening(RequestNetListening) returns (ResponseNetListening);
+}
