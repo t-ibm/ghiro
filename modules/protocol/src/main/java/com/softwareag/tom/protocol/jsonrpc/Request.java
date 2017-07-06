@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.List;
 
 /**
@@ -41,7 +43,7 @@ public abstract class Request<S, T extends Response> {
     }
 
     private Class<T> getResponseType() {
-        @SuppressWarnings("unchecked") Class<T> classOfT = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        @SuppressWarnings("unchecked") Class<T> classOfT = (Class<T>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
         try {
             classOfT.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

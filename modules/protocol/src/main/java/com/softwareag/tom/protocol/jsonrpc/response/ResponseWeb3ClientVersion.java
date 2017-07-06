@@ -34,7 +34,6 @@ public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersio
             Result result = (Result) o;
 
             return clientVersion != null ? clientVersion.equals(result.clientVersion) : result.clientVersion == null;
-
         }
 
         @Override public int hashCode() {

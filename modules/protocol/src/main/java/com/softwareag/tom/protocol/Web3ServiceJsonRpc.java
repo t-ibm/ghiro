@@ -27,12 +27,12 @@ class Web3ServiceJsonRpc implements Web3Service {
     }
 
     @Override public Message web3ClientVersion(Types.RequestWeb3ClientVersion req) {
-        Request jsonRpcRequest = new RequestWeb3ClientVersion<String, ResponseWeb3ClientVersion>(jsonRpcService, req) {};
+        Request jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
     @Override public Message netListening(Types.RequestNetListening req) {
-        Request jsonRpcRequest = new RequestNetListening<String, ResponseNetListening>(jsonRpcService, req) {};
+        Request jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 }
