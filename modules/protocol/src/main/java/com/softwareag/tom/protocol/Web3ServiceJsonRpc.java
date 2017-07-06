@@ -8,12 +8,10 @@ package com.softwareag.tom.protocol;
 
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
-import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.Request;
+import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion;
 
 /**
  * Web3 over JSON-RPC service implementation.
