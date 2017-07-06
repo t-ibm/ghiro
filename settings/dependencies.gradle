@@ -10,9 +10,12 @@ ext {
 }
 sag.modules += [
     groovy : 'org.codehaus.groovy:groovy-all:2.4.7@jar',
+    jackson : 'com.fasterxml.jackson.core:jackson-databind:2.8.5',
     junit : 'junit:junit:4.10@jar',
     log4j : 'log4j:log4j:1.2.17@jar',
     objenesis : 'org.objenesis:objenesis:1.2@jar',
+    protobuf : 'com.google.protobuf:protobuf-java:3.2.0@jar',
+    protoc : 'com.google.protobuf:protoc:3.2.0',
 ]
 sag.modules.slf4j = [
     api : [
@@ -33,8 +36,8 @@ sag.modules.spock = [
     'cglib:cglib-nodep:2.2.2@jar',
 ]
 sag.modules.httpcomponents = [
-    'org.apache.httpcomponents:httpclient:4.2.1@jar',
-    'org.apache.httpcomponents:httpcore:4.2.1@jar',
+    'org.apache.httpcomponents:httpclient:4.5.2@jar',
+    'org.apache.httpcomponents:httpcore:4.4.4@jar',
     'commons-logging:commons-logging:1.1.3@jar',
 ]
 sag.modules.httpbuilder = [
