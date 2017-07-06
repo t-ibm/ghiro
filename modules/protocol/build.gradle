@@ -1,0 +1,21 @@
+description = "The $project.name module"
+
+apply from: "$project.rootDir/settings/proto.gradle"
+
+dependencies {
+    compile(
+        project.sag.modules.httpcomponents,
+        project.sag.modules.jackson,
+        project.sag.modules.protobuf,
+        project.sag.modules.slf4j.api,
+    )
+    runtime project.sag.modules.slf4j.impl
+    testCompile project.sag.modules.spock
+}
+
+idea {
+    module {
+        sourceDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
+        generatedSourceDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
+    }
+}

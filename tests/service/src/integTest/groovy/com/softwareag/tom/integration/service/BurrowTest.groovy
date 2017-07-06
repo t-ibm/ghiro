@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2017 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its
+ * subsidiaries and/or its affiliates and/or their licensors.
+ * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
+ * your License Agreement with Software AG.
+ */
+package com.softwareag.tom.integration.service
+
+import com.google.protobuf.Message
+import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.extension.Node
+import com.softwareag.tom.protocol.Web3Service
+import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
+import spock.lang.Shared
+import spock.lang.Specification
+
+/**
+ * System under specification: {@link Web3Service}.
+ * @author tglaeser
+ */
+class BurrowTest extends Specification {
+
+    @Shared @Node protected ConfigObject config
+    @Shared protected Web3Service web3j
+
+    def setup() {
+        given: 'a JSON-RPC client'
+        web3j = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"));
+    }
+
+    public "test 'client version' service"() {
+        when: 'we make a get request'
+        Message response = web3j.web3ClientVersion(Types.RequestWeb3ClientVersion.newBuilder().build())
+
+        then: 'we receive a valid response'
+        response instanceof Types.ResponseWeb3ClientVersion
+        ((Types.ResponseWeb3ClientVersion)response).clientVersion == '0.8.0'
+    }
+
+    public "test 'net listening' service"() {
+        when: 'we make a get request'
+        Message response = web3j.netListening(Types.RequestNetListening.newBuilder().build())
+
+        then: 'we receive a valid response'
+        response instanceof Types.ResponseNetListening
+        ((Types.ResponseNetListening) response).getListening()
+    }
+}
