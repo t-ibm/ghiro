@@ -34,7 +34,6 @@ public class ResponseNetListening extends Response<ResponseNetListening.Result> 
             Result result = (Result) o;
 
             return listening == result.listening;
-
         }
 
         @Override public int hashCode() {
