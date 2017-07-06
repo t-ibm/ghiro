@@ -21,25 +21,25 @@ import spock.lang.Specification
 class BurrowTest extends Specification {
 
     @Shared @Node protected ConfigObject config
-    @Shared protected Web3Service web3j
+    @Shared protected Web3Service web3Service
 
     def setup() {
         given: 'a JSON-RPC client'
-        web3j = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"));
+        web3Service = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"));
     }
 
-    public "test 'client version' service"() {
+    public "test 'web3ClientVersion' service"() {
         when: 'we make a get request'
-        Message response = web3j.web3ClientVersion(Types.RequestWeb3ClientVersion.newBuilder().build())
+        Message response = web3Service.web3ClientVersion(Types.RequestWeb3ClientVersion.newBuilder().build())
 
         then: 'we receive a valid response'
         response instanceof Types.ResponseWeb3ClientVersion
         ((Types.ResponseWeb3ClientVersion)response).clientVersion == '0.8.0'
     }
 
-    public "test 'net listening' service"() {
+    public "test 'netListening' service"() {
         when: 'we make a get request'
-        Message response = web3j.netListening(Types.RequestNetListening.newBuilder().build())
+        Message response = web3Service.netListening(Types.RequestNetListening.newBuilder().build())
 
         then: 'we receive a valid response'
         response instanceof Types.ResponseNetListening
