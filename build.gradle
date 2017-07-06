@@ -5,6 +5,15 @@ buildscript {
     repositories {
         mavenCentral()
     }
+    dependencies {
+        classpath(
+                'com.google.protobuf:protobuf-gradle-plugin:0.8.1@jar',
+                'com.google.gradle:osdetector-gradle-plugin:1.4.0@jar',
+                'com.google.guava:guava:18.0@jar',
+                'commons-lang:commons-lang:2.6@jar',
+                'kr.motd.maven:os-maven-plugin:1.5.0.Final@jar',
+        )
+    }
 }
 /*
  * Plugins configurations
