@@ -18,6 +18,6 @@ import java.util.Collections;
  */
 public class RequestWeb3ClientVersion extends Request<String, ResponseWeb3ClientVersion> {
     public RequestWeb3ClientVersion(Service jsonRpcService, Types.RequestWeb3ClientVersion msg) {
-        super(jsonRpcService, "burrow.getClientVersion", Collections.emptyList(), DEFAULT_CORRELATION_ID);
+        super(jsonRpcService, "burrow.getClientVersion", Collections.emptyMap());
     }
 }

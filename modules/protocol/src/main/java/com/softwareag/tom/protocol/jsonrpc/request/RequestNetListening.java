@@ -18,6 +18,6 @@ import java.util.Collections;
  */
 public class RequestNetListening extends Request<String, ResponseNetListening> {
     public RequestNetListening(Service jsonRpcService, Types.RequestNetListening msg) {
-        super(jsonRpcService, "burrow.isListening", Collections.emptyList(), DEFAULT_CORRELATION_ID);
+        super(jsonRpcService, "burrow.isListening", Collections.emptyMap());
     }
 }

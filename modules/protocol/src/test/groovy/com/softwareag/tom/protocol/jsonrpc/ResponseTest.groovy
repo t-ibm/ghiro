@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.protocol.jsonrpc
 
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion
 import org.apache.http.HttpEntity
@@ -38,6 +39,7 @@ class ResponseTest extends Specification {
     def "test error"() {
         given: 'a valid JSON-RPC response'
         String input = '{"id":42, "jsonrpc":"2.0", "error":{"code":-32603, "message":"Internal JSON-RPC error"}}'
+        println input
 
         when: 'the response is received'
         ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse);
@@ -56,6 +58,7 @@ class ResponseTest extends Specification {
     def "test web3_clientVersion"() {
         given: 'a valid JSON-RPC response'
         String input = '{"id":42, "jsonrpc":"2.0", "result":{"client_version":"0.8.0"}}'
+        println input
 
         when: 'the response is received'
         ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse);
@@ -65,14 +68,13 @@ class ResponseTest extends Specification {
         closeableHttpResponse.entity >> httpEntity
         httpEntity.content >> new ByteArrayInputStream(input.getBytes())
         response.error == null
-        response.id == 42
-        response.jsonrpc == '2.0'
         response.result.clientVersion == '0.8.0'
     }
 
     def "test net_listening"() {
         given: 'a valid JSON-RPC response'
         String input = '{"id":42, "jsonrpc":"2.0", "result":{"listening":true}}'
+        println input
 
         when: 'the response is received'
         ResponseNetListening response = serviceHttp.getResponseHandler(ResponseNetListening.class).handleResponse(closeableHttpResponse);
@@ -82,8 +84,22 @@ class ResponseTest extends Specification {
         closeableHttpResponse.entity >> httpEntity
         httpEntity.content >> new ByteArrayInputStream(input.getBytes())
         response.error == null
-        response.id == 42
-        response.jsonrpc == '2.0'
         response.result.listening
+    }
+
+    def "test eth_getBalance"() {
+        given: 'a valid JSON-RPC response'
+        String input = '{"id":42, "jsonrpc":"2.0", "result":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB", "balance":200000000, "code":"", "pub_key":null, "sequence":0, "storage_root":""}}'
+        println input
+
+        when: 'the response is received'
+        ResponseEthGetBalance response = serviceHttp.getResponseHandler(ResponseEthGetBalance.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        closeableHttpResponse.statusLine >> new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "Test")
+        closeableHttpResponse.entity >> httpEntity
+        httpEntity.content >> new ByteArrayInputStream(input.getBytes())
+        response.error == null
+        response.result.balance == 200000000
     }
 }

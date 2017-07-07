@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.List;
+import java.util.Map;
 
 /**
  * JSON-RPC base request implementation.
@@ -23,23 +21,27 @@ import java.util.List;
  * @param <T> The expected response type for this request
  */
 public abstract class Request<S, T extends Response> {
-    protected static final long DEFAULT_CORRELATION_ID = 1;
+    private static final long DEFAULT_CORRELATION_ID = 1;
     protected static final String JSONRPC_VERSION = "2.0";
 
-    private static final Logger logger = LoggerFactory.getLogger(Request.class);
+    protected static final Logger logger = LoggerFactory.getLogger(Request.class);
 
     private Service jsonRpcService;
 
     @JsonProperty("jsonrpc") protected String jsonrpc = JSONRPC_VERSION;
     @JsonProperty("method") protected String method;
-    @JsonProperty("params") protected List<S> params;
+    @JsonProperty("params") protected Map<String, S> params;
     @JsonProperty("id") protected String id;
 
-    public Request(Service jsonRpcService, String method, List<S> params, long id) {
+    public Request(Service jsonRpcService, String method, Map<String, S> params, long id) {
         this.jsonRpcService = jsonRpcService;
         this.method = method;
         this.params = params;
         this.id = Long.toString(id);
+    }
+
+    public Request(Service jsonRpcService, String method, Map<String, S> params) {
+        this(jsonRpcService, method, params, DEFAULT_CORRELATION_ID);
     }
 
     private Class<T> getResponseType() {

@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.integration.service
 
+import com.google.protobuf.ByteString
 import com.google.protobuf.Message
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.extension.Node
@@ -30,7 +31,10 @@ class BurrowTest extends Specification {
 
     public "test 'web3ClientVersion' service"() {
         when: 'we make a get request'
-        Message response = web3Service.web3ClientVersion(Types.RequestWeb3ClientVersion.newBuilder().build())
+        Types.RequestWeb3ClientVersion request = Types.RequestWeb3ClientVersion.newBuilder().build()
+        Message response = web3Service.web3ClientVersion(request)
+        println ">>> $request.descriptorForType.fullName....$request"
+        println "<<< $response.descriptorForType.fullName...$response"
 
         then: 'we receive a valid response'
         response instanceof Types.ResponseWeb3ClientVersion
@@ -39,10 +43,24 @@ class BurrowTest extends Specification {
 
     public "test 'netListening' service"() {
         when: 'we make a get request'
-        Message response = web3Service.netListening(Types.RequestNetListening.newBuilder().build())
+        Types.RequestNetListening request = Types.RequestNetListening.newBuilder().build()
+        Message response = web3Service.netListening(request)
+        println ">>> $request.descriptorForType.fullName....$request"
+        println "<<< $response.descriptorForType.fullName...$response"
 
         then: 'we receive a valid response'
         response instanceof Types.ResponseNetListening
         ((Types.ResponseNetListening) response).getListening()
+    }
+
+    public "test 'ethGetBalance' service"() {
+        when: 'we make a get request'
+        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()
+        Message response = web3Service.ethGetBalance(request)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+
+        then: 'we receive a valid response'
+        response instanceof Types.ResponseEthGetBalance
+        ((Types.ResponseEthGetBalance) response).getBalance() == 200000000
     }
 }
