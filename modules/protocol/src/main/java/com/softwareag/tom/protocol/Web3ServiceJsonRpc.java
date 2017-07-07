@@ -10,6 +10,7 @@ import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
 
@@ -31,6 +32,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Message netListening(Types.RequestNetListening req) {
         Request jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Message ethGetBalance(Types.RequestEthGetBalance req) {
+        Request jsonRpcRequest = new RequestEthGetBalance(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 }

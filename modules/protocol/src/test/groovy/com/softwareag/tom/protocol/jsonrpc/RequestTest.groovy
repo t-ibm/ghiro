@@ -6,11 +6,11 @@
  */
 package com.softwareag.tom.protocol.jsonrpc
 
+import com.google.protobuf.ByteString
 import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion
 import org.apache.http.client.ResponseHandler
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.CloseableHttpClient
@@ -23,47 +23,86 @@ import spock.lang.Specification
  */
 class RequestTest extends Specification {
 
-    CloseableHttpClient closeableHttpClient
+    @Shared CloseableHttpClient closeableHttpClient
     @Shared ServiceHttp serviceHttp
+    @Shared Response response
 
     def setup() {
         closeableHttpClient = Mock(CloseableHttpClient)
         serviceHttp = new ServiceHttp('', closeableHttpClient)
+        response = Mock(Response)
+    }
+
+    def "test request base"() {
+        given: 'a valid request type'
+        Request defaultRequest = new RequestWeb3ClientVersion(serviceHttp, null)
+        Request request = new RequestWeb3ClientVersion(serviceHttp, null)
+
+        when: 'the base fields are accessible and set to their default values'
+        request.jsonrpc = Request.JSONRPC_VERSION
+        request.method = 'burrow.getClientVersion'
+        request.params = [:]
+        request.id = 1
+
+        then: 'the two instances are identical'
+        request.jsonrpc == defaultRequest.jsonrpc
+        request.method == defaultRequest.method
+        request.params == defaultRequest.params
+        request.id == defaultRequest.id
+        request == defaultRequest
     }
 
     def "test web3_clientVersion"() {
         given: 'a valid request type'
-        Request request = new RequestWeb3ClientVersion<String, ResponseWeb3ClientVersion>(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
-        String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":[],"id":"1"}'
-
-        and: 'the base fields are accessible with their default values'
-        request.jsonrpc = Request.JSONRPC_VERSION
-        request.method = null
-        request.params = null
-        request.id = null
+        Request request = new RequestWeb3ClientVersion(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":{},"id":"1"}'
+        String actual = null
 
         when: 'the request is send'
         request.send()
 
         then: 'a valid JSON-RPC request is created'
         closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
-            httpPost.entity.content.text == expected
-            new ResponseWeb3ClientVersion()
+            actual = httpPost.entity.content.text
+            response
         }
+        println actual
+        actual == expected
     }
 
     def "test net_listening"() {
         given: 'a valid request type'
-        Request request = new RequestNetListening<String, ResponseNetListening>(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
-        String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":[],"id":"1"}'
+        Request request = new RequestNetListening(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":{},"id":"1"}'
+        String actual = null
 
         when: 'the request is send'
         request.send()
 
         then: 'a valid JSON-RPC request is created'
         closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
-            httpPost.entity.content.text == expected
-            new ResponseNetListening()
+            actual = httpPost.entity.content.text
+            response
         }
+        println actual
+        actual == expected
+    }
+
+    def "test eth_getBalance"() {
+        given: 'a valid request type'
+        Request request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
+        String actual = null
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'a valid JSON-RPC request is created'
+        closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
+            actual = httpPost.entity.content.text
+            response
+        }
+        println actual
+        actual == expected
     }
 }

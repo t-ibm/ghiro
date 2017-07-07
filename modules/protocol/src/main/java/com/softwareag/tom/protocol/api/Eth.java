@@ -10,13 +10,13 @@ import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 
 /**
- * The Ethereum JSON-RPC API. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC">JSON-RPC Wiki</a> for more info.
+ * The eth portion of the Ethereum JSON-RPC API. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC">JSON-RPC Wiki</a> for more info.
  */
-public interface Web3 extends Net, Eth {
+interface Eth {
     /**
-     * Method {@code web3_clientversion}.
-     * @param req An empty request
-     * @return the current client version
+     * Method {@code eth_getBalance}.
+     * @param req A request object containing the address to check for balance and the default block parameter
+     * @return the integer of the current balance in wei
      */
-    Message web3ClientVersion(Types.RequestWeb3ClientVersion req);
+    Message ethGetBalance(Types.RequestEthGetBalance req);
 }

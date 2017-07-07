@@ -20,11 +20,14 @@ import spock.lang.Specification
 class BurrowTest extends Specification {
 
     @Shared @Node protected ConfigObject config
+    @Shared protected RESTClient client
 
-    public "test 'client version' via http"() {
+    def setup() {
         given: 'a REST client'
-        RESTClient client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
+        client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
+    }
 
+    public "test 'getClientVersion' via http"() {
         when: 'we make a get request'
         HttpResponseDecorator resp = client.get(path: '/network/client_version', contentType: ContentType.JSON.toString()) as HttpResponseDecorator
 
@@ -36,11 +39,8 @@ class BurrowTest extends Specification {
         resp.data == ['client_version': '0.8.0']
     }
 
-    public "test 'client version' via rpc"() {
-        given: 'a REST client'
-        RESTClient client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
-
-        and: 'a valid JSON-RPC request'
+    public "test 'getClientVersion' via rpc"() {
+        given: 'a valid JSON-RPC request'
         def requestParams = ['jsonrpc': '2.0', 'id': '1', 'method': 'burrow.getClientVersion']
 
         when: 'we post the request'
@@ -52,5 +52,25 @@ class BurrowTest extends Specification {
         resp.contentType == ContentType.TEXT.toString()
         println "response payload - $resp.data"
         resp.data.result.client_version == '0.8.0'
+    }
+
+    public "test 'getAccount' via rpc"() {
+        given: 'a valid JSON-RPC request'
+        def requestParams = ['jsonrpc': '2.0', 'id': '1', 'method': 'burrow.getAccount', 'params': ['address':'E9B5D87313356465FAE33C406CE2C2979DE60BCB']]
+
+        when: 'we post the request'
+        HttpResponseDecorator resp = client.post(path: '/rpc', contentType: ContentType.JSON.toString(), body: requestParams) as HttpResponseDecorator
+
+        then: 'we receive a valid response'
+        resp.success
+        resp.status == 200
+        resp.contentType == ContentType.TEXT.toString()
+        println "response payload - $resp.data"
+        resp.data.result.address == 'E9B5D87313356465FAE33C406CE2C2979DE60BCB'
+        resp.data.result.balance == 200000000
+        resp.data.result.code == ''
+        resp.data.result.pub_key == null
+        resp.data.result.sequence == 0
+        resp.data.result.storage_root == ''
     }
 }
