@@ -44,6 +44,9 @@ class NodeInterceptor extends AbstractMethodInterceptor {
 
     @Override void interceptSpecExecution(IMethodInvocation invocation) {
         def configField = invocation.spec.fields.find { it.type == ConfigObject }
+        if (!configField && invocation.spec.superSpec != null) {
+            configField = invocation.spec.superSpec.fields.find { it.type == ConfigObject }
+        }
         if (!configField) {
             logger.error("Fields annotated with $Node must be of type $ConfigObject")
         } else {
