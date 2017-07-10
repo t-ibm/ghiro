@@ -6,33 +6,27 @@
  */
 package com.softwareag.tom.integration.protocol
 
-import com.softwareag.tom.extension.Node
-import groovyx.net.http.ContentType
-import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
-import spock.lang.Shared
-import spock.lang.Specification
 
 /**
  * System under specification: Tendermint endpoints.
  * @author tglaeser
  */
-class TendermintTest extends Specification {
+class TendermintTest extends RestClientSpecification {
 
-    @Shared @Node protected ConfigObject config
-
-    public "test 'status'"() {
+    def setup() {
         given: 'a REST client'
-        RESTClient client = new RESTClient("http://${config.node.host.ip}:${config.node.host.tendermint.port}")
+        client = new RESTClient("http://${config.node.host.ip}:${config.node.host.tendermint.port}")
+    }
 
-        when: 'we make a get request'
-        HttpResponseDecorator resp = client.get(path: '/status', contentType: ContentType.JSON.toString()) as HttpResponseDecorator
+    def "test 'status'"() {
+        given: 'a valid HTTP request'
+        def request = '/status'
 
-        then: 'we receive a valid response'
-        resp.success
-        resp.status == 200
-        resp.contentType == ContentType.JSON.toString()
-        println "response payload - $resp.data"
+        when: 'the request is send'
+        resp = send request
+
+        then: 'a valid response is received'
         resp.data.error == ''
         def result = resp.data.result.pop()
         resp.data.result == [7]
