@@ -27,6 +27,7 @@ abstract class RestClientSpecification extends Specification {
 
     protected HttpResponseDecorator send(String httpRequest) {
         try {
+            println ">>> $httpRequest"
             resp = client.get(path: httpRequest, contentType: ContentType.JSON.toString()) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
@@ -37,6 +38,7 @@ abstract class RestClientSpecification extends Specification {
 
     protected HttpResponseDecorator send(Map jsonRequest) {
         try {
+            println ">>> $jsonRequest"
             resp = client.post(path: '/rpc', contentType: ContentType.JSON.toString(), body: jsonRequest) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
@@ -49,6 +51,6 @@ abstract class RestClientSpecification extends Specification {
         assert resp.success
         assert resp.status == 200
         assert (resp.contentType == ContentType.JSON.toString() || resp.contentType == ContentType.TEXT.toString())
-        println "response payload - $resp.data"
+        println "<<< $resp.data\n"
     }
 }
