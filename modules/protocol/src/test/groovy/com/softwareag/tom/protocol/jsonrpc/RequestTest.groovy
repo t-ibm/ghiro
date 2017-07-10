@@ -21,17 +21,7 @@ import spock.lang.Specification
  * System under specification: {@link Request}.
  * @author tglaeser
  */
-class RequestTest extends Specification {
-
-    @Shared CloseableHttpClient closeableHttpClient
-    @Shared ServiceHttp serviceHttp
-    @Shared Response response
-
-    def setup() {
-        closeableHttpClient = Mock(CloseableHttpClient)
-        serviceHttp = new ServiceHttp('', closeableHttpClient)
-        response = Mock(Response)
-    }
+class RequestTest extends RequestSpecification {
 
     def "test request base"() {
         given: 'a valid request type'
@@ -56,52 +46,59 @@ class RequestTest extends Specification {
         given: 'a valid request type'
         Request request = new RequestWeb3ClientVersion(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":{},"id":"1"}'
-        String actual = null
 
         when: 'the request is send'
         request.send()
 
-        then: 'a valid JSON-RPC request is created'
-        closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
-            actual = httpPost.entity.content.text
-            response
-        }
-        println actual
-        actual == expected
+        then: 'the expected JSON-RPC request is created'
+        compare expected
     }
 
     def "test net_listening"() {
         given: 'a valid request type'
         Request request = new RequestNetListening(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":{},"id":"1"}'
-        String actual = null
 
         when: 'the request is send'
         request.send()
 
-        then: 'a valid JSON-RPC request is created'
-        closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
-            actual = httpPost.entity.content.text
-            response
-        }
-        println actual
-        actual == expected
+        then: 'the expected JSON-RPC request is created'
+        compare expected
     }
 
     def "test eth_getBalance"() {
         given: 'a valid request type'
         Request request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
-        String actual = null
 
         when: 'the request is send'
         request.send()
 
-        then: 'a valid JSON-RPC request is created'
+        then: 'the expected JSON-RPC request is created'
+        compare expected
+    }
+}
+
+abstract class RequestSpecification extends Specification {
+    @Shared CloseableHttpClient closeableHttpClient
+    @Shared ServiceHttp serviceHttp
+    @Shared Response response
+    String actual
+
+    def setupSpec() {
+        response = Mock(Response)
+    }
+
+    def setup() {
+        closeableHttpClient = Mock(CloseableHttpClient)
+        serviceHttp = new ServiceHttp('', closeableHttpClient)
         closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
             actual = httpPost.entity.content.text
             response
         }
+    }
+
+    protected boolean compare(String expected) {
         println actual
         actual == expected
     }
