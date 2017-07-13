@@ -55,7 +55,7 @@ class BurrowTest extends Specification {
 
     public "test 'ethGetBalance' service"() {
         when: 'we make a get request'
-        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()
+        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("F60D30722E7B497FA532FB3207C3FB29C31B1992")).build()
         Message response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
