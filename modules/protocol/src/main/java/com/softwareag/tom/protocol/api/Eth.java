@@ -15,8 +15,15 @@ import com.softwareag.tom.protocol.abi.Types;
 interface Eth {
     /**
      * Method {@code eth_getBalance}.
-     * @param req A request object containing the address to check for balance and the default block parameter
+     * @param req A request object containing the address to check for balance as well as a parameter of type {@link Types.DefaultBlockType}
      * @return the integer of the current balance in wei
      */
     Message ethGetBalance(Types.RequestEthGetBalance req);
+
+    /**
+     * Method {@code eth_sendTransaction}.
+     * @param req A request object containing the transaction object of type {@link Types.TxType}
+     * @return the transaction hash, or the zero hash if the transaction is not yet available
+     */
+    Message ethSendTransaction(Types.RequestEthSendTransaction req);
 }

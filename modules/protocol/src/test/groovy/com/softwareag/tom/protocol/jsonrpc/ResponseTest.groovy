@@ -7,6 +7,7 @@
 package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion
 import org.apache.http.HttpEntity
@@ -73,6 +74,18 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.balance == 200000000
+    }
+
+    def "test eth_sendTransaction"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{"call_data":{"callee":"3F2F648518AE519964315B9B54ECD8FE23E6075F", "caller":"37236DF251AB70022B1DA351F08A20FB52443E37", "data":"606060", "gas":208, "value":0}, "exception":"", "origin":"37236DF251AB70022B1DA351F08A20FB52443E37", "return":"606060", "tx_id":"619DB1BBEC212208EF9949D5F341722B0312219C"}}'
+
+        when: 'the response is received'
+        ResponseEthSendTransaction response = serviceHttp.getResponseHandler(ResponseEthSendTransaction.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.txId == '619DB1BBEC212208EF9949D5F341722B0312219C'
     }
 }
 
