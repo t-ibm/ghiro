@@ -141,6 +141,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.exception == ''
         resp.data.result.origin == caller.address
         resp.data.result.call_data.caller == caller.address
+        resp.data.result.tx_id != null
 
         when: println '(2) the newly created contract account is verified'
         request = ['id': '2', 'jsonrpc': '2.0', 'method': 'burrow.getAccount', 'params': ['address':callee]]

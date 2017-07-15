@@ -6,32 +6,39 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance;
 
-import java.util.Collections;
-
 /**
  * {@code eth_getBalance}.
  */
-public class RequestEthGetBalance extends Request<String, ResponseEthGetBalance> {
+public class RequestEthGetBalance extends Request<RequestEthGetBalance.Params, ResponseEthGetBalance> {
     public RequestEthGetBalance(Service jsonRpcService, Types.RequestEthGetBalance msg) {
-        super(jsonRpcService, "burrow.getAccount", Collections.singletonMap("address", validate(msg.getAddress())));
+        super(jsonRpcService, "burrow.getAccount", new Params(msg.getAddress()));
     }
 
-    private static String validate(ByteString immutableByteArray) {
-        if (immutableByteArray == null) {
-            logger.warn("Address cannot be null.");
-        } else if (immutableByteArray.size() != 20 * 2) {
-            logger.warn("Address size is {0} bytes while it should be 20.", immutableByteArray.size()/2);
-        } else if (!immutableByteArray.isValidUtf8()) {
-            logger.warn("Address is not a valid UTF-8 encoded string.");
-        } else {
-            return immutableByteArray.toStringUtf8();
+    static class Params {
+        @JsonProperty("address") public String address;
+
+        Params(ByteString address) {
+            this.address = validate(address);
         }
-        return null;
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Params params = (Params) o;
+
+            return address != null ? address.equals(params.address) : params.address == null;
+        }
+
+        @Override public int hashCode() {
+            return address != null ? address.hashCode() : 0;
+        }
     }
 }

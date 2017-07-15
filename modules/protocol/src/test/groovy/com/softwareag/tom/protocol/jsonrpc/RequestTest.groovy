@@ -9,6 +9,7 @@ package com.softwareag.tom.protocol.jsonrpc
 import com.google.protobuf.ByteString
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion
 import org.apache.http.client.ResponseHandler
@@ -44,38 +45,62 @@ class RequestTest extends RequestSpecification {
 
     def "test web3_clientVersion"() {
         given: 'a valid request type'
-        Request request = new RequestWeb3ClientVersion(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
+        RequestWeb3ClientVersion request = new RequestWeb3ClientVersion(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":{},"id":"1"}'
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        compare expected
+        actual == expected
     }
 
     def "test net_listening"() {
         given: 'a valid request type'
-        Request request = new RequestNetListening(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
+        RequestNetListening request = new RequestNetListening(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":{},"id":"1"}'
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        compare expected
+        actual == expected
     }
 
     def "test eth_getBalance"() {
-        given: 'a valid request type'
-        Request request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
+        when: 'a valid request type is created'
+        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.address == 'E9B5D87313356465FAE33C406CE2C2979DE60BCB'
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        compare expected
+        actual == expected
+    }
+
+    def "test eth_sendTransaction"() {
+        when: 'a valid request type is created'
+        RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
+                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8("606060")).setGas(12).setGasPrice(223).build()
+        ).build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906","address":"","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.privKey == '6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
+        request.params.address == ''
+        request.params.data == '606060'
+        request.params.fee == 12
+        request.params.gasLimit == 223
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
     }
 }
 
@@ -94,12 +119,8 @@ abstract class RequestSpecification extends Specification {
         serviceHttp = new ServiceHttp('', closeableHttpClient)
         closeableHttpClient.execute(_ as HttpPost, _ as ResponseHandler) >> { HttpPost httpPost, ResponseHandler responseHandler ->
             actual = httpPost.entity.content.text
+            println actual
             response
         }
-    }
-
-    protected boolean compare(String expected) {
-        println actual
-        actual == expected
     }
 }

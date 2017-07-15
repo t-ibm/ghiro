@@ -7,13 +7,13 @@
 package com.softwareag.tom.protocol.jsonrpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.Map;
 
 /**
  * JSON-RPC base request implementation.
@@ -30,17 +30,17 @@ public abstract class Request<S, T extends Response> {
 
     @JsonProperty("jsonrpc") protected String jsonrpc = JSONRPC_VERSION;
     @JsonProperty("method") protected String method;
-    @JsonProperty("params") protected Map<String, S> params;
+    @JsonProperty("params") protected S params;
     @JsonProperty("id") protected String id;
 
-    public Request(Service jsonRpcService, String method, Map<String, S> params, long id) {
+    public Request(Service jsonRpcService, String method, S params, long id) {
         this.jsonRpcService = jsonRpcService;
         this.method = method;
         this.params = params;
         this.id = Long.toString(id);
     }
 
-    public Request(Service jsonRpcService, String method, Map<String, S> params) {
+    public Request(Service jsonRpcService, String method, S params) {
         this(jsonRpcService, method, params, DEFAULT_CORRELATION_ID);
     }
 
@@ -52,6 +52,19 @@ public abstract class Request<S, T extends Response> {
             logger.warn("Unable to instantiate response type, got exception: " + e);
         }
         return classOfT;
+    }
+
+    protected static String validate(ByteString immutableByteArray) {
+        if (immutableByteArray == null || immutableByteArray.size() == 0) {
+            return "";
+        } else if (immutableByteArray.size() != 20 * 2) {
+            logger.warn("Address size is {} bytes while it should be 20.", immutableByteArray.size()/2);
+        } else if (!immutableByteArray.isValidUtf8()) {
+            logger.warn("Address is not a valid UTF-8 encoded string.");
+        } else {
+            return immutableByteArray.toStringUtf8();
+        }
+        return "";
     }
 
     public T send() {
