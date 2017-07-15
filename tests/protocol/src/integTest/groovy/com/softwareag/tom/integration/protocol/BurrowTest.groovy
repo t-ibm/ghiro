@@ -123,10 +123,15 @@ class BurrowTest extends RestClientSpecification {
                 pub_key:'CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906',
                 priv_key:'6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
         ]
+        def callee = [
+                address:'B5DE40C5CDC69A6346BB35BEA008D7CC906438F6',
+                pub_key:'CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906',
+                priv_key:'6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
+        ]
         def params = [
                 'priv_key':caller.priv_key,
                 'data':contract,
-                'address':'',
+                'address':callee.address,
                 'fee':12,
                 'gas_limit':223,
         ]
@@ -134,39 +139,38 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(1) the transaction is fully processed'
         resp = send request
-        def callee = resp.data.result.call_data.callee
-        def ret = resp.data.result.return
 
         then: 'a valid response is received'
         resp.data.result.exception == ''
+        resp.data.result.return == ''
         resp.data.result.origin == caller.address
         resp.data.result.call_data.caller == caller.address
+        resp.data.result.call_data.callee == callee.address
         resp.data.result.tx_id != null
 
         when: println '(2) the newly created contract account is verified'
-        request = ['id': '2', 'jsonrpc': '2.0', 'method': 'burrow.getAccount', 'params': ['address':callee]]
+        request = ['id': '2', 'jsonrpc': '2.0', 'method': 'burrow.getAccount', 'params': ['address':callee.address]]
         resp = send request
-        def storageRoot = resp.data.result.storage_root
 
         then: 'a valid response is received'
-        resp.data.result.address == callee
+        resp.data.result.address == callee.address
+        resp.data.result.code != null
         resp.data.result.balance == 0
-        resp.data.result.code == ret
         resp.data.result.sequence == 0
+        resp.data.result.storage_root == ''
         resp.data.result.permissions.base.perms == 2302
         resp.data.result.permissions.base.set == 16383
 
         when: println '(3) the complete storage of the contract account is retrieved'
-        request = ['id': '3', 'jsonrpc': '2.0', 'method': 'burrow.getStorage', 'params': ['address':callee]]
+        request = ['id': '3', 'jsonrpc': '2.0', 'method': 'burrow.getStorage', 'params': ['address':callee.address]]
         resp = send request
 
         then: 'a valid response is received'
-        resp.data.result.storage_root == storageRoot
+        resp.data.result.storage_root == ''
         resp.data.result.storage_items == []
 
         when: println '(4) we subscribe to events from the the new contract account'
-        String eventId = "Log/$callee"
-        request = ['id': '4', 'jsonrpc': '2.0', 'method': 'burrow.eventSubscribe', 'params': ['event_id':eventId]]
+        request = ['id': '4', 'jsonrpc': '2.0', 'method': 'burrow.eventSubscribe', 'params': ['event_id':'Log/'+callee.address]]
         resp = send request
         def subId = resp.data.result.sub_id
 
@@ -179,7 +183,7 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(6) the contract is executed 3 times'
         3.times {
-            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee, 'data':'']]
+            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':'']]
             resp = send request
         }
 

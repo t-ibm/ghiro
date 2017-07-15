@@ -68,7 +68,7 @@ class BurrowTest extends Specification {
         when: 'we make a get request'
         String contract = '6060604052608f8060106000396000f360606040523615600d57600d565b608d5b7f68616861000000000000000000000000000000000000000000000000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f88c4f556fdc50387ec6b6fc4e8250fecc56ff50e873df06dadeeb84c0287ca9060016040518082815260200191505060405180910390a35b565b00'
         Types.RequestEthSendTransaction request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setGas(12).setGasPrice(223).build()
+                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setTo(ByteString.copyFromUtf8('B5DE40C5CDC69A6346BB35BEA008D7CC906438F6')).setGas(12).setGasPrice(223).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
