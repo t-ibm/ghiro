@@ -17,10 +17,10 @@ import java.lang.reflect.ParameterizedType;
 
 /**
  * JSON-RPC base request implementation.
- * @param <S> The parameter type
- * @param <T> The expected response type for this request
+ * @param <P> The parameter type
+ * @param <R> The expected response type for this request
  */
-public abstract class Request<S, T extends Response> {
+public abstract class Request<P, R extends Response> {
     private static final long DEFAULT_CORRELATION_ID = 1;
     protected static final String JSONRPC_VERSION = "2.0";
 
@@ -30,22 +30,22 @@ public abstract class Request<S, T extends Response> {
 
     @JsonProperty("jsonrpc") protected String jsonrpc = JSONRPC_VERSION;
     @JsonProperty("method") protected String method;
-    @JsonProperty("params") protected S params;
+    @JsonProperty("params") protected P params;
     @JsonProperty("id") protected String id;
 
-    public Request(Service jsonRpcService, String method, S params, long id) {
+    public Request(Service jsonRpcService, String method, P params, long id) {
         this.jsonRpcService = jsonRpcService;
         this.method = method;
         this.params = params;
         this.id = Long.toString(id);
     }
 
-    public Request(Service jsonRpcService, String method, S params) {
+    public Request(Service jsonRpcService, String method, P params) {
         this(jsonRpcService, method, params, DEFAULT_CORRELATION_ID);
     }
 
-    private Class<T> getResponseType() {
-        @SuppressWarnings("unchecked") Class<T> classOfT = (Class<T>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
+    private Class<R> getResponseType() {
+        @SuppressWarnings("unchecked") Class<R> classOfT = (Class<R>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
         try {
             classOfT.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -67,7 +67,7 @@ public abstract class Request<S, T extends Response> {
         return "";
     }
 
-    public T send() {
+    public R send() {
         try {
             return jsonRpcService.send(this, getResponseType());
         } catch (IOException e) {
