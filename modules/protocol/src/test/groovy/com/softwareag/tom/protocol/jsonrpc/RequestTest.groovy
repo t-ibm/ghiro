@@ -85,13 +85,13 @@ class RequestTest extends RequestSpecification {
     def "test eth_sendTransaction"() {
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8("606060")).setGas(12).setGasPrice(223).build()
+                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8('B5DE40C5CDC69A6346BB35BEA008D7CC906438F6')).setData(ByteString.copyFromUtf8('606060')).setGas(12).setGasPrice(223).build()
         ).build()) {};
-        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906","address":"","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
+        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906","address":"B5DE40C5CDC69A6346BB35BEA008D7CC906438F6","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
 
         then: 'the expected request object is created'
         request.params.privKey == '6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
-        request.params.address == ''
+        request.params.address == 'B5DE40C5CDC69A6346BB35BEA008D7CC906438F6'
         request.params.data == '606060'
         request.params.fee == 12
         request.params.gasLimit == 223
