@@ -18,8 +18,8 @@ enum CodeType {
  * Block Types.
  */
 message DefaultBlockType {
-	oneof value {
-		uint64 block_number = 1;
+    oneof value {
+        uint64 block_number = 1;
         BlockType block = 2;
     }
 }
@@ -32,9 +32,9 @@ enum BlockType {
  * Transaction Types.
  */
 message TxType {
-	bytes from = 1;
-	bytes to = 2;
-	bytes data = 3;
+    bytes from = 1;
+    bytes to = 2;
+    bytes data = 3;
     int64 gas = 4;
     int64 gasPrice = 5;
     int64 value = 6;
@@ -44,59 +44,69 @@ message TxType {
  * Request Types.
  */
 message Request {
-	oneof value {
-		RequestWeb3ClientVersion web3ClientVersion = 1;
-		RequestNetListening netListening = 2;
-		RequestEthGetBalance ethGetBalance = 3;
-		RequestEthSendTransaction ethSendTransaction = 4;
-	}
+    oneof value {
+        RequestWeb3ClientVersion web3ClientVersion = 1;
+        RequestNetListening netListening = 2;
+        RequestEthGetBalance ethGetBalance = 3;
+        RequestEthSendTransaction ethSendTransaction = 4;
+        RequestEthCall ethCall = 5;
+    }
 }
 message RequestWeb3ClientVersion {
 }
 message RequestNetListening {
 }
 message RequestEthGetBalance {
-	bytes address = 1;
-	DefaultBlockType default_block_type = 2;
+    bytes address = 1;
+    DefaultBlockType default_block_type = 2;
 }
 message RequestEthSendTransaction {
-	TxType tx = 1;
+    TxType tx = 1;
+}
+message RequestEthCall {
+    TxType tx = 1;
+    DefaultBlockType default_block_type = 2;
 }
 /*
  * Response Types.
  */
 message Response {
-	oneof value {
-		ResponseException exception = 1;
-		ResponseWeb3ClientVersion web3ClientVersion = 2;
-		ResponseNetListening netListening = 3;
-		ResponseEthGetBalance ethGetBalance = 4;
-		ResponseEthSendTransaction ethSendTransaction = 5;
-	}
+    oneof value {
+        ResponseException exception = 1;
+        ResponseWeb3ClientVersion web3ClientVersion = 2;
+        ResponseNetListening netListening = 3;
+        ResponseEthGetBalance ethGetBalance = 4;
+        ResponseEthSendTransaction ethSendTransaction = 5;
+        ResponseEthCall ethCall = 6;
+    }
 }
 message ResponseException {
-	CodeType code = 1;
-	string message = 2;
-	bytes data = 3;
+    CodeType code = 1;
+    string message = 2;
+    bytes data = 3;
 }
 message ResponseWeb3ClientVersion {
-	string client_version = 1;
+    string client_version = 1;
 }
 message ResponseNetListening {
-	bool listening = 1;
+    bool listening = 1;
 }
 message ResponseEthGetBalance {
     uint64 balance = 1;
 }
 message ResponseEthSendTransaction {
-	bytes hash = 1;
+    bytes hash = 1;
+}
+message ResponseEthCall {
+    bytes return = 1;
 }
 /*
  * Service Definition.
  */
 service AbiService {
-	rpc Web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
-	rpc NetListening(RequestNetListening) returns (ResponseNetListening);
-	rpc EthGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
-	rpc EthSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
+    rpc Web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
+    rpc NetListening(RequestNetListening) returns (ResponseNetListening);
+    rpc EthGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
+    rpc EthSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
+    rpc EthCall(RequestEthCall) returns (ResponseEthCall);
 }

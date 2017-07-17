@@ -10,6 +10,7 @@ import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
@@ -43,6 +44,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Message ethSendTransaction(Types.RequestEthSendTransaction req) {
         Request jsonRpcRequest = new RequestEthSendTransaction(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Message ethCall(Types.RequestEthCall req) {
+        Request jsonRpcRequest = new RequestEthCall(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 }

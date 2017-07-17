@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.protocol.jsonrpc
 
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
@@ -86,6 +87,18 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.txId == '619DB1BBEC212208EF9949D5F341722B0312219C'
+    }
+
+    def "test eth_call"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{"gas_used":49, "return":""}}'
+
+        when: 'the response is received'
+        ResponseEthCall response = serviceHttp.getResponseHandler(ResponseEthCall.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.ret == ''
     }
 }
 

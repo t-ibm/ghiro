@@ -26,4 +26,11 @@ interface Eth {
      * @return the transaction hash, or the zero hash if the transaction is not yet available
      */
     Message ethSendTransaction(Types.RequestEthSendTransaction req);
+
+    /**
+     * Method {@code eth_call}.
+     * @param req A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.DefaultBlockType}
+     * @return the return value of executed contract
+     */
+    Message ethCall(Types.RequestEthCall req);
 }
