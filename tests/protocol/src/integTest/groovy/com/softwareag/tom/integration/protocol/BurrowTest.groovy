@@ -97,6 +97,19 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.txs == []
     }
 
+    def "test 'genPrivAccount' via rpc"() {
+        given: 'a valid JSON-RPC request'
+        def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.genPrivAccount']
+
+        when: 'the request is send'
+        resp = send request
+
+        then: 'a valid response is received'
+        resp.data.result.address.length() == 20*2
+        resp.data.result.pub_key.get(1).length() == 32*2
+        resp.data.result.priv_key.get(1).length() == 64*2
+    }
+
     def "test 'getAccount' via rpc"() {
         given: 'a valid JSON-RPC request'
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.getAccount', 'params': ['address':'F60D30722E7B497FA532FB3207C3FB29C31B1992']]
@@ -119,19 +132,18 @@ class BurrowTest extends RestClientSpecification {
         given: 'a valid Solidity contract'
         String contract = '6060604052608f8060106000396000f360606040523615600d57600d565b608d5b7f68616861000000000000000000000000000000000000000000000000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f88c4f556fdc50387ec6b6fc4e8250fecc56ff50e873df06dadeeb84c0287ca9060016040518082815260200191505060405180910390a35b565b00'
         def caller = [
-                address:'37236DF251AB70022B1DA351F08A20FB52443E37',
-                pub_key:'CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906',
-                priv_key:'6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
+                address:'71044204395934D638C3BDA59E89C8219330A574',
+                pub_key:'CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20',
+                priv_key:'4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
         ]
         def callee = [
-                address:'B5DE40C5CDC69A6346BB35BEA008D7CC906438F6',
-                pub_key:'CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906',
-                priv_key:'6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
+                address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
+                priv_key:'4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
         ]
         def params = [
                 'priv_key':caller.priv_key,
                 'data':contract,
-                'address':callee.address,
+                'address':'',
                 'fee':12,
                 'gas_limit':223,
         ]
@@ -140,9 +152,12 @@ class BurrowTest extends RestClientSpecification {
         when: println '(1) the transaction is fully processed'
         resp = send request
 
+        and: 'the callee address is remembered'
+        callee.address = resp.data.result.call_data.callee
+
         then: 'a valid response is received'
         resp.data.result.exception == ''
-        resp.data.result.return == ''
+        resp.data.result.return  != null
         resp.data.result.origin == caller.address
         resp.data.result.call_data.caller == caller.address
         resp.data.result.call_data.callee == callee.address
