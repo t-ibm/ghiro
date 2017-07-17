@@ -204,6 +204,7 @@ class BurrowTest extends RestClientSpecification {
 
         then: 'a valid response is received'
         resp.data.result.gas_used == 49
+        resp.data.result.return == ''
 
         when: println '(7) we poll for events again'
         request = ['id': '7', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]

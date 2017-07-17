@@ -77,4 +77,20 @@ class BurrowTest extends Specification {
         response instanceof Types.ResponseEthSendTransaction
         ((Types.ResponseEthSendTransaction) response).getHash() != null
     }
+
+    public "test 'ethCall' service"() {
+        when: 'we make a get request'
+        Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
+                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8("33F71BB66F8994DD099C0E360007D4DEAE11BFFE")).build()
+        ).build()
+        Message response
+        2.times {
+            response = web3Service.ethCall(request)
+            println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        }
+
+        then: 'we receive a valid response'
+        response instanceof Types.ResponseEthCall
+        ((Types.ResponseEthCall) response).getReturn() != null
+    }
 }

@@ -8,6 +8,7 @@ package com.softwareag.tom.protocol.jsonrpc
 
 import com.google.protobuf.ByteString
 import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
@@ -85,16 +86,34 @@ class RequestTest extends RequestSpecification {
     def "test eth_sendTransaction"() {
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8('B5DE40C5CDC69A6346BB35BEA008D7CC906438F6')).setData(ByteString.copyFromUtf8('606060')).setGas(12).setGasPrice(223).build()
+                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(ByteString.copyFromUtf8('606060')).setGas(12).setGasPrice(223).build()
         ).build()) {};
-        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906","address":"B5DE40C5CDC69A6346BB35BEA008D7CC906438F6","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
+        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20","address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.privKey == '6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906'
-        request.params.address == 'B5DE40C5CDC69A6346BB35BEA008D7CC906438F6'
+        request.params.privKey == '4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
+        request.params.address == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         request.params.data == '606060'
         request.params.fee == 12
         request.params.gasLimit == 223
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
+    }
+
+    def "test eth_call"() {
+        when: 'a valid request type is created'
+        RequestEthCall request = new RequestEthCall(serviceHttp, Types.RequestEthCall.newBuilder().setTx(
+                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(ByteString.copyFromUtf8('606060')).build()
+        ).build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.call","params":{"address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.address == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        request.params.data == '606060'
 
         when: 'the request is send'
         request.send()
