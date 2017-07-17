@@ -55,8 +55,8 @@ public abstract class Request<P, R extends Response> {
     }
 
     protected static String validate(ByteString immutableByteArray) {
-        if (immutableByteArray == null) {
-            logger.warn("Address cannot be null.");
+        if (immutableByteArray == null || immutableByteArray.size() == 0) {
+            return "";
         } else if (immutableByteArray.size() != 20 * 2) {
             logger.warn("Address size is {} bytes while it should be 20.", immutableByteArray.size()/2);
         } else if (!immutableByteArray.isValidUtf8()) {

@@ -28,7 +28,7 @@ public class RequestEthSendTransaction extends Request<RequestEthSendTransaction
         @JsonProperty("gas_limit") public long gasLimit;
 
         Params(Types.TxType tx) {
-            this.privKey = "6B72D45EB65F619F11CE580C8CAED9E0BADC774E9C9C334687A65DCBAD2C4151CB3688B7561D488A2A4834E1AEE9398BEF94844D8BDBBCA980C11E3654A45906"; //TODO
+            this.privKey = "4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20"; //TODO
             this.address = validate(tx.getTo());
             this.data = tx.getData().toStringUtf8();
             this.fee = tx.getGas();
