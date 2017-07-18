@@ -33,4 +33,11 @@ interface Eth {
      * @return the return value of executed contract
      */
     Message ethCall(Types.RequestEthCall req);
+
+    /**
+     * Method {@code eth_newFilter}.
+     * @param req A request object containing the filter object of type {@link Types.FilterType}
+     * @return the filter id
+     */
+    Message ethNewFilter(Types.RequestEthNewFilter req);
 }

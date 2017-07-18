@@ -36,7 +36,7 @@ class BurrowTest extends Specification {
         println ">>> $request.descriptorForType.fullName....$request"
         println "<<< $response.descriptorForType.fullName...$response"
 
-        then: 'we receive a valid response'
+        then: 'a valid response is received'
         response instanceof Types.ResponseWeb3ClientVersion
         ((Types.ResponseWeb3ClientVersion)response).clientVersion == '0.8.0'
     }
@@ -48,7 +48,7 @@ class BurrowTest extends Specification {
         println ">>> $request.descriptorForType.fullName....$request"
         println "<<< $response.descriptorForType.fullName...$response"
 
-        then: 'we receive a valid response'
+        then: 'a valid response is received'
         response instanceof Types.ResponseNetListening
         ((Types.ResponseNetListening) response).getListening()
     }
@@ -59,37 +59,45 @@ class BurrowTest extends Specification {
         Message response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
-        then: 'we receive a valid response'
+        then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
         ((Types.ResponseEthGetBalance) response).getBalance() == 200000000
     }
 
-    public "test 'ethSendTransaction' service"() {
-        when: 'we make a get request'
+    public "test create_and_solidity_event services"() {
+        when: println '(1) the transaction is fully processed'
         String contract = '6060604052608f8060106000396000f360606040523615600d57600d565b608d5b7f68616861000000000000000000000000000000000000000000000000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f88c4f556fdc50387ec6b6fc4e8250fecc56ff50e873df06dadeeb84c0287ca9060016040518082815260200191505060405180910390a35b565b00'
-        Types.RequestEthSendTransaction request = Types.RequestEthSendTransaction.newBuilder().setTx(
+        Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setGas(12).setGasPrice(223).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
-        then: 'we receive a valid response'
+        then: 'a valid response is received'
         response instanceof Types.ResponseEthSendTransaction
         ((Types.ResponseEthSendTransaction) response).getHash() != null
-    }
 
-    public "test 'ethCall' service"() {
-        when: 'we make a get request'
-        Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
+        when: println '(4) we subscribe to events from the the new contract account'
+        request = Types.RequestEthNewFilter.newBuilder().setOptions(
+                Types.FilterType.newBuilder().setAddress(ByteString.copyFromUtf8("33F71BB66F8994DD099C0E360007D4DEAE11BFFE")).build()
+        ).build()
+        response = web3Service.ethNewFilter(request)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+
+        then: 'a valid response is received'
+        response instanceof Types.ResponseEthNewFilter
+        ((Types.ResponseEthNewFilter) response).getFilterId().size() == 32*2
+
+        when: println '(6) the contract is executed 2 times'
+        request = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8("33F71BB66F8994DD099C0E360007D4DEAE11BFFE")).build()
         ).build()
-        Message response
         2.times {
-            response = web3Service.ethCall(request)
+            response = web3Service.ethCall(request as Types.RequestEthCall)
             println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
         }
 
-        then: 'we receive a valid response'
+        then: 'a valid response is received'
         response instanceof Types.ResponseEthCall
         ((Types.ResponseEthCall) response).getReturn() != null
     }
