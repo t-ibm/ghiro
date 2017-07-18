@@ -41,6 +41,15 @@ message TxType {
     int64 nonce = 7;
 }
 /*
+ * Filter Types.
+ */
+message FilterType {
+    BlockType from_block = 1;
+    BlockType to_block = 2;
+    bytes address = 3;
+    repeated bytes topics = 4;
+}
+/*
  * Request Types.
  */
 message Request {
@@ -50,6 +59,7 @@ message Request {
         RequestEthGetBalance ethGetBalance = 3;
         RequestEthSendTransaction ethSendTransaction = 4;
         RequestEthCall ethCall = 5;
+        RequestEthNewFilter ethNewFilter = 6;
     }
 }
 message RequestWeb3ClientVersion {
@@ -67,6 +77,9 @@ message RequestEthCall {
     TxType tx = 1;
     DefaultBlockType default_block_type = 2;
 }
+message RequestEthNewFilter {
+    FilterType options = 1;
+}
 /*
  * Response Types.
  */
@@ -78,6 +91,7 @@ message Response {
         ResponseEthGetBalance ethGetBalance = 4;
         ResponseEthSendTransaction ethSendTransaction = 5;
         ResponseEthCall ethCall = 6;
+        ResponseEthNewFilter ethNewFilter = 7;
     }
 }
 message ResponseException {
@@ -100,6 +114,9 @@ message ResponseEthSendTransaction {
 message ResponseEthCall {
     bytes return = 1;
 }
+message ResponseEthNewFilter {
+    bytes filter_id = 1;
+}
 /*
  * Service Definition.
  */
@@ -109,4 +126,5 @@ service AbiService {
     rpc EthGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
     rpc EthSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
     rpc EthCall(RequestEthCall) returns (ResponseEthCall);
+    rpc EthNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);
 }

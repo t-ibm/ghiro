@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
@@ -49,6 +50,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Message ethCall(Types.RequestEthCall req) {
         Request jsonRpcRequest = new RequestEthCall(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Message ethNewFilter(Types.RequestEthNewFilter req) {
+        Request jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 }

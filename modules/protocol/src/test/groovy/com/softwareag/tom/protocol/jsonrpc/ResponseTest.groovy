@@ -8,6 +8,7 @@ package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion
@@ -99,6 +100,18 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.ret == ''
+    }
+
+    def "test eth_newFilter"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F"}}'
+
+        when: 'the response is received'
+        ResponseEthNewFilter response = serviceHttp.getResponseHandler(ResponseEthNewFilter.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.subId == 'E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F'
     }
 }
 

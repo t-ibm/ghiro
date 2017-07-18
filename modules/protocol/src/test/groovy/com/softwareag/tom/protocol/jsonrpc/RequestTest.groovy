@@ -10,6 +10,7 @@ import com.google.protobuf.ByteString
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion
@@ -114,6 +115,23 @@ class RequestTest extends RequestSpecification {
         then: 'the expected request object is created'
         request.params.address == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         request.params.data == '606060'
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
+    }
+
+    def "test eth_newFilter"() {
+        when: 'a valid request type is created'
+        RequestEthNewFilter request = new RequestEthNewFilter(serviceHttp, Types.RequestEthNewFilter.newBuilder().setOptions(
+                Types.FilterType.newBuilder().setAddress(ByteString.copyFromUtf8('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).build()
+        ).build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.eventId == 'Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
 
         when: 'the request is send'
         request.send()
