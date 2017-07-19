@@ -9,6 +9,7 @@ package com.softwareag.tom.protocol.jsonrpc
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetStorageAt
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
@@ -77,6 +78,18 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.balance == 200000000
+    }
+
+    def "test eth_getStorageAt"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{"key":"", "value":""}}'
+
+        when: 'the response is received'
+        ResponseEthGetStorageAt response = serviceHttp.getResponseHandler(ResponseEthGetStorageAt.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.value == ''
     }
 
     def "test eth_sendTransaction"() {
