@@ -23,7 +23,7 @@ public class RequestEthNewFilter extends Request<RequestEthNewFilter.Params, Res
     static class Params {
         @JsonProperty("event_id") public String eventId;
 
-        Params(Types.FilterType options) {
+        Params(Types.FilterOptionType options) {
             this.eventId = "Log/" + options.getAddress().toStringUtf8();
         }
 

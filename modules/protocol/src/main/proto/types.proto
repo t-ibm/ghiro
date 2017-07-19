@@ -43,7 +43,7 @@ message TxType {
 /*
  * Filter Types.
  */
-message FilterType {
+message FilterOptionType {
     BlockType from_block = 1;
     BlockType to_block = 2;
     bytes address = 3;
@@ -78,7 +78,7 @@ message RequestEthCall {
     DefaultBlockType default_block_type = 2;
 }
 message RequestEthNewFilter {
-    FilterType options = 1;
+    FilterOptionType options = 1;
 }
 /*
  * Response Types.
