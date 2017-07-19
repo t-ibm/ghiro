@@ -8,6 +8,7 @@ package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
@@ -112,6 +113,23 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.subId == 'E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F'
+    }
+
+    def "test eth_getFilterChanges"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{events:[{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
+                                                             '{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
+                                                             '{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]}]}}'
+
+        when: 'the response is received'
+        ResponseEthGetFilterChanges response = serviceHttp.getResponseHandler(ResponseEthGetFilterChanges.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.events.get(1).address == '00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        response.result.events.get(1).data == '0000000000000000000000000000000000000000000000000000000000000001'
+        response.result.events.get(1).height == 30
+        response.result.events.get(1).topics.size() == 3
     }
 }
 

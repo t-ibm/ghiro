@@ -40,4 +40,11 @@ interface Eth {
      * @return the filter id
      */
     Message ethNewFilter(Types.RequestEthNewFilter req);
+
+    /**
+     * Method {@code eth_getFilterChanges}.
+     * @param req A request object containing the filter id
+     * @return a list of objects of type {@link Types.FilterLogType}
+     */
+    Message ethGetFilterChanges(Types.RequestEthGetFilterChanges req);
 }
