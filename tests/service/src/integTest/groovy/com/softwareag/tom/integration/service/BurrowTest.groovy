@@ -79,14 +79,26 @@ class BurrowTest extends Specification {
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterType.newBuilder().setAddress(ByteString.copyFromUtf8("33F71BB66F8994DD099C0E360007D4DEAE11BFFE")).build()
+                Types.FilterOptionType.newBuilder().setAddress(ByteString.copyFromUtf8("33F71BB66F8994DD099C0E360007D4DEAE11BFFE")).build()
         ).build()
         response = web3Service.ethNewFilter(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
+        and: 'the filter id is remembered'
+        def filterId = ((Types.ResponseEthNewFilter) response).getFilterId()
+
         then: 'a valid response is received'
         response instanceof Types.ResponseEthNewFilter
         ((Types.ResponseEthNewFilter) response).getFilterId().size() == 32*2
+
+        when: println '(5) we poll for events'
+        request = Types.RequestEthGetFilterChanges.newBuilder().setFilterId(filterId).build()
+        response = web3Service.ethGetFilterChanges(request)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
+
+        then: 'a valid response is received'
+        response instanceof Types.ResponseEthGetFilterChanges
+        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 0
 
         when: println '(6) the contract is executed 2 times'
         request = Types.RequestEthCall.newBuilder().setTx(
@@ -100,5 +112,16 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         response instanceof Types.ResponseEthCall
         ((Types.ResponseEthCall) response).getReturn() != null
+
+        when: println '\n(7) we poll for events again'
+        request = Types.RequestEthGetFilterChanges.newBuilder().setFilterId(filterId).build()
+        response = web3Service.ethGetFilterChanges(request)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+
+        then: 'a valid response is received'
+        response instanceof Types.ResponseEthGetFilterChanges
+        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 2
+        ((Types.ResponseEthGetFilterChanges) response).getLog(1).address.size() == 32*2
+        ((Types.ResponseEthGetFilterChanges) response).getLog(1).data.size() == 32*2
     }
 }

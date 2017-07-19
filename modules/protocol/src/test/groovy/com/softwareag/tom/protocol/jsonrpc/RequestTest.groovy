@@ -10,6 +10,7 @@ import com.google.protobuf.ByteString
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
@@ -126,12 +127,29 @@ class RequestTest extends RequestSpecification {
     def "test eth_newFilter"() {
         when: 'a valid request type is created'
         RequestEthNewFilter request = new RequestEthNewFilter(serviceHttp, Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterType.newBuilder().setAddress(ByteString.copyFromUtf8('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).build()
+                Types.FilterOptionType.newBuilder().setAddress(ByteString.copyFromUtf8('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).build()
         ).build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE"},"id":"1"}'
 
         then: 'the expected request object is created'
         request.params.eventId == 'Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
+    }
+
+    def "test eth_getFilterChanges"() {
+        when: 'a valid request type is created'
+        RequestEthGetFilterChanges request = new RequestEthGetFilterChanges(serviceHttp, Types.RequestEthGetFilterChanges.newBuilder().setFilterId(
+                ByteString.copyFromUtf8('11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164')
+        ).build()) {};
+        String expected = '{"jsonrpc":"2.0","method":"burrow.eventPoll","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.subId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
 
         when: 'the request is send'
         request.send()

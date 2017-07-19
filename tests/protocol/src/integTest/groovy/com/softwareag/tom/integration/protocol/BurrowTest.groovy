@@ -187,9 +187,11 @@ class BurrowTest extends RestClientSpecification {
         when: println '(4) we subscribe to events from the the new contract account'
         request = ['id': '4', 'jsonrpc': '2.0', 'method': 'burrow.eventSubscribe', 'params': ['event_id':'Log/'+callee.address]]
         resp = send request
+
+        and: 'the event id is remembered'
         def subId = resp.data.result.sub_id
 
-        and: println '(5) poll for events'
+        and: println '(5) we poll for events'
         request = ['id': '5', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]
         resp = send request
 
