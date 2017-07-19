@@ -36,7 +36,7 @@ interface Eth {
 
     /**
      * Method {@code eth_newFilter}.
-     * @param req A request object containing the filter object of type {@link Types.FilterType}
+     * @param req A request object containing the filter object of type {@link Types.FilterOptionType}
      * @return the filter id
      */
     Message ethNewFilter(Types.RequestEthNewFilter req);
