@@ -13,6 +13,7 @@ import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
@@ -41,6 +42,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Message ethGetBalance(Types.RequestEthGetBalance req) {
         Request jsonRpcRequest = new RequestEthGetBalance(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Message ethGetStorageAt(Types.RequestEthGetStorageAt req) {
+        Request jsonRpcRequest = new RequestEthGetStorageAt(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 

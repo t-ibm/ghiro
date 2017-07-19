@@ -176,13 +176,13 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.permissions.base.perms == 2302
         resp.data.result.permissions.base.set == 16383
 
-        when: println '(3) the complete storage of the contract account is retrieved'
-        request = ['id': '3', 'jsonrpc': '2.0', 'method': 'burrow.getStorage', 'params': ['address':callee.address]]
+        when: println '(3) the storage of the contract is retrieved'
+        request = ['id': '3', 'jsonrpc': '2.0', 'method': 'burrow.getStorageAt', 'params': ['address':callee.address]]
         resp = send request
 
         then: 'a valid response is received'
-        resp.data.result.storage_root == ''
-        resp.data.result.storage_items == []
+        resp.data.result.key == ''
+        resp.data.result.value == ''
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = ['id': '4', 'jsonrpc': '2.0', 'method': 'burrow.eventSubscribe', 'params': ['event_id':'Log/'+callee.address]]

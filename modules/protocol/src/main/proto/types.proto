@@ -68,10 +68,11 @@ message Request {
         RequestWeb3ClientVersion web3ClientVersion = 1;
         RequestNetListening netListening = 2;
         RequestEthGetBalance ethGetBalance = 3;
-        RequestEthSendTransaction ethSendTransaction = 4;
-        RequestEthCall ethCall = 5;
-        RequestEthNewFilter ethNewFilter = 6;
-        RequestEthGetFilterChanges ethGetFilterChanges = 7;
+        RequestEthGetStorageAt ethGetStorageAt = 4;
+        RequestEthSendTransaction ethSendTransaction = 5;
+        RequestEthCall ethCall = 6;
+        RequestEthNewFilter ethNewFilter = 7;
+        RequestEthGetFilterChanges ethGetFilterChanges = 8;
     }
 }
 message RequestWeb3ClientVersion {
@@ -81,6 +82,11 @@ message RequestNetListening {
 message RequestEthGetBalance {
     bytes address = 1;
     DefaultBlockType default_block_type = 2;
+}
+message RequestEthGetStorageAt {
+    bytes address = 1;
+    bytes position = 2;
+    DefaultBlockType default_block_type = 3;
 }
 message RequestEthSendTransaction {
     TxType tx = 1;
@@ -104,10 +110,11 @@ message Response {
         ResponseWeb3ClientVersion web3ClientVersion = 2;
         ResponseNetListening netListening = 3;
         ResponseEthGetBalance ethGetBalance = 4;
-        ResponseEthSendTransaction ethSendTransaction = 5;
-        ResponseEthCall ethCall = 6;
-        ResponseEthNewFilter ethNewFilter = 7;
-        ResponseEthGetFilterChanges ethGetFilterChanges = 8;
+        ResponseEthGetStorageAt ethGetStorageAt = 5;
+        ResponseEthSendTransaction ethSendTransaction = 6;
+        ResponseEthCall ethCall = 7;
+        ResponseEthNewFilter ethNewFilter = 8;
+        ResponseEthGetFilterChanges ethGetFilterChanges = 9;
     }
 }
 message ResponseException {
@@ -123,6 +130,9 @@ message ResponseNetListening {
 }
 message ResponseEthGetBalance {
     uint64 balance = 1;
+}
+message ResponseEthGetStorageAt {
+    bytes value = 1;
 }
 message ResponseEthSendTransaction {
     bytes hash = 1;
@@ -143,6 +153,7 @@ service AbiService {
     rpc Web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
     rpc NetListening(RequestNetListening) returns (ResponseNetListening);
     rpc EthGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
+    rpc EthGetStorageAt(RequestEthGetStorageAt) returns (ResponseEthGetStorageAt);
     rpc EthSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
     rpc EthCall(RequestEthCall) returns (ResponseEthCall);
     rpc EthNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);

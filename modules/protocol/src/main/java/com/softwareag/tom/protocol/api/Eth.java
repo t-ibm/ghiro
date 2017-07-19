@@ -21,6 +21,13 @@ interface Eth {
     Message ethGetBalance(Types.RequestEthGetBalance req);
 
     /**
+     * Method {@code eth_getStorageAt}.
+     * @param req A request object containing the address and position in storage as well as a parameter of type {@link Types.DefaultBlockType}
+     * @return the value from a storage position at a given address
+     */
+    Message ethGetStorageAt(Types.RequestEthGetStorageAt req);
+
+    /**
      * Method {@code eth_sendTransaction}.
      * @param req A request object containing the transaction object of type {@link Types.TxType}
      * @return the transaction hash, or the zero hash if the transaction is not yet available
