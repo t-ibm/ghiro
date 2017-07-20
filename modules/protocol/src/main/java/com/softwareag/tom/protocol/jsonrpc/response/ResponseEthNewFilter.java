@@ -21,7 +21,7 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result> 
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseEthNewFilter.newBuilder().setFilterId(ByteString.copyFromUtf8(this.result.subId)).build();
+            return Types.ResponseEthNewFilter.newBuilder().setId(ByteString.copyFromUtf8(this.result.subId)).build();
         }
     }
 

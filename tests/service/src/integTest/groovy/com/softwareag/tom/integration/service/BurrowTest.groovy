@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
+import com.softwareag.tom.protocol.util.HexValue
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -38,7 +39,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseWeb3ClientVersion
-        ((Types.ResponseWeb3ClientVersion)response).clientVersion == '0.8.0'
+        ((Types.ResponseWeb3ClientVersion)response).version == '0.8.0'
     }
 
     public "test 'netListening' service"() {
@@ -61,7 +62,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
-        ((Types.ResponseEthGetBalance) response).getBalance() == 200000000
+        ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(200000000)
     }
 
     public "test create_and_solidity_event services"() {
@@ -74,7 +75,7 @@ class BurrowTest extends Specification {
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setGas(12).setGasPrice(223).build()
+                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -90,7 +91,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
-        ((Types.ResponseEthGetBalance) response).getBalance() == 0
+        ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
         request = Types.RequestEthGetStorageAt.newBuilder().setAddress(ByteString.copyFromUtf8(callee.address)).build()
@@ -109,14 +110,14 @@ class BurrowTest extends Specification {
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
         and: 'the filter id is remembered'
-        def filterId = ((Types.ResponseEthNewFilter) response).getFilterId()
+        def filterId = ((Types.ResponseEthNewFilter) response).getId()
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthNewFilter
-        ((Types.ResponseEthNewFilter) response).getFilterId().size() == 32*2
+        ((Types.ResponseEthNewFilter) response).getId().size() == 32*2
 
         when: println '(5) we poll for events'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setFilterId(filterId).build()
+        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
         response = web3Service.ethGetFilterChanges(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
 
@@ -138,7 +139,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthCall) response).getReturn() != null
 
         when: println '\n(7) we poll for events again'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setFilterId(filterId).build()
+        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
         response = web3Service.ethGetFilterChanges(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 

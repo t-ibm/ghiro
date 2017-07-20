@@ -29,7 +29,7 @@ public final class HexValue {
         } else if (!value.startsWith(PREFIX)) {
             throw new NumberFormatException("Value must start with prefix " + PREFIX + ".");
         } else if (value.length() < 3) {
-            throw new NumberFormatException("Value must be in format 0x[1-9]+[0-9]* or 0x0.");
+            throw new NumberFormatException("Value must be 0[xX][0-9a-fA-F]+.");
         }
         return value;
     }
@@ -142,6 +142,8 @@ public final class HexValue {
     public static ByteString toByteString(BigInteger value) {
         return ByteString.copyFrom(value.toByteArray());
     }
+
+    public static ByteString toByteString(long value) { return ByteString.copyFrom(BigInteger.valueOf(value).toByteArray()); }
 
     public static ByteString toByteString(byte[] bytes) {
         return ByteString.copyFrom(bytes);

@@ -11,6 +11,7 @@ import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_sendTransaction}.
@@ -31,8 +32,8 @@ public class RequestEthSendTransaction extends Request<RequestEthSendTransaction
             this.privKey = "4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20"; //TODO
             this.address = validate(tx.getTo());
             this.data = tx.getData().toStringUtf8();
-            this.fee = tx.getGas();
-            this.gasLimit = tx.getGasPrice();
+            this.fee = HexValue.toBigInteger(tx.getGas()).longValueExact();
+            this.gasLimit = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
         }
 
         @Override public boolean equals(Object o) {
