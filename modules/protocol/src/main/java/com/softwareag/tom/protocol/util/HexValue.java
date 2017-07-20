@@ -12,6 +12,7 @@ import java.math.BigInteger;
 
 /**
  * The hex value encoding helper class. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding">JSON-RPC Wiki</a> for more info.
+ * Consequently, we use {@link BigInteger} to represent quantities and {@code byte[]} for raw data.
  */
 public final class HexValue {
 
@@ -51,7 +52,7 @@ public final class HexValue {
     }
 
     public static BigInteger toBigInteger(ByteString value) {
-        return toBigInteger(value.toByteArray());
+        return toBigInteger(value.toStringUtf8());
     }
 
     protected static BigInteger toBigInteger(String value) {
@@ -62,9 +63,7 @@ public final class HexValue {
         return new BigInteger(1, value);
     }
 
-    public static byte[] toByteArray(ByteString value) {
-        return value.toByteArray();
-    }
+    public static byte[] toByteArray(ByteString value) { return toByteArray(value.toStringUtf8()); }
 
     protected static byte[] toByteArray(BigInteger value, int length) {
         byte[] result = new byte[length];
@@ -117,7 +116,7 @@ public final class HexValue {
     }
 
     public static String toString(ByteString value) {
-        return toString(value.toByteArray());
+        return value.toStringUtf8();
     }
 
     protected static String toString(BigInteger value) {
@@ -135,17 +134,15 @@ public final class HexValue {
         return PREFIX + sb.toString();
     }
 
-    public static ByteString toByteString(String value) {
-        return ByteString.copyFrom(toByteArray(value));
-    }
+    public static ByteString toByteString(String value) { return ByteString.copyFromUtf8(value); }
 
     public static ByteString toByteString(BigInteger value) {
-        return ByteString.copyFrom(value.toByteArray());
+        return ByteString.copyFromUtf8(toString(value));
     }
 
-    public static ByteString toByteString(long value) { return ByteString.copyFrom(BigInteger.valueOf(value).toByteArray()); }
+    public static ByteString toByteString(long value) { return ByteString.copyFromUtf8(toString(BigInteger.valueOf(value))); }
 
     public static ByteString toByteString(byte[] bytes) {
-        return ByteString.copyFrom(bytes);
+        return ByteString.copyFromUtf8(toString(bytes));
     }
 }
