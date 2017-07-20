@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_getBalance}.
@@ -20,7 +21,7 @@ public class ResponseEthGetBalance extends Response<ResponseEthGetBalance.Result
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseEthGetBalance.newBuilder().setBalance(this.result.balance).build();
+            return Types.ResponseEthGetBalance.newBuilder().setBalance(HexValue.toByteString(this.result.balance)).build();
         }
     }
 

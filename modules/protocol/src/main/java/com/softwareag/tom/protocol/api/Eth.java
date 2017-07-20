@@ -15,14 +15,14 @@ import com.softwareag.tom.protocol.abi.Types;
 interface Eth {
     /**
      * Method {@code eth_getBalance}.
-     * @param req A request object containing the address to check for balance as well as a parameter of type {@link Types.DefaultBlockType}
+     * @param req A request object containing the address to check for balance as well as a parameter of type {@link Types.BlockHeightType}
      * @return the integer of the current balance in wei
      */
     Message ethGetBalance(Types.RequestEthGetBalance req);
 
     /**
      * Method {@code eth_getStorageAt}.
-     * @param req A request object containing the address and position in storage as well as a parameter of type {@link Types.DefaultBlockType}
+     * @param req A request object containing the address and position in storage as well as a parameter of type {@link Types.BlockHeightType}
      * @return the value from a storage position at a given address
      */
     Message ethGetStorageAt(Types.RequestEthGetStorageAt req);
@@ -36,7 +36,7 @@ interface Eth {
 
     /**
      * Method {@code eth_call}.
-     * @param req A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.DefaultBlockType}
+     * @param req A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.BlockHeightType}
      * @return the return value of executed contract
      */
     Message ethCall(Types.RequestEthCall req);

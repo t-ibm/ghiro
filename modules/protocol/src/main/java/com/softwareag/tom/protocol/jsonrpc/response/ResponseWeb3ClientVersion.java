@@ -20,7 +20,7 @@ public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersio
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseWeb3ClientVersion.newBuilder().setClientVersion(this.result.clientVersion).build();
+            return Types.ResponseWeb3ClientVersion.newBuilder().setVersion(this.result.clientVersion).build();
         }
     }
 

@@ -18,7 +18,7 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
  */
 public class RequestEthGetFilterChanges extends Request<RequestEthGetFilterChanges.Params, ResponseEthGetFilterChanges> {
     public RequestEthGetFilterChanges(Service jsonRpcService, Types.RequestEthGetFilterChanges msg) {
-        super(jsonRpcService, "burrow.eventPoll", new Params(msg.getFilterId()));
+        super(jsonRpcService, "burrow.eventPoll", new Params(msg.getId()));
     }
 
     static class Params {

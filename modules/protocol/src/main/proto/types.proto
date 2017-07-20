@@ -17,13 +17,13 @@ enum CodeType {
 /*
  * Block Types.
  */
-message DefaultBlockType {
+message BlockHeightType {
     oneof value {
-        uint64 block_number = 1;
-        BlockType block = 2;
+        bytes height = 1;
+        BlockStateType state = 2;
     }
 }
-enum BlockType {
+enum BlockStateType {
     earliest = 0;
     latest = 1;
     pending = 2;
@@ -35,19 +35,19 @@ message TxType {
     bytes from = 1;
     bytes to = 2;
     bytes data = 3;
-    int64 gas = 4;
-    int64 gasPrice = 5;
-    int64 value = 6;
-    int64 nonce = 7;
+    bytes gas = 4;
+    bytes gasPrice = 5;
+    bytes value = 6;
+    bytes nonce = 7;
 }
 /*
  * Filter Types.
  */
 message FilterOptionType {
-    BlockType from_block = 1;
-    BlockType to_block = 2;
+    BlockHeightType fromBlock = 1;
+    BlockHeightType toBlock = 2;
     bytes address = 3;
-    repeated bytes topics = 4;
+    repeated bytes topic = 4;
 }
 message FilterLogType {
     bool removed = 1;
@@ -58,7 +58,7 @@ message FilterLogType {
     bytes blockNumber = 6;
     bytes address = 7;
     bytes data = 8;
-    repeated bytes topics = 9;
+    repeated bytes topic = 9;
 }
 /*
  * Request Types.
@@ -81,25 +81,25 @@ message RequestNetListening {
 }
 message RequestEthGetBalance {
     bytes address = 1;
-    DefaultBlockType default_block_type = 2;
+    BlockHeightType block = 2;
 }
 message RequestEthGetStorageAt {
     bytes address = 1;
     bytes position = 2;
-    DefaultBlockType default_block_type = 3;
+    BlockHeightType block = 3;
 }
 message RequestEthSendTransaction {
     TxType tx = 1;
 }
 message RequestEthCall {
     TxType tx = 1;
-    DefaultBlockType default_block_type = 2;
+    BlockHeightType block = 2;
 }
 message RequestEthNewFilter {
     FilterOptionType options = 1;
 }
 message RequestEthGetFilterChanges {
-    bytes filter_id = 1;
+    bytes id = 1;
 }
 /*
  * Response Types.
@@ -123,13 +123,13 @@ message ResponseException {
     bytes data = 3;
 }
 message ResponseWeb3ClientVersion {
-    string client_version = 1;
+    string version = 1;
 }
 message ResponseNetListening {
     bool listening = 1;
 }
 message ResponseEthGetBalance {
-    uint64 balance = 1;
+    bytes balance = 1;
 }
 message ResponseEthGetStorageAt {
     bytes value = 1;
@@ -141,7 +141,7 @@ message ResponseEthCall {
     bytes return = 1;
 }
 message ResponseEthNewFilter {
-    bytes filter_id = 1;
+    bytes id = 1;
 }
 message ResponseEthGetFilterChanges {
     repeated FilterLogType log = 1;
@@ -150,12 +150,12 @@ message ResponseEthGetFilterChanges {
  * Service Definition.
  */
 service AbiService {
-    rpc Web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
-    rpc NetListening(RequestNetListening) returns (ResponseNetListening);
-    rpc EthGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
-    rpc EthGetStorageAt(RequestEthGetStorageAt) returns (ResponseEthGetStorageAt);
-    rpc EthSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
-    rpc EthCall(RequestEthCall) returns (ResponseEthCall);
-    rpc EthNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);
-    rpc EthGetFilterChanges(RequestEthGetFilterChanges) returns (ResponseEthGetFilterChanges);
+    rpc web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
+    rpc netListening(RequestNetListening) returns (ResponseNetListening);
+    rpc ethGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);
+    rpc ethGetStorageAt(RequestEthGetStorageAt) returns (ResponseEthGetStorageAt);
+    rpc ethSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
+    rpc ethCall(RequestEthCall) returns (ResponseEthCall);
+    rpc ethNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);
+    rpc ethGetFilterChanges(RequestEthGetFilterChanges) returns (ResponseEthGetFilterChanges);
 }
