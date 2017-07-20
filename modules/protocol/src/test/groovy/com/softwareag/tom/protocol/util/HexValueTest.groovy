@@ -133,18 +133,25 @@ class HexValueTest extends Specification {
         string == source
     }
 
-    def 'test byte string'() {
+    def 'test unformatted byte string data'() {
         expect:
         HexValue.toByteString(byteArray) == HexValue.toByteString(string)
-        HexValue.toByteString(byteArray) == HexValue.toByteString(BigInteger.valueOf(bigInteger))
-        HexValue.toByteString(BigInteger.valueOf(bigInteger)) == HexValue.toByteString(string)
         HexValue.toString(HexValue.toByteString(byteArray)) == string
         HexValue.toByteArray(HexValue.toByteString(byteArray)) == byteArray
-        HexValue.toBigInteger(HexValue.toByteString(byteArray)) == BigInteger.valueOf(bigInteger)
 
         where:
         byteArray << [[1] as byte[], [0x7f] as byte[], [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef] as byte[]]
-        bigInteger << [1L, 127L, 81985529216486895L]
         string << ['0x01', '0x7f', '0x0123456789abcdef']
+    }
+
+    def 'test byte string quantities'() {
+        expect:
+        HexValue.toByteString(BigInteger.valueOf(bigInteger)) == HexValue.toByteString(string)
+        HexValue.toString(HexValue.toByteString(bigInteger)) == string
+        HexValue.toBigInteger(HexValue.toByteString(bigInteger)) == BigInteger.valueOf(bigInteger)
+
+        where:
+        bigInteger << [1L, 127L, 81985529216486895L]
+        string << ['0x1', '0x7f', '0x123456789abcdef']
     }
 }
