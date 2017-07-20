@@ -51,6 +51,10 @@ public final class HexValue {
         }
     }
 
+    public static String stripPrefix(ByteString input) {
+        return stripPrefix(toString(input));
+    }
+
     public static BigInteger toBigInteger(ByteString value) {
         return toBigInteger(value.toStringUtf8());
     }
@@ -134,7 +138,7 @@ public final class HexValue {
         return PREFIX + sb.toString();
     }
 
-    public static ByteString toByteString(String value) { return ByteString.copyFromUtf8(value); }
+    public static ByteString toByteString(String value) { return ByteString.copyFromUtf8(addPrefix(value)); }
 
     public static ByteString toByteString(BigInteger value) {
         return ByteString.copyFromUtf8(toString(value));

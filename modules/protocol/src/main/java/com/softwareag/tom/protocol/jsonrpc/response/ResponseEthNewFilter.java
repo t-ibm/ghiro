@@ -7,10 +7,10 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_newFilter}.
@@ -21,7 +21,7 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result> 
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseEthNewFilter.newBuilder().setId(ByteString.copyFromUtf8(this.result.subId)).build();
+            return Types.ResponseEthNewFilter.newBuilder().setId(HexValue.toByteString(this.result.subId)).build();
         }
     }
 

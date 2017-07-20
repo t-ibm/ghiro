@@ -11,7 +11,7 @@ import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_call}.
@@ -27,7 +27,7 @@ public class RequestEthCall extends Request<RequestEthCall.Params, ResponseEthCa
 
         Params(Types.TxType tx) {
             this.address = validate(tx.getTo());
-            this.data = tx.getData().toStringUtf8();
+            this.data = HexValue.stripPrefix(tx.getData());
         }
 
         @Override public boolean equals(Object o) {

@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.integration.service
 
-import com.google.protobuf.ByteString
 import com.google.protobuf.Message
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.extension.Node
@@ -56,7 +55,7 @@ class BurrowTest extends Specification {
 
     public "test 'ethGetBalance' service"() {
         when: 'we make a get request'
-        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8("F60D30722E7B497FA532FB3207C3FB29C31B1992")).build()
+        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("F60D30722E7B497FA532FB3207C3FB29C31B1992")).build()
         Message response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
@@ -75,7 +74,7 @@ class BurrowTest extends Specification {
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(ByteString.copyFromUtf8(contract)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setData(HexValue.toByteString(contract)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -85,7 +84,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthSendTransaction) response).getHash() != null
 
         when: println '(2) the newly created contract account is verified'
-        request = Types.RequestEthGetBalance.newBuilder().setAddress(ByteString.copyFromUtf8(callee.address)).build()
+        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
         response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
 
@@ -94,17 +93,17 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(ByteString.copyFromUtf8(callee.address)).build()
+        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
         response = web3Service.ethGetStorageAt(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetStorageAt
-        ((Types.ResponseEthGetStorageAt) response).getValue() == ByteString.copyFromUtf8('')
+        ((Types.ResponseEthGetStorageAt) response).getValue() == HexValue.toByteString('')
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterOptionType.newBuilder().setAddress(ByteString.copyFromUtf8(callee.address)).build()
+                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
         ).build()
         response = web3Service.ethNewFilter(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -114,7 +113,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthNewFilter
-        ((Types.ResponseEthNewFilter) response).getId().size() == 32*2
+        ((Types.ResponseEthNewFilter) response).getId().size() == 32*2+2
 
         when: println '(5) we poll for events'
         request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
@@ -127,7 +126,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) the contract is executed 2 times'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(ByteString.copyFromUtf8(callee.address)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).build()
         ).build()
         2.times {
             response = web3Service.ethCall(request as Types.RequestEthCall)
@@ -146,7 +145,7 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetFilterChanges
         ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 2
-        ((Types.ResponseEthGetFilterChanges) response).getLog(1).address.size() == 32*2
-        ((Types.ResponseEthGetFilterChanges) response).getLog(1).data.size() == 32*2
+        ((Types.ResponseEthGetFilterChanges) response).getLog(1).address.size() == 32*2+2
+        ((Types.ResponseEthGetFilterChanges) response).getLog(1).data.size() == 32*2+2
     }
 }

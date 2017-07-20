@@ -11,6 +11,7 @@ import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_newFilter}.
@@ -24,7 +25,7 @@ public class RequestEthNewFilter extends Request<RequestEthNewFilter.Params, Res
         @JsonProperty("event_id") public String eventId;
 
         Params(Types.FilterOptionType options) {
-            this.eventId = "Log/" + options.getAddress().toStringUtf8();
+            this.eventId = "Log/" + HexValue.stripPrefix(options.getAddress());
         }
 
         @Override public boolean equals(Object o) {

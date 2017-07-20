@@ -7,10 +7,10 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
+import com.softwareag.tom.protocol.util.HexValue;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
             Types.ResponseEthGetFilterChanges.Builder builder = Types.ResponseEthGetFilterChanges.newBuilder();
             for (int i = 0; i < this.result.events.size(); i++) {
                 Event event = this.result.events.get(i);
-                builder.addLog(i, Types.FilterLogType.newBuilder().setAddress(ByteString.copyFromUtf8(event.address)).setData(ByteString.copyFromUtf8(event.data)).build()); //TODO :: height, topics
+                builder.addLog(i, Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(event.address)).setData(HexValue.toByteString(event.data)).build()); //TODO :: height, topics
             }
             return builder.build();
         }

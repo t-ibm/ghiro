@@ -7,10 +7,10 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_sendTransaction}.
@@ -21,7 +21,7 @@ public class ResponseEthSendTransaction extends Response<ResponseEthSendTransact
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseEthSendTransaction.newBuilder().setHash(ByteString.copyFromUtf8(this.result.txId)).build();
+            return Types.ResponseEthSendTransaction.newBuilder().setHash(HexValue.toByteString(this.result.txId)).build();
         }
     }
 
