@@ -7,10 +7,10 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_getStorageAt}.
@@ -21,7 +21,7 @@ public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Re
         if (this.error != null) {
             return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
         } else {
-            return Types.ResponseEthGetStorageAt.newBuilder().setValue(ByteString.copyFromUtf8(this.result.value)).build();
+            return Types.ResponseEthGetStorageAt.newBuilder().setValue(HexValue.toByteString(this.result.value)).build();
         }
     }
 

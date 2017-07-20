@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
+import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_newFilter}.
@@ -25,7 +26,7 @@ public class RequestEthGetFilterChanges extends Request<RequestEthGetFilterChang
         @JsonProperty("sub_id") public String subId;
 
         Params(ByteString filterId) {
-            this.subId = filterId.toStringUtf8();
+            this.subId = HexValue.stripPrefix(filterId);
         }
 
         @Override public boolean equals(Object o) {

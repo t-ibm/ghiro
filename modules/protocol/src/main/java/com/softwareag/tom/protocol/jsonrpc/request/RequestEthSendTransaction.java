@@ -31,7 +31,7 @@ public class RequestEthSendTransaction extends Request<RequestEthSendTransaction
         Params(Types.TxType tx) {
             this.privKey = "4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20"; //TODO
             this.address = validate(tx.getTo());
-            this.data = tx.getData().toStringUtf8();
+            this.data = HexValue.stripPrefix(tx.getData());
             this.fee = HexValue.toBigInteger(tx.getGas()).longValueExact();
             this.gasLimit = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
         }
