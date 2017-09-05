@@ -8,6 +8,7 @@ package com.softwareag.tom.protocol.util;
 
 import com.google.protobuf.ByteString;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 /**
@@ -148,5 +149,9 @@ public final class HexValue {
 
     public static ByteString toByteString(byte[] bytes) {
         return ByteString.copyFromUtf8(toString(bytes));
+    }
+
+    protected static String decode(String hexStr) throws UnsupportedEncodingException {
+        return new String(toByteArray(hexStr), "UTF-8").trim();
     }
 }

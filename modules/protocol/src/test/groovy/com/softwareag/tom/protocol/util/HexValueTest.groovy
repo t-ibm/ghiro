@@ -154,4 +154,13 @@ class HexValueTest extends Specification {
         bigInteger << [1L, 127L, 81985529216486895L]
         string << ['0x1', '0x7f', '0x123456789abcdef']
     }
+
+    def 'test decode data'() {
+        expect:
+        HexValue.decode(hexData) == utfData
+
+        where:
+        hexData << ['0x3700000000000000000000000000000000000000000000000000000000000000']
+        utfData << ['7']
+    }
 }
