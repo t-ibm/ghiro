@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 
-import "Console.sol";
+import "./Console.sol";
 
 contract SimpleStorage is Console {
     uint public storedData;
