@@ -1,11 +1,19 @@
 pragma solidity ^0.4.0;
 
+/**
+ * @title A contract providing convenient interfaces with the EVM logging facilities.
+ */
 contract Console {
-    event LogAddress(address);
+    /**
+     * @notice Triggering logging of this contract's address.
+     */
     function log() {
         LogAddress(address(this));
     }
-    event LogUint(bytes32);
+    event LogAddress(address);
+    /**
+     * @notice Triggering logging of an arbitrary unsigned integer value.
+     */
     function log(uint x) {
         LogUint(uintToBytes(x));
     }
@@ -22,4 +30,5 @@ contract Console {
         }
         return ret;
     }
+    event LogUint(bytes32);
 }

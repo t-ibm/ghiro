@@ -42,6 +42,12 @@ class SolidityCompile extends DefaultTask {
                     abiFile.write contractMetadata.abi
                     File binFile = new File("$outputDir/${solFile.name.replace('.sol', '.bin')}")
                     binFile.write contractMetadata.bin
+                    if (contractMetadata.solInterface != null) {
+                        File ifcFile = new File("$outputDir/${solFile.name.replace('.sol', '.ifc')}")
+                        ifcFile.write contractMetadata.solInterface
+                    }
+                    File mdFile = new File("$outputDir/${solFile.name.replace('.sol', '.md')}")
+                    mdFile.write contractMetadata.metadata
                 }
             }
         }
