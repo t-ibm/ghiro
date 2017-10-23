@@ -6,6 +6,8 @@
  */
 package com.softwareag.tom.protocol.jsonrpc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softwareag.tom.ObjectMapperFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -23,10 +25,10 @@ import java.util.List;
 /**
  * JSON-RPC over HTTP service implementation.
  */
-public class ServiceHttp extends ServiceBase {
+public class ServiceHttp implements Service {
 
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
     private CloseableHttpClient httpClient;
-
     private final String url;
 
     public ServiceHttp(String url, CloseableHttpClient httpClient) {

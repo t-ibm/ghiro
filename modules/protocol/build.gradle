@@ -4,12 +4,10 @@ apply from: "$project.rootDir/settings/proto.gradle"
 
 dependencies {
     compile(
+        project(":modules:$project.rootProject.name-core"),
         project.sag.modules.httpcomponents,
-        project.sag.modules.jackson,
         project.sag.modules.protobuf,
-        project.sag.modules.slf4j.api,
     )
-    runtime project.sag.modules.slf4j.impl
     testCompile project.sag.modules.spock
 }
 

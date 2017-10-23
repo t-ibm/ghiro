@@ -27,6 +27,11 @@ configurations {
 }
 
 dependencies {
+    compile(
+            project.sag.modules.jackson,
+            project.sag.modules.slf4j.api,
+    )
+    runtime project.sag.modules.slf4j.impl
     testFixtureCompile(
         project.sag.modules.spock,
         project.sag.modules.slf4j.api,
