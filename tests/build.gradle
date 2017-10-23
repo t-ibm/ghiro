@@ -69,7 +69,10 @@ subprojects {
      * Common integration test dependencies
      */
     dependencies {
-        integTestCompile sag.modules.spock
+        integTestCompile(
+            project(":modules:$project.rootProject.name-abi"),
+            sag.modules.spock,
+        )
     }
     /*
      * Make Eclipe aware of the added configuration

@@ -2,10 +2,14 @@ description = "The $project.name module"
 
 dependencies {
     compile(
+        project.sag.modules.jackson,
         project.sag.modules.slf4j.api,
     )
     runtime project.sag.modules.slf4j.impl
-    testCompile project.sag.modules.spock
+    testCompile(
+        project(path:":modules:$project.rootProject.name-client", configuration:'testFixtureRuntime'),
+        project.sag.modules.spock,
+    )
 }
 
 task solc(type:SolidityCompile) {
