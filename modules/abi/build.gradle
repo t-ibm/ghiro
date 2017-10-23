@@ -7,7 +7,7 @@ dependencies {
     )
     runtime project.sag.modules.slf4j.impl
     testCompile(
-        project(path:":modules:$project.rootProject.name-client", configuration:'testFixtureRuntime'),
+        project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
         project.sag.modules.spock,
     )
 }
