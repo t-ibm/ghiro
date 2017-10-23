@@ -8,6 +8,11 @@ node {
             port = 36657
         }
     }
+    contract {
+        registry {
+            location = '../../modules/abi/build/solc'
+        }
+    }
 }
 
 environments {
