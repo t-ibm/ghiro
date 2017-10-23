@@ -7,10 +7,10 @@
 package com.softwareag.tom.abi.sol;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softwareag.tom.ObjectMapperFactory;
 import com.softwareag.tom.abi.Contract;
 import com.softwareag.tom.abi.ContractInterface;
 import com.softwareag.tom.abi.ContractLocation;
-import com.softwareag.tom.abi.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,14 +4,14 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi;
+package com.softwareag.tom;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * ABI object mapper factory.
+ * Object mapper factory.
  */
 public class ObjectMapperFactory {
 

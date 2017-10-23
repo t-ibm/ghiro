@@ -1,11 +1,7 @@
 description = "The $project.name module"
 
 dependencies {
-    compile(
-        project.sag.modules.jackson,
-        project.sag.modules.slf4j.api,
-    )
-    runtime project.sag.modules.slf4j.impl
+    compile project(":modules:$project.rootProject.name-core")
     testCompile(
         project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
         project.sag.modules.spock,
