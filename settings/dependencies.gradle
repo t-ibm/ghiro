@@ -9,6 +9,7 @@ ext {
     ]
 }
 sag.modules += [
+    crypto : 'org.bouncycastle:bcprov-jdk15on:1.54@jar',
     groovy : 'org.codehaus.groovy:groovy-all:2.4.7@jar',
     jackson : 'com.fasterxml.jackson.core:jackson-databind:2.8.5',
     junit : 'junit:junit:4.10@jar',

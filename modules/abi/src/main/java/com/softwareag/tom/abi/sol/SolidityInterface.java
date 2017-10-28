@@ -8,6 +8,7 @@ package com.softwareag.tom.abi.sol;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.softwareag.tom.abi.ContractInterface;
+import com.softwareag.tom.abi.util.SpecificationEncoder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,37 +16,62 @@ import java.util.stream.Collectors;
 /**
  * Solidity interface implementation.
  */
-public class SolidityInterface extends ContractInterface<SolidityInterface.Entries> {
+public class SolidityInterface extends ContractInterface<SolidityInterface.SoliditySpecification> {
 
-    @Override public List<Entries> getConstructors() {
-        return entries.stream().filter(entry -> ("constructor".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<SoliditySpecification> getConstructors() {
+        return specifications.stream().filter(entry -> ("constructor".equals(entry.type))).collect(Collectors.toList());
     }
 
-    @Override public List<Entries> getFunctions() {
-        return entries.stream().filter(entry -> ("function".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<SoliditySpecification> getFunctions() {
+        return specifications.stream().filter(entry -> ("function".equals(entry.type))).collect(Collectors.toList());
     }
 
-    @Override public List<Entries> getEvents() {
-        return entries.stream().filter(entry -> ("event".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<SoliditySpecification> getEvents() {
+        return specifications.stream().filter(entry -> ("event".equals(entry.type))).collect(Collectors.toList());
     }
 
-    public static class Entries implements ContractInterface.Specification {
-        @JsonProperty("name") public String name;
-        @JsonProperty("type") public String type;
-        @JsonProperty("inputs") public List<Parameter> inputs;
-        @JsonProperty("outputs") public List<Parameter> outputs;
-        @JsonProperty("constant") public boolean constant;
-        @JsonProperty("payable") public boolean payable;
-        @JsonProperty("anonymous") public boolean anonymous;
+    public static class SoliditySpecification implements ContractInterface.Specification<SolidityParameter> {
+        @JsonProperty("name") String name;
+        @JsonProperty("type") String type;
+        @JsonProperty("inputs") List<SolidityParameter> inputParameters;
+        @JsonProperty("outputs") List<SolidityParameter> outputParameters;
+        @JsonProperty("constant") boolean constant;
+        @JsonProperty("payable") boolean payable;
+        @JsonProperty("anonymous") boolean anonymous;
+
+        @Override public String getName() { return name; }
+        @Override public String getType() { return type; }
+        @Override public List<SolidityParameter> getInputParameters() {
+            return inputParameters;
+        }
+        @Override public List<SolidityParameter> getOutputParameters() { return outputParameters; }
+        @Override public boolean getConstant() { return constant; }
+        @Override public boolean getPayable() { return payable; }
+        @Override public boolean getAnonymous() { return anonymous; }
 
         @Override public String encode() {
-            return null; //todo
+            return SpecificationEncoder.encode(this);
         }
     }
 
-    private static class Parameter {
-        @JsonProperty("name") public String name;
-        @JsonProperty("type") public String type;
-        @JsonProperty("indexed") public boolean indexed;
+    static class SolidityParameter implements ContractInterface.Parameter {
+        @JsonProperty("name") String name;
+        @JsonProperty("type") String type;
+        @JsonProperty("indexed") boolean indexed;
+
+        @Override public String getName() { return name; }
+        @Override public String getType() { return type; }
+        @Override public boolean getIndexed() { return indexed; }
+
+        @Override public short getLength() {
+            int start = type.trim().indexOf('[') + 1;
+            int end = type.trim().indexOf(']');
+            if (end - start > 0) {
+                String length = type.substring(start,end);
+                return Short.parseShort(length);
+            } else {
+                return 1;
+            }
+        }
     }
 }

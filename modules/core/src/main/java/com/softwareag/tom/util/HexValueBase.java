@@ -126,4 +126,8 @@ public class HexValueBase {
     protected static String decode(String hexStr) throws UnsupportedEncodingException {
         return new String(toByteArray(hexStr), "UTF-8").trim();
     }
+
+    public static String encode(String str) {
+        return toString(str.getBytes());
+    }
 }

@@ -8,6 +8,7 @@ package com.softwareag.tom.integration.protocol
 
 import com.softwareag.tom.abi.ContractRegistry
 import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
+import com.softwareag.tom.abi.util.SpecificationEncoder
 import groovyx.net.http.RESTClient
 
 /**
@@ -203,7 +204,7 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(6) the contract is executed 3 times'
         3.times {
-            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':'51973ec9']]
+            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('log()')]]
             resp = send request
         }
 
@@ -300,7 +301,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events == []
 
         when: println '(6) the get contract method is executed'
-        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':'6d4ce63c']]
+        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('get()')]]
         resp = send request
 
         then: 'a valid response is received'
@@ -309,7 +310,7 @@ class BurrowTest extends RestClientSpecification {
         when: println '(7) the set contract method is executed'
         params = [
                 'priv_key':callee.priv_key,
-                'data':'60fe47b10000000000000000000000000000000000000000000000000000000000000007',
+                'data':SpecificationEncoder.getFunctionId('set(uint256)') + '0000000000000000000000000000000000000000000000000000000000000007',
                 'address':callee.address,
                 'fee':12,
                 'gas_limit':223,
@@ -326,7 +327,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.tx_id != null
 
         when: println '(8) the get contract method is executed again'
-        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':'6d4ce63c']]
+        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('get()')]]
         resp = send request
 
         then: 'a valid response is received'

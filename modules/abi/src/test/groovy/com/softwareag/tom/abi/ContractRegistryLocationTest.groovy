@@ -26,7 +26,7 @@ class ContractRegistryLocationTest extends Specification {
         contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}"));
     }
 
-    public "test contract registry"() {
+    def "test contract registry"() {
         when: 'the contracts are loaded into memory'
         def  contracts = contractRegistry.load()
 
@@ -37,9 +37,9 @@ class ContractRegistryLocationTest extends Specification {
 
         when: 'the list of specifications are queried'
         ContractInterface contractInterface = contracts['Console'].contractAbi
-        List constructors = contractInterface.constructors as List<SolidityInterface.Entries>
-        List functions = contractInterface.functions as List<SolidityInterface.Entries>
-        List events = contractInterface.events as List<SolidityInterface.Entries>
+        List constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
+        List functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
+        List events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
 
         then: 'the expected number of specification types and there values are as expected'
         //Constructors
@@ -49,10 +49,10 @@ class ContractRegistryLocationTest extends Specification {
         functions.get(0).name == 'log'
         functions.get(1).name == 'uintToBytes'
         functions.get(1).type == 'function'
-        functions.get(1).inputs.get(0).name == 'v'
-        functions.get(1).inputs.get(0).type == 'uint256'
-        functions.get(1).outputs.get(0).name == 'ret'
-        functions.get(1).outputs.get(0).type == 'bytes32'
+        functions.get(1).inputParameters.get(0).name == 'v'
+        functions.get(1).inputParameters.get(0).type == 'uint256'
+        functions.get(1).outputParameters.get(0).name == 'ret'
+        functions.get(1).outputParameters.get(0).type == 'bytes32'
         functions.get(1).constant
         !functions.get(1).payable
         functions.get(2).name == 'log'
@@ -60,14 +60,14 @@ class ContractRegistryLocationTest extends Specification {
         events.size() == 2
         events.get(0).name == 'LogAddress'
         !events.get(0).anonymous
-        !events.get(0).inputs.get(0).indexed
+        !events.get(0).inputParameters.get(0).indexed
         events.get(1).name == 'LogUint'
 
         when: 'the list of specifications are queried'
         contractInterface = contracts['SimpleStorage'].contractAbi
-        constructors = contractInterface.constructors as List<SolidityInterface.Entries>
-        functions = contractInterface.functions as List<SolidityInterface.Entries>
-        events = contractInterface.events as List<SolidityInterface.Entries>
+        constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
+        functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
+        events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
 
         then: 'the expected number of specification types and there values are as expected'
         //Constructors
