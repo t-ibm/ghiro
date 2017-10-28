@@ -28,6 +28,7 @@ configurations {
 
 dependencies {
     compile(
+            project.sag.modules.crypto,
             project.sag.modules.jackson,
             project.sag.modules.slf4j.api,
     )

@@ -63,8 +63,8 @@ public class SolidityLocationFileSystem implements ContractLocation {
     }
 
     private ContractInterface getContractInterface(byte[] src) throws IOException {
-        ContractInterface<SolidityInterface.Entries> contractInterface = new SolidityInterface();
-        contractInterface.entries = Arrays.asList(objectMapper.readValue(src, SolidityInterface.Entries[].class));
+        ContractInterface<SolidityInterface.SoliditySpecification> contractInterface = new SolidityInterface();
+        contractInterface.specifications = Arrays.asList(objectMapper.readValue(src, SolidityInterface.SoliditySpecification[].class));
         return contractInterface;
     }
 }

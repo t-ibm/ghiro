@@ -9,6 +9,7 @@ package com.softwareag.tom.integration.service
 import com.google.protobuf.Message
 import com.softwareag.tom.abi.ContractRegistry
 import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
+import com.softwareag.tom.abi.util.SpecificationEncoder
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
@@ -129,7 +130,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) the contract is executed 2 times'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString('51973ec9')).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(SpecificationEncoder.getFunctionId('log()'))).build()
         ).build()
         2.times {
             response = web3Service.ethCall(request as Types.RequestEthCall)
