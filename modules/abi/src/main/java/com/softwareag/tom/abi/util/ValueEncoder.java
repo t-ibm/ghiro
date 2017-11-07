@@ -55,7 +55,7 @@ public class ValueEncoder {
         } else if ("string".equals(type)) {
             return ParameterTypeJava.STRING;
         } else if ("bytes".equals(type)) {
-            return ParameterTypeJava.DYNAMICBYTES;
+            return ParameterTypeJava.BYTES;
         } else {
             return ParameterTypeJava.UNKNOWN;
         }
@@ -130,7 +130,7 @@ public class ValueEncoder {
 
     private static String encodeString(String value) {
         byte[] utfEncoded = value.getBytes(StandardCharsets.UTF_8);
-        return encodeBytes(ParameterTypeJava.DYNAMICBYTES, utfEncoded);
+        return encodeBytes(ParameterTypeJava.BYTES, utfEncoded);
     }
 
     private static String encodeBytes(ParameterType type, byte[] value) {

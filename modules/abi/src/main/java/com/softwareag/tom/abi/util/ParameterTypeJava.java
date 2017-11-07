@@ -23,7 +23,7 @@ final class ParameterTypeJava {
     static final ParameterType<BigInteger> ADDRESS = NumericType.ADDRESS;
     static final ParameterType<BigInteger> FIXED = NumericType.FIXED;
     static final ParameterType<BigInteger> UFIXED = NumericType.UFIXED;
-    static final ParameterType<byte[]> DYNAMICBYTES = BytesType.DYNAMICBYTES;
+    static final ParameterType<byte[]> BYTES = BytesType.BYTES;
     static final ParameterType<String> STRING = StringType.STRING;
 
     private enum UnknownType implements ParameterType<Object> {
@@ -65,7 +65,7 @@ final class ParameterTypeJava {
     }
 
     static class BytesType implements ParameterType<byte[]> {
-        static final BytesType DYNAMICBYTES = new BytesType("bytes", true);
+        static final BytesType BYTES = new BytesType("bytes", true);
 
         private String name;
         private boolean dynamic;
