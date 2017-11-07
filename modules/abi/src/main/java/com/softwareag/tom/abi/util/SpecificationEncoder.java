@@ -10,8 +10,12 @@ import com.softwareag.tom.abi.ContractInterface;
 import com.softwareag.tom.util.Hash;
 import com.softwareag.tom.util.HexValueBase;
 
+import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.softwareag.tom.abi.util.ValueEncoder.MAX_BYTE_LENGTH;
 
 /**
  * The <a href="https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI">Ethereum Contract ABI</a> encoding for constructors, functions, and events.
@@ -20,24 +24,57 @@ public class SpecificationEncoder {
 
     private SpecificationEncoder() {}
 
-    public static String encode(ContractInterface.Specification specification) {
-        return null;
+    public static <T, P extends ContractInterface.Parameter<T>> String encode(ContractInterface.Specification<T, P> specification, List<T> values) {
+        List<P> parameters = specification.getInputParameters();
+
+        String specificationSignature = getSpecificationSignature(specification.getName(), parameters);
+        String specificationId = getSpecificationId(specificationSignature);
+
+        return encodeParameters(parameters, specificationId, values);
     }
 
-    static int getParameterCount(List<ContractInterface.Parameter> parameters) {
+    static <T, P extends ContractInterface.Parameter<T>> String encodeParameters(List<P> parameters, String specificationId, List<T> values) {
+        StringBuilder result = new StringBuilder(specificationId);
+
+        int dynamicDataOffset = getParameterCount(parameters) * MAX_BYTE_LENGTH;
+        StringBuilder dynamicData = new StringBuilder();
+
+        Iterator<P> parameterIterator = parameters.iterator();
+        Iterator<T> valueIterator = values.iterator();
+
+        while (parameterIterator.hasNext() && valueIterator.hasNext()) {
+            ContractInterface.Parameter<T> parameter = parameterIterator.next();
+            String encodedValue = parameter.encode(valueIterator.next());
+
+            if (parameter.getType() == ParameterTypeJava.STRING || parameter.getType() == ParameterTypeJava.DYNAMICBYTES
+                || parameter.getType() instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType)parameter.getType()).isDynamic()) {
+                String encodedDataOffset = ValueEncoder.encodeNumeric(ParameterTypeJava.UINT, BigInteger.valueOf(dynamicDataOffset));
+                result.append(encodedDataOffset);
+                dynamicData.append(encodedValue);
+                dynamicDataOffset += encodedValue.length() >> 1;
+            } else {
+                result.append(encodedValue);
+            }
+        }
+        result.append(dynamicData);
+
+        return result.toString();
+    }
+
+    static <T, P extends ContractInterface.Parameter<T>> int getParameterCount(List<P> parameters) {
         int count = 0;
-        for (ContractInterface.Parameter parameter:parameters) {
-                count += parameter.getLength();
+        for (P parameter:parameters) {
+            count += parameter.getLength();
         }
         return count;
     }
 
-    static String getFunctionSignature(String methodName, List<ContractInterface.Parameter> parameters) {
-        String params = parameters.stream().map(p -> String.valueOf(p.getType())).collect(Collectors.joining(","));
+    static <T, P extends ContractInterface.Parameter<T>> String getSpecificationSignature(String methodName, List<P> parameters) {
+        String params = parameters.stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
         return methodName + "(" + params + ")";
     }
 
-    public static String getFunctionId(String methodSignature) {
+    static String getSpecificationId(String methodSignature) {
         return HexValueBase.stripPrefix(Hash.sha3(HexValueBase.encode(methodSignature)).substring(0, 10));
     }
 }

@@ -8,7 +8,9 @@ package com.softwareag.tom.abi.sol;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.softwareag.tom.abi.ContractInterface;
+import com.softwareag.tom.abi.ParameterType;
 import com.softwareag.tom.abi.util.SpecificationEncoder;
+import com.softwareag.tom.abi.util.ValueEncoder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,44 +32,48 @@ public class SolidityInterface extends ContractInterface<SolidityInterface.Solid
         return specifications.stream().filter(entry -> ("event".equals(entry.type))).collect(Collectors.toList());
     }
 
-    public static class SoliditySpecification implements ContractInterface.Specification<SolidityParameter> {
+    public static class SoliditySpecification<T> implements ContractInterface.Specification<T, SolidityParameter<T>> {
         @JsonProperty("name") String name;
         @JsonProperty("type") String type;
-        @JsonProperty("inputs") List<SolidityParameter> inputParameters;
-        @JsonProperty("outputs") List<SolidityParameter> outputParameters;
+        @JsonProperty("inputs") List<SolidityParameter<T>> inputParameters;
+        @JsonProperty("outputs") List<SolidityParameter<T>> outputParameters;
         @JsonProperty("constant") boolean constant;
         @JsonProperty("payable") boolean payable;
         @JsonProperty("anonymous") boolean anonymous;
 
         @Override public String getName() { return name; }
         @Override public String getType() { return type; }
-        @Override public List<SolidityParameter> getInputParameters() {
+        @Override public List<SolidityParameter<T>> getInputParameters() {
             return inputParameters;
         }
-        @Override public List<SolidityParameter> getOutputParameters() { return outputParameters; }
+        @Override public List<SolidityParameter<T>> getOutputParameters() { return outputParameters; }
         @Override public boolean getConstant() { return constant; }
         @Override public boolean getPayable() { return payable; }
         @Override public boolean getAnonymous() { return anonymous; }
 
-        @Override public String encode() {
-            return SpecificationEncoder.encode(this);
+        @Override public String encode(List<T> values) {
+            return SpecificationEncoder.encode(this, values);
         }
     }
 
-    static class SolidityParameter implements ContractInterface.Parameter {
+    public static class SolidityParameter<T> implements ContractInterface.Parameter<T> {
         @JsonProperty("name") String name;
-        @JsonProperty("type") String type;
+        @JsonProperty("type") ParameterType type;
         @JsonProperty("indexed") boolean indexed;
 
+        @SuppressWarnings("unused") public void setType(String type) {
+            this.type = ValueEncoder.parse(type);
+        }
+
         @Override public String getName() { return name; }
-        @Override public String getType() { return type; }
+        @Override public ParameterType getType() { return type; }
         @Override public boolean getIndexed() { return indexed; }
 
         @Override public short getLength() {
-            int start = type.trim().indexOf('[') + 1;
-            int end = type.trim().indexOf(']');
+            int start = type.getName().trim().indexOf('[') + 1;
+            int end = type.getName().trim().indexOf(']');
             if (end - start > 0) {
-                String length = type.substring(start,end);
+                String length = type.getName().substring(start,end);
                 return Short.parseShort(length);
             } else {
                 return 1;
