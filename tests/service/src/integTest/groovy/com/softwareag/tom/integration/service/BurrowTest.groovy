@@ -7,12 +7,12 @@
 package com.softwareag.tom.integration.service
 
 import com.google.protobuf.Message
+import com.softwareag.tom.abi.ContractInterface
 import com.softwareag.tom.abi.ContractRegistry
 import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
-import com.softwareag.tom.abi.util.SpecificationEncoder
-import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
+import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
 import com.softwareag.tom.protocol.util.HexValue
 import spock.lang.Shared
@@ -70,7 +70,12 @@ class BurrowTest extends Specification {
     public "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
-        String contract = contracts['Console'].contractBinary
+        String contractBinary = contracts['Console'].contractBinary
+        ContractInterface contractAbi = contracts['Console'].contractAbi
+        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification logFunction = functions.get(0)
+        assert logFunction.name == 'log'
+
         def callee = [
                 address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
                 priv_key:'4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
@@ -78,7 +83,7 @@ class BurrowTest extends Specification {
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(HexValue.toByteString(contract)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setData(HexValue.toByteString(contractBinary)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -130,7 +135,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) the contract is executed 2 times'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(SpecificationEncoder.getFunctionId('log()'))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(logFunction.encode([]))).build()
         ).build()
         2.times {
             response = web3Service.ethCall(request as Types.RequestEthCall)

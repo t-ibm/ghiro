@@ -6,9 +6,9 @@
  */
 package com.softwareag.tom.integration.protocol
 
+import com.softwareag.tom.abi.ContractInterface
 import com.softwareag.tom.abi.ContractRegistry
 import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
-import com.softwareag.tom.abi.util.SpecificationEncoder
 import groovyx.net.http.RESTClient
 
 /**
@@ -134,7 +134,12 @@ class BurrowTest extends RestClientSpecification {
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
-        String contract = contracts['Console'].contractBinary
+        String contractBinary = contracts['Console'].contractBinary
+        ContractInterface contractAbi = contracts['Console'].contractAbi
+        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification logFunction = functions.get(0)
+        assert logFunction.name == 'log'
+
         def caller = [
                 address:'71044204395934D638C3BDA59E89C8219330A574',
                 pub_key:'CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20',
@@ -146,7 +151,7 @@ class BurrowTest extends RestClientSpecification {
         ]
         def params = [
                 'priv_key':caller.priv_key,
-                'data':contract,
+                'data':contractBinary,
                 'address':'',
                 'fee':12,
                 'gas_limit':223,
@@ -204,7 +209,7 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(6) the contract is executed 3 times'
         3.times {
-            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('log()')]]
+            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':logFunction.encode([])]]
             resp = send request
         }
 
@@ -231,7 +236,13 @@ class BurrowTest extends RestClientSpecification {
     def "test create solidity contract and store/update data via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
-        String contract = contracts['SimpleStorage'].contractBinary
+        String contractBinary = contracts['SimpleStorage'].contractBinary
+        ContractInterface contractAbi = contracts['SimpleStorage'].contractAbi
+        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification setFunction = functions.get(2)
+        assert setFunction.name == 'set'
+        ContractInterface.Specification getFunction = functions.get(3)
+        assert getFunction.name == 'get'
         def caller = [
                 address:'71044204395934D638C3BDA59E89C8219330A574',
                 pub_key:'CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20',
@@ -243,7 +254,7 @@ class BurrowTest extends RestClientSpecification {
         ]
         def params = [
                 'priv_key':caller.priv_key,
-                'data':contract,
+                'data':contractBinary,
                 'address':'',
                 'fee':12,
                 'gas_limit':223,
@@ -301,7 +312,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events == []
 
         when: println '(6) the get contract method is executed'
-        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('get()')]]
+        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
         resp = send request
 
         then: 'a valid response is received'
@@ -310,7 +321,7 @@ class BurrowTest extends RestClientSpecification {
         when: println '(7) the set contract method is executed'
         params = [
                 'priv_key':callee.priv_key,
-                'data':SpecificationEncoder.getFunctionId('set(uint256)') + '0000000000000000000000000000000000000000000000000000000000000007',
+                'data':setFunction.encode([BigInteger.valueOf(7)]),
                 'address':callee.address,
                 'fee':12,
                 'gas_limit':223,
@@ -327,7 +338,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.tx_id != null
 
         when: println '(8) the get contract method is executed again'
-        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':SpecificationEncoder.getFunctionId('get()')]]
+        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
         resp = send request
 
         then: 'a valid response is received'
