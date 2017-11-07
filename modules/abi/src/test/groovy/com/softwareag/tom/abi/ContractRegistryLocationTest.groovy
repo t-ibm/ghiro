@@ -50,9 +50,10 @@ class ContractRegistryLocationTest extends Specification {
         functions.get(1).name == 'uintToBytes'
         functions.get(1).type == 'function'
         functions.get(1).inputParameters.get(0).name == 'v'
-        functions.get(1).inputParameters.get(0).type == 'uint256'
+        functions.get(1).inputParameters.get(0).type.name == 'uint256'
+        functions.get(1).inputParameters.get(0).type.type == BigInteger.class
         functions.get(1).outputParameters.get(0).name == 'ret'
-        functions.get(1).outputParameters.get(0).type == 'bytes32'
+        functions.get(1).outputParameters.get(0).type.name == 'bytes32'
         functions.get(1).constant
         !functions.get(1).payable
         functions.get(2).name == 'log'

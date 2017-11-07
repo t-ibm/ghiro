@@ -19,26 +19,47 @@ class SpecificationEncoderTest extends Specification {
 
     def "test an arbitrary contract function"() {
         given: 'an arbitrary contract specification'
-        String src = '{"constant":false,"inputs":[{"name":"a","type":"uint32"},{"name":"b","type":"bool"},{"name":"c","type":"uint8[42]"},{"name":"d","type":"uint16[]"}],"name":"foo","outputs":[],"payable":false,"type":"function"}'
+        String src = '{"constant":false,"inputs":[{"name":"a","type":"uint32"},{"name":"b","type":"bool"},{"name":"c","type":"uint8[2]"},{"name":"d","type":"uint16[]"}],"name":"foo","outputs":[],"payable":false,"type":"function"}'
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(src.bytes, SolidityInterface.SoliditySpecification.class)
 
         when: 'the function signature is retrieved'
-        String signature = SpecificationEncoder.getFunctionSignature(specification.getName(), specification.getInputParameters())
+        String signature = SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters())
 
         then: 'the signature is as expected'
-        signature == 'foo(uint32,bool,uint8[42],uint16[])'
+        signature == 'foo(uint32,bool,uint8[2],uint16[])'
 
-        when: 'the function signature is retrieved'
+        when: 'the parameter count is retrieved'
         int length = SpecificationEncoder.getParameterCount(specification.getInputParameters())
 
-        then: 'the signature is as expected'
-        length == 45
+        then: 'its length is as expected'
+        length == 5
 
         when: 'the function id is retrieved'
-        String id = SpecificationEncoder.getFunctionId(signature)
+        String id = SpecificationEncoder.getSpecificationId(signature)
 
         then: 'the id is as expected'
-        id == '0b6d38a1'
+        id == '82fc43b3'
+
+        when: 'the function is encode'
+        def values = [BigInteger.ZERO,Boolean.TRUE,[BigInteger.valueOf(2), BigInteger.valueOf(3)],[BigInteger.valueOf(4), BigInteger.valueOf(5), BigInteger.valueOf(6)]]
+        String result = SpecificationEncoder.encodeParameters(specification.getInputParameters(), id, values)
+
+        then: 'the returned string is as expected'
+        result == (
+                '82fc43b3'
+                        + '0000000000000000000000000000000000000000000000000000000000000000'
+                        + '0000000000000000000000000000000000000000000000000000000000000001'
+                        + '0000000000000000000000000000000000000000000000000000000000000002'
+                                + '0000000000000000000000000000000000000000000000000000000000000003'
+                        + '00000000000000000000000000000000000000000000000000000000000000a0'
+                                + '0000000000000000000000000000000000000000000000000000000000000003'
+                                        + '0000000000000000000000000000000000000000000000000000000000000004'
+                                        + '0000000000000000000000000000000000000000000000000000000000000005'
+                                        + '0000000000000000000000000000000000000000000000000000000000000006'
+        )
+
+        and: 'the same result is retrieved when executing all steps at once'
+        result == specification.encode(values)
     }
 
     @Unroll def "test contract Console.#signature"() {
@@ -46,8 +67,8 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getFunctionSignature(specification.getName(), specification.getInputParameters()) == signature
-        SpecificationEncoder.getFunctionId(signature) == id
+        SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
+        SpecificationEncoder.getSpecificationId(signature) == id
 
         where: 'the specification items are from the Console contract'
         source << [
@@ -73,8 +94,8 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getFunctionSignature(specification.getName(), specification.getInputParameters()) == signature
-        SpecificationEncoder.getFunctionId(signature) == id
+        SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
+        SpecificationEncoder.getSpecificationId(signature) == id
 
         where: 'the specification items are from the SimpleStorage contract'
         source << [

@@ -6,6 +6,8 @@
  */
 package com.softwareag.tom.abi;
 
+import com.softwareag.tom.abi.util.ValueEncoder;
+
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public abstract class ContractInterface<S extends ContractInterface.Specificatio
      * Specification API.
      * @param <P> The expected parameter type of this contract interface
      */
-    public interface Specification<P extends ContractInterface.Parameter> {
+    public interface Specification<T, P extends ContractInterface.Parameter<T>> {
         String getName();
         String getType();
         List<P> getInputParameters();
@@ -31,20 +33,28 @@ public abstract class ContractInterface<S extends ContractInterface.Specificatio
         boolean getConstant();
         boolean getPayable();
         boolean getAnonymous();
-
-        String encode();
+        /**
+         * @return the encoded specification.
+         */
+        String encode(List<T> values);
     }
 
     /**
      * Parameter API.
      */
-    public interface Parameter {
+    public interface Parameter<T> {
         String getName();
-        String getType();
+        ParameterType getType();
         boolean getIndexed();
         /**
-         * @return the length of an array for a parameter of type fixed-length array, otherwise returns 1.
+         * @return the length of an array for a parameter of type fixed-length array, otherwise returns 1
          */
         short getLength();
+        /**
+         * @return the encoded parameter value
+         */
+        default String encode(T value) {
+            return ValueEncoder.encode(getType(), value);
+        }
     }
 }

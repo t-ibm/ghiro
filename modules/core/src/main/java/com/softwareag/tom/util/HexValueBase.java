@@ -50,7 +50,7 @@ public class HexValueBase {
         }
     }
 
-    protected static BigInteger toBigInteger(String value) {
+    public static BigInteger toBigInteger(String value) {
         return new BigInteger(validate(value).substring(2), 16);
     }
 
@@ -116,7 +116,7 @@ public class HexValueBase {
         }
     }
 
-    protected static String toString(byte[] bytes) {
+    public static String toString(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (byte b : bytes)
             sb.append(String.format("%02x", b));
