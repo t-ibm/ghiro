@@ -123,7 +123,7 @@ public class HexValueBase {
         return PREFIX + sb.toString();
     }
 
-    protected static String decode(String hexStr) throws UnsupportedEncodingException {
+    public static String decode(String hexStr) throws UnsupportedEncodingException {
         return new String(toByteArray(hexStr), "UTF-8").trim();
     }
 
