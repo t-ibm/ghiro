@@ -9,6 +9,7 @@ package com.softwareag.tom.integration.protocol
 import com.softwareag.tom.abi.ContractInterface
 import com.softwareag.tom.abi.ContractRegistry
 import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
+import com.softwareag.tom.util.HexValueBase
 import groovyx.net.http.RESTClient
 
 /**
@@ -361,6 +362,6 @@ class BurrowTest extends RestClientSpecification {
         then: 'an event for each call is received'
         resp.data.result.events.size() == 3
         resp.data.result.events.get(1).data.size() == 64
-        resp.data.result.events.get(1).data == '3700000000000000000000000000000000000000000000000000000000000000'
+        HexValueBase.decode(resp.data.result.events.get(1).data) == '7'
     }
 }
