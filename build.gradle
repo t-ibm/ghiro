@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath(
-                'com.google.protobuf:protobuf-gradle-plugin:0.8.1@jar',
+                'com.google.protobuf:protobuf-gradle-plugin:0.8.3@jar',
                 'com.google.gradle:osdetector-gradle-plugin:1.4.0@jar',
                 'com.google.guava:guava:18.0@jar',
                 'commons-lang:commons-lang:2.6@jar',
@@ -42,6 +42,7 @@ apply from: 'settings/ide-idea.gradle'
  * Common configuration for all projects
  */
 allprojects {
+    project.ext.build = new SAGBuild(project)
     defaultTasks 'assemble'
     configurations.all {
         resolutionStrategy {
@@ -56,5 +57,18 @@ allprojects {
     }
     repositories {
         mavenCentral()
+    }
+}
+/*
+ * Helper classes.
+ */
+public class SAGBuild {
+    private final Project project
+    public SAGBuild(Project project) { this.project = project }
+    public int number = getProjectProperty(project, 'build.number', 0)
+    public String version = "${getProjectProperty(project, 'build.version.major', 0)}.${getProjectProperty(project, 'build.version.minor', 0)}.${getProjectProperty(project, 'build.version.micro', 0)}.${getProjectProperty(project, 'build.patch', 0)}"
+    public String getInstallerVersion() { return "$version.$number" }
+    private static int getProjectProperty(Project project, String propertyName, int defaultValue) {
+        project.hasProperty(propertyName) ? Integer.parseInt((String) project.property(propertyName)) : defaultValue
     }
 }
