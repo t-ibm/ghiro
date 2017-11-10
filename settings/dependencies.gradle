@@ -4,8 +4,13 @@
 ext {
     sag = [
         ttl : 60*60*24*7, // Cache dynamic versions for 7 days
-        versions : [:],
         modules : [:],
+        is : [
+            version : '9.12+',
+        ],
+        nodeutil : [
+            version : '9.12.0-v0091',
+        ],
     ]
 }
 sag.modules += [
