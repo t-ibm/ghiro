@@ -3,9 +3,9 @@ description = 'Low-level protocol integration tests'
 dependencies {
     integTestCompile(
         project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
-        project.sag.modules.httpbuilder.api,
+        project.sag.module.httpbuilder.api,
     )
     integTestRuntime(
-        project.sag.modules.httpbuilder.impl,
+        project.sag.module.httpbuilder.impl,
     )
 }

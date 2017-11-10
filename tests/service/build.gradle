@@ -5,5 +5,5 @@ dependencies {
         project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
         project(":modules:$project.rootProject.name-protocol"),
     )
-    integTestRuntime project.sag.modules.slf4j.impl
+    integTestRuntime project.sag.module.slf4j.impl
 }
