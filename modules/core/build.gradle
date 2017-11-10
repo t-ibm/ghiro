@@ -28,16 +28,16 @@ configurations {
 
 dependencies {
     compile(
-            project.sag.modules.crypto,
-            project.sag.modules.jackson,
-            project.sag.modules.slf4j.api,
+            project.sag.module.crypto,
+            project.sag.module.jackson,
+            project.sag.module.slf4j.api,
     )
-    runtime project.sag.modules.slf4j.impl
+    runtime project.sag.module.slf4j.impl
     testFixtureCompile(
-        project.sag.modules.spock,
-        project.sag.modules.slf4j.api,
+        project.sag.module.spock,
+        project.sag.module.slf4j.api,
     )
-    testFixtureRuntime project.sag.modules.slf4j.impl
+    testFixtureRuntime project.sag.module.slf4j.impl
     testFixtureTestCompile sourceSets.testFixture.output
     testCompile sourceSets.testFixture.output
 }

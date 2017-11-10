@@ -5,10 +5,10 @@ apply from: "$project.rootDir/settings/proto.gradle"
 dependencies {
     compile(
         project(":modules:$project.rootProject.name-core"),
-        project.sag.modules.httpcomponents,
-        project.sag.modules.protobuf,
+        project.sag.module.httpcomponents,
+        project.sag.module.protobuf,
     )
-    testCompile project.sag.modules.spock
+    testCompile project.sag.module.spock
 }
 
 idea {

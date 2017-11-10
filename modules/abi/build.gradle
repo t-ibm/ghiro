@@ -4,7 +4,7 @@ dependencies {
     compile project(":modules:$project.rootProject.name-core")
     testCompile(
         project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
-        project.sag.modules.spock,
+        project.sag.module.spock,
     )
 }
 

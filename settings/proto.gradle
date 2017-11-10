@@ -6,6 +6,6 @@ apply plugin: 'com.google.protobuf'
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
-        artifact = project.sag.modules.protoc
+        artifact = project.sag.module.protoc
     }
 }
