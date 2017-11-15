@@ -1,0 +1,9 @@
+project.label = 'WmDApp'
+project.description = "$label package"
+
+pkg {
+    manifest.values(
+        'name': project.label,
+        'description': project.description,
+    )
+}
