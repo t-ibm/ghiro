@@ -40,6 +40,17 @@ message TxType {
     bytes value = 6;
     bytes nonce = 7;
 }
+message TxReceiptType {
+    bytes status = 1;
+    bytes transactionHash = 2;
+    bytes transactionIndex = 3;
+    bytes blockHash = 4;
+    bytes blockNumber = 5;
+    bytes cumulativeGasUsed = 6;
+    bytes gasUsed = 7;
+    bytes contractAddress = 8;
+    repeated FilterLogType logs = 9;
+}
 /*
  * Filter Types.
  */
@@ -73,6 +84,7 @@ message Request {
         RequestEthCall ethCall = 6;
         RequestEthNewFilter ethNewFilter = 7;
         RequestEthGetFilterChanges ethGetFilterChanges = 8;
+        RequestEthGetTransactionReceipt ethGetTransactionReceipt = 9;
     }
 }
 message RequestWeb3ClientVersion {
@@ -101,6 +113,9 @@ message RequestEthNewFilter {
 message RequestEthGetFilterChanges {
     bytes id = 1;
 }
+message RequestEthGetTransactionReceipt {
+    bytes hash = 1;
+}
 /*
  * Response Types.
  */
@@ -115,6 +130,7 @@ message Response {
         ResponseEthCall ethCall = 7;
         ResponseEthNewFilter ethNewFilter = 8;
         ResponseEthGetFilterChanges ethGetFilterChanges = 9;
+        ResponseEthGetTransactionReceipt ethGetTransactionReceipt = 10;
     }
 }
 message ResponseException {
@@ -146,6 +162,9 @@ message ResponseEthNewFilter {
 message ResponseEthGetFilterChanges {
     repeated FilterLogType log = 1;
 }
+message ResponseEthGetTransactionReceipt {
+    TxReceiptType txReceipt = 1;
+}
 /*
  * Service Definition.
  */
@@ -158,4 +177,5 @@ service AbiService {
     rpc ethCall(RequestEthCall) returns (ResponseEthCall);
     rpc ethNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);
     rpc ethGetFilterChanges(RequestEthGetFilterChanges) returns (ResponseEthGetFilterChanges);
+    rpc ethGetTransactionReceipt(RequestEthGetTransactionReceipt) returns (ResponseEthGetTransactionReceipt);
 }

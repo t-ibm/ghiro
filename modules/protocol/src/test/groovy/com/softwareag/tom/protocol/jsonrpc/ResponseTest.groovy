@@ -102,6 +102,7 @@ class ResponseTest extends ResponseSpecification {
         then: 'the response type values are set to the expected values'
         response.error == null
         response.result.txId == '619DB1BBEC212208EF9949D5F341722B0312219C'
+        response.result.callData.contractAddress == '3F2F648518AE519964315B9B54ECD8FE23E6075F'
     }
 
     def "test eth_call"() {
