@@ -1,0 +1,69 @@
+description = 'Integration Server packages'
+/*
+ * Build script configuration
+ */
+buildscript {
+    repositories {
+        ivy {
+            name = 'sag-central'
+            layout 'maven'
+            url = 'http://bas.eur.ad.sag:8081/artifactory/build-snapshot'
+        }
+    }
+    dependencies {
+        classpath "com.softwareag.bas:bas-plugins-is:$project.sag.version.bas@jar"
+        classpath group:'com.softwareag.mom.is', name:'is-server', version:project.sag.version.is, configuration:'nodeutil'
+    }
+}
+/*
+ * Project specific configuration
+ */
+task clean(type:Delete, group:'build') {
+    description = 'Deletes the build directory.'
+    delete project.buildDir
+}
+/*
+ * Project domain specific configuration
+ */
+subprojects {
+    apply from: "$project.rootDir/settings/java.gradle"
+    apply plugin: IntegrationServerPackagePlugin
+    configurations {
+        nodeutil {
+            visible = false
+        }
+    }
+    repositories {
+        ivy {
+            name = 'sag-central'
+            layout 'maven'
+            url = 'http://bas.eur.ad.sag:8081/artifactory/build-snapshot'
+        }
+    }
+    dependencies {
+        compile "com.softwareag.mom.is:is-client:$project.sag.version.is@jar"
+        nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.version.is, configuration:'nodeutil'
+    }
+    frag {
+        nodeUtilClasspath = project.configurations.nodeutil
+    }
+}
+/*
+ * Additional plugin types
+ */
+class IntegrationServerPackagePlugin implements Plugin<Project> {
+    void apply(Project project) {
+        def extension = project.extensions.create('is-pkg', com.softwareag.bas.is.plugins.IntegrationServerPackagePluginExtension, project)
+        project.ext.label = ''        
+        project.tasks.create('frag', com.softwareag.bas.is.tasks.Frag) {
+            from 'src/main/java'
+        }
+        project.tasks.create('pkg', com.softwareag.bas.is.tasks.bundling.IntegrationServerPackage) {
+            dependsOn project.tasks.frag
+            duplicatesStrategy org.gradle.api.file.DuplicatesStrategy.FAIL
+            from extension.pkgDir
+            docFiles extension.docDir
+        }
+        project.tasks.assemble.dependsOn project.tasks.pkg
+    }
+}

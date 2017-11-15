@@ -4,6 +4,7 @@ String.metaClass.toProjectName  = { -> projectNameConverter(delegate)   }
 rootProject.name = 'ghiro'
 
 checkProjectDirs 'modules'
+checkProjectDirs 'packages'
 checkProjectDirs 'tests'
 
 /* Helper methods */
