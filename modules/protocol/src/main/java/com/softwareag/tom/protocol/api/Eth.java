@@ -54,4 +54,11 @@ interface Eth {
      * @return a list of objects of type {@link Types.FilterLogType}
      */
     Message ethGetFilterChanges(Types.RequestEthGetFilterChanges req);
+
+    /**
+     * Method {@code eth_getTransactionReceipt}.
+     * @param req A request object containing the hash of a transaction
+     * @return an object of type {@link Types.TxReceiptType}
+     */
+    Message ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req);
 }

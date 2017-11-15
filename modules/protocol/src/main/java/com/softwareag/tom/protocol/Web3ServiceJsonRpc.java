@@ -18,6 +18,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
+import com.softwareag.tom.protocol.tx.TransactionManager;
 
 /**
  * Web3 over JSON-RPC service implementation.
@@ -68,5 +69,9 @@ class Web3ServiceJsonRpc implements Web3Service {
     @Override public Message ethGetFilterChanges(Types.RequestEthGetFilterChanges req) {
         Request jsonRpcRequest = new RequestEthGetFilterChanges(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Message ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) {
+        return Types.ResponseEthGetTransactionReceipt.newBuilder().setTxReceipt(TransactionManager.instance.getTransactionReceipt(req.getHash())).build();
     }
 }

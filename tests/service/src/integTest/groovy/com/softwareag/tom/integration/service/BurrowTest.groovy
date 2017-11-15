@@ -182,9 +182,15 @@ class BurrowTest extends Specification {
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
+        and: 'the callee address is remembered'
+        request = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(((Types.ResponseEthSendTransaction) response).getHash()).build()
+        response = web3Service.ethGetTransactionReceipt(request)
+        callee.address = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthSendTransaction
-        ((Types.ResponseEthSendTransaction) response).getHash() != null
+        response instanceof Types.ResponseEthGetTransactionReceipt
+        ((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt() != null
 
         when: println '(2) the newly created contract account is verified'
         request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
@@ -202,7 +208,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetStorageAt
-        HexValue.toBigInteger(((Types.ResponseEthGetStorageAt) response).getValue()) == BigInteger.valueOf(7)
+        HexValue.toBigInteger(((Types.ResponseEthGetStorageAt) response).getValue()) == BigInteger.valueOf(5)
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = Types.RequestEthNewFilter.newBuilder().setOptions(
@@ -236,7 +242,7 @@ class BurrowTest extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthCall
-        HexValue.toBigInteger(((Types.ResponseEthCall) response).getReturn()) == BigInteger.valueOf(7)
+        HexValue.toBigInteger(((Types.ResponseEthCall) response).getReturn()) == BigInteger.valueOf(5)
 
         when: println '(7) the set contract method is executed'
         request = Types.RequestEthSendTransaction.newBuilder().setTx(
@@ -278,7 +284,7 @@ class BurrowTest extends Specification {
         response instanceof Types.ResponseEthGetFilterChanges
         ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 3
         ((Types.ResponseEthGetFilterChanges) response).getLog(0).address.size() == 32*2+2
-        HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(0).data)) == '7'
+        HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(0).data)) == '5'
         HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(1).data)) == '7'
         HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(2).data)) == '7'
     }
