@@ -6,8 +6,8 @@ ext {
         ttl : 60*60*24*7, // Cache dynamic versions for 7 days
         module : [:],
         version : [
-            bas : '4.0.0-v3337',
-            is : '9.12.0-v0091',
+            bas : '4.0.0+',
+            is : '10.2.0-v0050',
         ],
     ]
 }
