@@ -70,8 +70,8 @@ class BurrowTest extends Specification {
     public "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
-        String contractBinary = contracts['Console'].contractBinary
-        ContractInterface contractAbi = contracts['Console'].contractAbi
+        String contractBinary = contracts['sample/util/Console'].contractBinary
+        ContractInterface contractAbi = contracts['sample/util/Console'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
         assert logFunction.name == 'log'
@@ -162,8 +162,8 @@ class BurrowTest extends Specification {
     public "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
-        String contractBinary = contracts['SimpleStorage'].contractBinary
-        ContractInterface contractAbi = contracts['SimpleStorage'].contractAbi
+        String contractBinary = contracts['sample/SimpleStorage'].contractBinary
+        ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(2)
         assert setFunction.name == 'set'

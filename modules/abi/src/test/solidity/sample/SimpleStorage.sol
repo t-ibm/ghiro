@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 
-import "./Console.sol";
+import "./util/Console.sol";
 
 /**
  * @title A contract with one state variable for permanently storing exactly one value in contract storage.
