@@ -32,11 +32,11 @@ class ContractRegistryLocationTest extends Specification {
 
         then: 'the contracts are accessible'
         contracts.size() > 0
-        contracts['Console'].contractBinary.startsWith('6060604052341561000c57fe5b5b')
-        contracts['SimpleStorage'].contractBinary.startsWith('6060604052341561000c57fe5b5b')
+        contracts['sample/util/Console'].contractBinary.startsWith('6060604052341561000c57fe5b5b')
+        contracts['sample/SimpleStorage'].contractBinary.startsWith('6060604052341561000c57fe5b5b')
 
         when: 'the list of specifications are queried'
-        ContractInterface contractInterface = contracts['Console'].contractAbi
+        ContractInterface contractInterface = contracts['sample/util/Console'].contractAbi
         List constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
         List functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
         List events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
@@ -65,7 +65,7 @@ class ContractRegistryLocationTest extends Specification {
         events.get(1).name == 'LogUint'
 
         when: 'the list of specifications are queried'
-        contractInterface = contracts['SimpleStorage'].contractAbi
+        contractInterface = contracts['sample/SimpleStorage'].contractAbi
         constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
         functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
         events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
