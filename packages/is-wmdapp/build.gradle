@@ -1,6 +1,10 @@
 project.label = 'WmDApp'
 project.description = "$label package"
 
+dependencies {
+    compile project(":modules:$project.rootProject.name-contract")
+}
+
 pkg {
     manifest.values(
         'name': project.label,

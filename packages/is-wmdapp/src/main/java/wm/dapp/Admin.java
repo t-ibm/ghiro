@@ -14,11 +14,12 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
+import com.softwareag.tom.contract.ContractRegistry;
+import com.softwareag.tom.contract.SolidityLocationFileSystem;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.data.IData;
-import com.wm.data.IDataCursor;
 
-import java.util.Date;
+import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Admin {
@@ -28,29 +29,15 @@ public final class Admin {
 	 * @param	pipeline The pipeline
 	 * @throws	ServiceException If there is an error during execution of this service
 	 */
-	public static void getCurrentDate (IData pipeline) throws ServiceException
-	{
+	public static void getCurrentDate (IData pipeline) throws ServiceException {
 		// --- <<IS-START(getCurrentDate)>> ---
 		// @subtype unknown
 		// @sigtype java 3.5
-		// [o] field:0:required date
-		Date outDate = new Date();
-		
-		IDataCursor pipelineCursor = pipeline.getCursor();
-		mergeOutput(pipelineCursor, "date", outDate);
-		pipelineCursor.destroy();
+		try {
+			ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("tbd"));
+		} catch (IOException e) {
+			throw new ServiceException(e);
+		}
 		// --- <<IS-END>> ---
 	}
-
-	// --- <<IS-START-SHARED>> ---
-	private static void mergeOutput(IDataCursor id, String key, Object value)
-	{
-	    if (id.first(key)) {
-	        id.setValue(value);
-	    } else {
-	        id.last();
-	        id.insertAfter(key, value);
-	    }
-	}
-	// --- <<IS-END-SHARED>> ---
 }
