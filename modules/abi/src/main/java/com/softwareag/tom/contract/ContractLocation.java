@@ -4,23 +4,14 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi;
+package com.softwareag.tom.contract;
 
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * Contract registry location implementation.
+ * Contract location API.
  */
-class ContractRegistryLocation implements ContractRegistry {
-
-    private final ContractLocation location;
-
-    ContractRegistryLocation(ContractLocation location) {
-        this.location = location;
-    }
-
-    @Override public Map<String, Contract> load() throws IOException {
-        return location.load();
-    }
+public interface ContractLocation {
+    Map<String, Contract> load() throws IOException;
 }

@@ -4,9 +4,9 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi;
+package com.softwareag.tom.contract.abi;
 
-import com.softwareag.tom.abi.util.ValueEncoder;
+import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
 import java.util.List;
 

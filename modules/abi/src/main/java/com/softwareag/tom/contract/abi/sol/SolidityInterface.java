@@ -4,13 +4,13 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi.sol;
+package com.softwareag.tom.contract.abi.sol;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.softwareag.tom.abi.ContractInterface;
-import com.softwareag.tom.abi.ParameterType;
-import com.softwareag.tom.abi.util.SpecificationEncoder;
-import com.softwareag.tom.abi.util.ValueEncoder;
+import com.softwareag.tom.contract.abi.ContractInterface;
+import com.softwareag.tom.contract.abi.ParameterType;
+import com.softwareag.tom.contract.abi.util.SpecificationEncoder;
+import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -4,9 +4,9 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi.util;
+package com.softwareag.tom.contract.abi.util;
 
-import com.softwareag.tom.abi.ParameterType;
+import com.softwareag.tom.contract.abi.ParameterType;
 
 import java.math.BigInteger;
 import java.util.List;

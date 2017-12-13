@@ -4,9 +4,9 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi.util;
+package com.softwareag.tom.contract.abi.util;
 
-import com.softwareag.tom.abi.ContractInterface;
+import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.util.Hash;
 import com.softwareag.tom.util.HexValueBase;
 
@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.softwareag.tom.abi.util.ValueEncoder.MAX_BYTE_LENGTH;
+import static com.softwareag.tom.contract.abi.util.ValueEncoder.MAX_BYTE_LENGTH;
 
 /**
  * The <a href="https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI">Ethereum Contract ABI</a> encoding for constructors, functions, and events.

@@ -4,16 +4,15 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi
+package com.softwareag.tom.contract
 
-import com.softwareag.tom.abi.sol.SolidityInterface
-import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
+import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.extension.Node
 import spock.lang.Shared
 import spock.lang.Specification
 
 /**
- * System under specification: {@link ContractRegistryLocation}.
+ * System under specification: {@link com.softwareag.tom.contract.ContractRegistryLocation}.
  * @author tglaeser
  */
 class ContractRegistryLocationTest extends Specification {
@@ -23,7 +22,7 @@ class ContractRegistryLocationTest extends Specification {
 
     def setup() {
         given: 'a fs contract registry'
-        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}"));
+        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}"))
     }
 
     def "test contract registry"() {
@@ -37,9 +36,9 @@ class ContractRegistryLocationTest extends Specification {
 
         when: 'the list of specifications are queried'
         ContractInterface contractInterface = contracts['sample/util/Console'].contractAbi
-        List constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
-        List functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
-        List events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
+        List constructors = contractInterface.constructors as List<ContractInterface.Specification>
+        List functions = contractInterface.functions as List<ContractInterface.Specification>
+        List events = contractInterface.events as List<ContractInterface.Specification>
 
         then: 'the expected number of specification types and there values are as expected'
         //Constructors
@@ -66,9 +65,9 @@ class ContractRegistryLocationTest extends Specification {
 
         when: 'the list of specifications are queried'
         contractInterface = contracts['sample/SimpleStorage'].contractAbi
-        constructors = contractInterface.constructors as List<SolidityInterface.SoliditySpecification>
-        functions = contractInterface.functions as List<SolidityInterface.SoliditySpecification>
-        events = contractInterface.events as List<SolidityInterface.SoliditySpecification>
+        constructors = contractInterface.constructors as List<ContractInterface.Specification>
+        functions = contractInterface.functions as List<ContractInterface.Specification>
+        events = contractInterface.events as List<ContractInterface.Specification>
 
         then: 'the expected number of specification types and there values are as expected'
         //Constructors
