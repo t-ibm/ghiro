@@ -4,10 +4,10 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi.util
+package com.softwareag.tom.contract.abi.util
 
 import com.softwareag.tom.ObjectMapperFactory
-import com.softwareag.tom.abi.sol.SolidityInterface
+import com.softwareag.tom.contract.abi.sol.SolidityInterface
 import com.softwareag.tom.util.HexValueBase
 import spock.lang.Specification
 import spock.lang.Unroll

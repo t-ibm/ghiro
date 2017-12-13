@@ -4,13 +4,12 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-package com.softwareag.tom.abi.sol;
+package com.softwareag.tom.contract;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softwareag.tom.ObjectMapperFactory;
-import com.softwareag.tom.abi.Contract;
-import com.softwareag.tom.abi.ContractInterface;
-import com.softwareag.tom.abi.ContractLocation;
+import com.softwareag.tom.contract.abi.ContractInterface;
+import com.softwareag.tom.contract.abi.sol.SolidityInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

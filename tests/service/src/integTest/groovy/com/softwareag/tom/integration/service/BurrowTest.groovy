@@ -7,9 +7,9 @@
 package com.softwareag.tom.integration.service
 
 import com.google.protobuf.Message
-import com.softwareag.tom.abi.ContractInterface
-import com.softwareag.tom.abi.ContractRegistry
-import com.softwareag.tom.abi.sol.SolidityLocationFileSystem
+import com.softwareag.tom.contract.abi.ContractInterface
+import com.softwareag.tom.contract.ContractRegistry
+import com.softwareag.tom.contract.SolidityLocationFileSystem
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
