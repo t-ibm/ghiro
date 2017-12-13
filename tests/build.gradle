@@ -74,7 +74,7 @@ subprojects {
      */
     dependencies {
         integTestCompile(
-            project(":modules:$project.rootProject.name-abi"),
+            project(":modules:$project.rootProject.name-contract"),
             sag.module.spock,
         )
     }

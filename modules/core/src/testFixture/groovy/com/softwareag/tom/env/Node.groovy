@@ -10,7 +10,7 @@ node {
     }
     contract {
         registry {
-            location = '../../modules/abi/build/solc'
+            location = '../../modules/contract/build/solc'
         }
     }
 }
