@@ -14,30 +14,44 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
-import com.softwareag.tom.contract.ContractRegistry;
-import com.softwareag.tom.contract.SolidityLocationFileSystem;
+import com.softwareag.tom.is.pkg.dapp.Util;
+import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.ServiceException;
+import com.wm.app.b2b.ws.codegen.FlowGenUtil;
+import com.wm.app.b2b.ws.codegen.PackageUtil;
 import com.wm.data.IData;
+import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSServiceType;
 
 import java.io.IOException;
+import java.util.List;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Admin {
-	/**
-	 * Determines the current date.
-	 * 
-	 * @param	pipeline The pipeline
-	 * @throws	ServiceException If there is an error during execution of this service
-	 */
-	public static void getCurrentDate (IData pipeline) throws ServiceException {
-		// --- <<IS-START(getCurrentDate)>> ---
-		// @subtype unknown
-		// @sigtype java 3.5
-		try {
-			ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("tbd"));
-		} catch (IOException e) {
-			throw new ServiceException(e);
-		}
-		// --- <<IS-END>> ---
-	}
+    /**
+     * Synchronizes the contracts to the IS namespace.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void syncContracts(IData pipeline) throws ServiceException {
+        // --- <<IS-START(syncContracts)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        List<NSName> nsNames;
+        try {
+            nsNames = Util.getContracts();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        try {
+            Package pkg = PackageUtil.getPackage("WmDApp");
+            for (NSName nsName : nsNames) {
+                FlowGenUtil.getFlowSvcImpl(pkg, nsName, null, NSServiceType.SVCSUB_DEFAULT);
+            }
+        } catch (Exception e) {
+            throw new ServiceException(e);
+        }
+        // --- <<IS-END>> ---
+    }
 }

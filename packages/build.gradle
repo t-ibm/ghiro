@@ -27,6 +27,7 @@ task clean(type:Delete, group:'build') {
  */
 subprojects {
     apply from: "$project.rootDir/settings/java.gradle"
+    apply from: "$project.rootDir/settings/groovy.gradle"
     apply plugin: IntegrationServerPackagePlugin
     configurations {
         nodeutil {
@@ -42,7 +43,9 @@ subprojects {
     }
     dependencies {
         compile "com.softwareag.mom.is:is-client:$project.sag.version.is@jar"
+        compile "com.softwareag.mom.is:is-server:$project.sag.version.is@jar"
         nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.version.is, configuration:'nodeutil'
+        testCompile project.sag.module.spock
     }
     frag {
         nodeUtilClasspath = project.configurations.nodeutil

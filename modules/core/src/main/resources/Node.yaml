@@ -1,0 +1,6 @@
+# Default node
+---
+name: default
+contract:
+  registry:
+    location: ../../modules/contract/build/solc
