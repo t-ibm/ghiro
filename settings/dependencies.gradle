@@ -14,12 +14,16 @@ ext {
 sag.module += [
     crypto : 'org.bouncycastle:bcprov-jdk15on:1.54@jar',
     groovy : 'org.codehaus.groovy:groovy-all:2.4.12@jar',
-    jackson : 'com.fasterxml.jackson.core:jackson-databind:2.8.5',
     junit : 'junit:junit:4.10@jar',
     log4j : 'log4j:log4j:1.2.17@jar',
     objenesis : 'org.objenesis:objenesis:1.2@jar',
     protobuf : 'com.google.protobuf:protobuf-java:3.2.0@jar',
     protoc : 'com.google.protobuf:protoc:3.2.0',
+]
+sag.module.jackson = [
+        'com.fasterxml.jackson.core:jackson-databind:2.9.3',
+        'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.3@jar',
+        'org.yaml:snakeyaml:1.19@jar',
 ]
 sag.module.slf4j = [
     api : [

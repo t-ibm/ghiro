@@ -22,7 +22,7 @@ class ContractRegistryLocationTest extends Specification {
 
     def setup() {
         given: 'a fs contract registry'
-        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}"))
+        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File))
     }
 
     def "test contract registry"() {

@@ -18,18 +18,18 @@ import java.util.stream.Collectors;
 /**
  * Solidity interface implementation.
  */
-public class SolidityInterface extends ContractInterface<SolidityInterface.SoliditySpecification> {
+public class SolidityInterface extends ContractInterface {
 
-    @Override public List<SoliditySpecification> getConstructors() {
-        return specifications.stream().filter(entry -> ("constructor".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<ContractInterface.Specification> getConstructors() {
+        return specifications.stream().filter(entry -> ("constructor".equals(entry.getType()))).collect(Collectors.toList());
     }
 
-    @Override public List<SoliditySpecification> getFunctions() {
-        return specifications.stream().filter(entry -> ("function".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<ContractInterface.Specification> getFunctions() {
+        return specifications.stream().filter(entry -> ("function".equals(entry.getType()))).collect(Collectors.toList());
     }
 
-    @Override public List<SoliditySpecification> getEvents() {
-        return specifications.stream().filter(entry -> ("event".equals(entry.type))).collect(Collectors.toList());
+    @Override public List<ContractInterface.Specification> getEvents() {
+        return specifications.stream().filter(entry -> ("event".equals(entry.getType()))).collect(Collectors.toList());
     }
 
     public static class SoliditySpecification<T> implements ContractInterface.Specification<T, SolidityParameter<T>> {

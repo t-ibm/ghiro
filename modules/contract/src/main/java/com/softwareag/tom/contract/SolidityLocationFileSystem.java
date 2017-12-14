@@ -30,11 +30,11 @@ import java.util.Map;
 public class SolidityLocationFileSystem implements ContractLocation {
 
     private static final Logger logger = LoggerFactory.getLogger(SolidityLocationFileSystem.class);
-    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper();
     private final File rootDirectory;
 
-    public SolidityLocationFileSystem(String rootDirectoryName) throws IOException {
-        rootDirectory = new File(rootDirectoryName);
+    public SolidityLocationFileSystem(File rootDirectory) throws IOException {
+        this.rootDirectory = rootDirectory;
         if (!rootDirectory.exists()) {
             throw new IOException("File system location does not exist: " + rootDirectory.getCanonicalPath());
         } else  if (!rootDirectory.isDirectory()) {
@@ -62,7 +62,7 @@ public class SolidityLocationFileSystem implements ContractLocation {
     }
 
     private ContractInterface getContractInterface(byte[] src) throws IOException {
-        ContractInterface<SolidityInterface.SoliditySpecification> contractInterface = new SolidityInterface();
+        ContractInterface contractInterface = new SolidityInterface();
         contractInterface.specifications = Arrays.asList(objectMapper.readValue(src, SolidityInterface.SoliditySpecification[].class));
         return contractInterface;
     }

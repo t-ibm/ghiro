@@ -9,20 +9,25 @@ package com.softwareag.tom;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * Object mapper factory.
  */
 public class ObjectMapperFactory {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper jasonMapper = new ObjectMapper();
+    private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     static {
-        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jasonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        jasonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        yamlMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        yamlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     private ObjectMapperFactory() {}
 
-    public static ObjectMapper getObjectMapper() { return objectMapper; }
+    public static ObjectMapper getJsonMapper() { return jasonMapper; }
+    public static ObjectMapper getYamlMapper() { return yamlMapper; }
 }

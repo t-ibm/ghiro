@@ -29,10 +29,10 @@ class BurrowTest extends Specification {
 
     def setup() {
         given: 'a JSON-RPC client'
-        web3Service = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"));
+        web3Service = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"))
     }
 
-    public "test 'web3ClientVersion' service"() {
+    def "test 'web3ClientVersion' service"() {
         when: 'we make a get request'
         Types.RequestWeb3ClientVersion request = Types.RequestWeb3ClientVersion.newBuilder().build()
         Message response = web3Service.web3ClientVersion(request)
@@ -44,7 +44,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseWeb3ClientVersion)response).version == '0.8.0'
     }
 
-    public "test 'netListening' service"() {
+    def "test 'netListening' service"() {
         when: 'we make a get request'
         Types.RequestNetListening request = Types.RequestNetListening.newBuilder().build()
         Message response = web3Service.netListening(request)
@@ -56,7 +56,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseNetListening) response).getListening()
     }
 
-    public "test 'ethGetBalance' service"() {
+    def "test 'ethGetBalance' service"() {
         when: 'we make a get request'
         Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("F60D30722E7B497FA532FB3207C3FB29C31B1992")).build()
         Message response = web3Service.ethGetBalance(request)
@@ -67,9 +67,9 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(200000000)
     }
 
-    public "test create solidity contract and call event services"() {
+    def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
         String contractBinary = contracts['sample/util/Console'].contractBinary
         ContractInterface contractAbi = contracts['sample/util/Console'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
@@ -159,9 +159,9 @@ class BurrowTest extends Specification {
     }
 
 
-    public "test create solidity contract and store/update data"() {
+    def "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem("${config.node.contract.registry.location}")).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
         String contractBinary = contracts['sample/SimpleStorage'].contractBinary
         ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
