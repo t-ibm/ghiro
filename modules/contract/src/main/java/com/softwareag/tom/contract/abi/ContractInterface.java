@@ -12,14 +12,13 @@ import java.util.List;
 
 /**
  * Contract interface API.
- * @param <S> The expected specification type of this contract interface
  */
-public abstract class ContractInterface<S extends ContractInterface.Specification> {
-    public List<S> specifications;
+public abstract class ContractInterface {
+    public List<ContractInterface.Specification> specifications;
 
-    public abstract List<S> getConstructors();
-    public abstract List<S> getFunctions();
-    public abstract List<S> getEvents();
+    public abstract List<ContractInterface.Specification> getConstructors();
+    public abstract List<ContractInterface.Specification> getFunctions();
+    public abstract List<ContractInterface.Specification> getEvents();
 
     /**
      * Specification API.

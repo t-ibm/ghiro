@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class ServiceHttp implements Service {
 
-    private final ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper();
     private CloseableHttpClient httpClient;
     private final String url;
 

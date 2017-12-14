@@ -20,7 +20,7 @@ class SpecificationEncoderTest extends Specification {
     def "test an arbitrary contract function"() {
         given: 'an arbitrary contract specification'
         String src = '{"constant":false,"inputs":[{"name":"a","type":"uint32"},{"name":"b","type":"bool"},{"name":"c","type":"uint8[2]"},{"name":"d","type":"uint16[]"}],"name":"foo","outputs":[],"payable":false,"type":"function"}'
-        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(src.bytes, SolidityInterface.SoliditySpecification.class)
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(src.bytes, SolidityInterface.SoliditySpecification.class)
 
         when: 'the function signature is retrieved'
         String signature = SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters())
@@ -64,7 +64,7 @@ class SpecificationEncoderTest extends Specification {
 
     @Unroll def "test contract Console.#signature"() {
         given: 'a valid contract specification'
-        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
         SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
@@ -91,7 +91,7 @@ class SpecificationEncoderTest extends Specification {
 
     @Unroll def "test contract SimpleStorage.#signature"() {
         given: 'a valid contract specification'
-        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getObjectMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
         SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
