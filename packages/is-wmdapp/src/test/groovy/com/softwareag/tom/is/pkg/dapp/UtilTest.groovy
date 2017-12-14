@@ -15,11 +15,11 @@ import spock.lang.Specification
  */
 class UtilTest extends Specification {
 
-    def "test default configuration"() {
-        given: 'a parameter of type "bool"'
+    def "test contract to ns node conversion"() {
+        given: 'the contracts can be retrieved from the contract registry'
         List<NSName> contracts = Util.getContracts()
 
-        expect: 'the default configuration'
+        expect: 'to retrieve a populated list of ns nodes'
         contracts.size() == 9
     }
 }
