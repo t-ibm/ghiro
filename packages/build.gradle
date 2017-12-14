@@ -11,8 +11,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.softwareag.bas:bas-plugins-is:$project.sag.version.bas@jar"
-        classpath group:'com.softwareag.mom.is', name:'is-server', version:project.sag.version.is, configuration:'nodeutil'
+        classpath "com.softwareag.bas:bas-plugins-is:$project.sag.bas.version@jar"
+        classpath group:'com.softwareag.mom.is', name:'is-server', version:project.sag.is.version, configuration:'nodeutil'
     }
 }
 /*
@@ -42,13 +42,20 @@ subprojects {
         }
     }
     dependencies {
-        compile "com.softwareag.mom.is:is-client:$project.sag.version.is@jar"
-        compile "com.softwareag.mom.is:is-server:$project.sag.version.is@jar"
-        nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.version.is, configuration:'nodeutil'
+        compile "com.softwareag.mom.is:is-client:$project.sag.is.version@jar"
+        compile "com.softwareag.mom.is:is-server:$project.sag.is.version@jar"
+        nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.is.version, configuration:'nodeutil'
         testCompile project.sag.module.spock
     }
     frag {
         nodeUtilClasspath = project.configurations.nodeutil
+    }
+    task syncPkg(type: Sync, dependsOn: assemble, group: 'IS instance') {
+        description = 'Synchronizes the IS package build results to the IS instance directory.'
+        project.afterEvaluate { //Need to evaluate sub-projects first to get the archive path right
+            into new File( project.sag.is.rootDir, "packages/$project.label")
+            from zipTree( project.tasks.pkg.archivePath)
+        }
     }
 }
 /*

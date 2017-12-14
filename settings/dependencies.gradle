@@ -1,3 +1,5 @@
+File sagRootDir = new File( project.buildDir, 'installs')
+File isRootDir = new File( System.getProperty( 'com.softwareag.is.test.install.root.dir', "$sagRootDir/IntegrationServer/instances/default"))
 /*
  * Common dependencies
  */
@@ -5,10 +7,13 @@ ext {
     sag = [
         ttl : 60*60*24*7, // Cache dynamic versions for 7 days
         module : [:],
-        version : [
-            bas : '4.0.0+',
-            is : '10.2.0-v0050',
+        bas : [
+            version : '4.0.0+',
         ],
+        is : [
+            version : '10.2.0-v0050',
+            rootDir : isRootDir,
+        ]
     ]
 }
 sag.module += [
