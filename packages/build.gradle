@@ -33,6 +33,15 @@ subprojects {
         nodeutil {
             visible = false
         }
+        providedCompile {
+            description = 'Additional compile classpath for modules provided by the Integration Server.'
+        }
+        providedRuntime {
+            description = 'Additional runtime classpath for modules provided by the Integration Server.'
+            extendsFrom providedCompile
+        }
+        testCompile.extendsFrom providedCompile
+        testRuntime.extendsFrom providedRuntime
     }
     repositories {
         ivy {
@@ -42,10 +51,15 @@ subprojects {
         }
     }
     dependencies {
-        compile "com.softwareag.mom.is:is-client:$project.sag.is.version@jar"
-        compile "com.softwareag.mom.is:is-server:$project.sag.is.version@jar"
         nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.is.version, configuration:'nodeutil'
+        providedCompile project.sag.module.is
         testCompile project.sag.module.spock
+    }
+    sourceSets {
+        main {
+            compileClasspath += project.configurations.providedCompile
+            runtimeClasspath += project.configurations.providedRuntime
+        }
     }
     frag {
         nodeUtilClasspath = project.configurations.nodeutil
@@ -73,6 +87,7 @@ class IntegrationServerPackagePlugin implements Plugin<Project> {
             duplicatesStrategy org.gradle.api.file.DuplicatesStrategy.FAIL
             from extension.pkgDir
             docFiles extension.docDir
+            classpath project.sourceSets.main.runtimeClasspath
         }
         project.tasks.assemble.dependsOn project.tasks.pkg
     }
