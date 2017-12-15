@@ -25,6 +25,10 @@ sag.module += [
     protobuf : 'com.google.protobuf:protobuf-java:3.2.0@jar',
     protoc : 'com.google.protobuf:protoc:3.2.0',
 ]
+sag.module.is = [
+        "com.softwareag.mom.is:is-client:$project.sag.is.version@jar",
+        "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
+]
 sag.module.jackson = [
         'com.fasterxml.jackson.core:jackson-databind:2.9.3',
         'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.3@jar',

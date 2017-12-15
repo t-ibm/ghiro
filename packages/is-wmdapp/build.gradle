@@ -2,7 +2,12 @@ project.label = 'WmDApp'
 project.description = "$label package"
 
 dependencies {
-    compile project(":modules:$project.rootProject.name-contract")
+    compile (project(":modules:$project.rootProject.name-contract")) { transitive = false }
+    compile (project(":modules:$project.rootProject.name-core")) { transitive = false }
+    testRuntime(
+        project(":modules:$project.rootProject.name-contract"),
+        project(":modules:$project.rootProject.name-core"),
+    )
 }
 
 pkg {
