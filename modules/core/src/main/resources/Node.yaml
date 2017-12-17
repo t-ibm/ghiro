@@ -1,6 +1,15 @@
-# Default node
 ---
-name: default
+# Default node
+name: "default"
+host:
+  ip: "127.0.0.1"
 contract:
   registry:
-    location: ../../modules/contract/build/solc
+    location: "../../modules/contract/build/solc"
+# Named nodes extending from the default node
+environments:
+  - name: "production"
+    contract:
+      registry:
+        location: "../../../../../../../tom/ghiro/modules/contract/build/solc"
+...
