@@ -30,8 +30,8 @@ sag.module.is = [
         "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
 ]
 sag.module.jackson = [
-        'com.fasterxml.jackson.core:jackson-databind:2.9.3',
-        'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.3@jar',
+        'com.fasterxml.jackson.core:jackson-databind:2.9.2',
+        'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.7@jar',
         'org.yaml:snakeyaml:1.19@jar',
 ]
 sag.module.slf4j = [
