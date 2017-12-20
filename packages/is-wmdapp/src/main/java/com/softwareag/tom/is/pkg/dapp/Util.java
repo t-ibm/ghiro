@@ -37,7 +37,7 @@ public final class Util {
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification function : functions) {
                 String serviceName = function.getName();
-                NSName nsName = NSName.create(folderName, serviceName);
+                NSName nsName = NSName.create(folderName.replaceAll("/", "."), serviceName);
                 nsNames.add(nsName);
             }
         }
