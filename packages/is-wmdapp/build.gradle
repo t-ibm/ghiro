@@ -14,5 +14,6 @@ pkg {
     manifest.values(
         'name': project.label,
         'description': project.description,
+        'node' : 'production',
     )
 }
