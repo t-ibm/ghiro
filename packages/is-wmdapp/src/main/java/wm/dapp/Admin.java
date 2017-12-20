@@ -14,11 +14,16 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
+import com.softwareag.tom.conf.Node;
+import com.softwareag.tom.is.pkg.dapp.DAppLogger;
+import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
+import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
+import com.wm.app.b2b.server.PackageManager;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.codegen.FlowGenUtil;
-import com.wm.app.b2b.ws.codegen.PackageUtil;
+import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSServiceType;
@@ -38,6 +43,8 @@ public final class Admin {
         // --- <<IS-START(syncContracts)>> ---
         // @subtype unknown
         // @sigtype java 3.5
+        Package pkg = PackageManager.getPackage("WmDApp");
+        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, String.valueOf(pkg.getManifest().getProperty("node")));
         List<NSName> nsNames;
         try {
             nsNames = Util.getContracts();
@@ -45,9 +52,12 @@ public final class Admin {
             throw new ServiceException(e);
         }
         try {
-            Package pkg = PackageUtil.getPackage("WmDApp");
             for (NSName nsName : nsNames) {
-                FlowGenUtil.getFlowSvcImpl(pkg, nsName, null, NSServiceType.SVCSUB_DEFAULT);
+                if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
+                    DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{""+nsName});
+                }
+                FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, null, NSServiceType.SVCSUB_DEFAULT);
+                NSFacade.saveNewNSNode(flowSvcImpl);
             }
         } catch (Exception e) {
             throw new ServiceException(e);
