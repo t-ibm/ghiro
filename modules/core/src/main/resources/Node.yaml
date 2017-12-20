@@ -11,5 +11,5 @@ environments:
   - name: "production"
     contract:
       registry:
-        location: "../../../../../../../tom/ghiro/modules/contract/build/solc"
+        location: "../../../../../../../../tom/ghiro/modules/contract/build/solc"
 ...
