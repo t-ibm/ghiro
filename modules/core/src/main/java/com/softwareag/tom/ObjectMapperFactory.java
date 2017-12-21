@@ -17,12 +17,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
  */
 public class ObjectMapperFactory {
 
-    private static final ObjectMapper jasonMapper = new ObjectMapper();
+    private static final ObjectMapper jsonMapper = new ObjectMapper();
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     static {
-        jasonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        jasonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         yamlMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         yamlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -30,6 +30,6 @@ public class ObjectMapperFactory {
 
     private ObjectMapperFactory() {}
 
-    public static ObjectMapper getJsonMapper() { return jasonMapper; }
+    public static ObjectMapper getJsonMapper() { return jsonMapper; }
     public static ObjectMapper getYamlMapper() { return yamlMapper; }
 }

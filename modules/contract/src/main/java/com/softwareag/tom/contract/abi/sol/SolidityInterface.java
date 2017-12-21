@@ -32,7 +32,7 @@ public class SolidityInterface extends ContractInterface {
         return specifications.stream().filter(entry -> ("event".equals(entry.getType()))).collect(Collectors.toList());
     }
 
-    public static class SoliditySpecification<T> implements ContractInterface.Specification<T, SolidityParameter<T>> {
+    public static class SoliditySpecification<T> implements ContractInterface.Specification<T> {
         @JsonProperty("name") String name;
         @JsonProperty("type") String type;
         @JsonProperty("inputs") List<SolidityParameter<T>> inputParameters;
@@ -43,10 +43,8 @@ public class SolidityInterface extends ContractInterface {
 
         @Override public String getName() { return name; }
         @Override public String getType() { return type; }
-        @Override public List<SolidityParameter<T>> getInputParameters() {
-            return inputParameters;
-        }
-        @Override public List<SolidityParameter<T>> getOutputParameters() { return outputParameters; }
+        @Override public List<? extends ContractInterface.Parameter<T>> getInputParameters() { return inputParameters; }
+        @Override public List<? extends ContractInterface.Parameter<T>> getOutputParameters() { return outputParameters; }
         @Override public boolean getConstant() { return constant; }
         @Override public boolean getPayable() { return payable; }
         @Override public boolean getAnonymous() { return anonymous; }

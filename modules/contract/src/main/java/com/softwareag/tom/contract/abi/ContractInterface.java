@@ -22,13 +22,12 @@ public abstract class ContractInterface {
 
     /**
      * Specification API.
-     * @param <P> The expected parameter type of this contract interface
      */
-    public interface Specification<T, P extends ContractInterface.Parameter<T>> {
+    public interface Specification<T> {
         String getName();
         String getType();
-        List<P> getInputParameters();
-        List<P> getOutputParameters();
+        List<? extends ContractInterface.Parameter<T>> getInputParameters();
+        List<? extends ContractInterface.Parameter<T>> getOutputParameters();
         boolean getConstant();
         boolean getPayable();
         boolean getAnonymous();
