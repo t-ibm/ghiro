@@ -7,6 +7,7 @@
 package com.softwareag.tom.is.pkg.dapp
 
 import com.wm.lang.ns.NSName
+import com.wm.lang.ns.NSSignature
 import spock.lang.Specification
 
 /**
@@ -17,9 +18,9 @@ class UtilTest extends Specification {
 
     def "test contract to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        List<NSName> contracts = Util.getContracts()
+        Map<NSName, NSSignature> contracts = Util.create().getFunctions()
 
         expect: 'to retrieve a populated list of ns nodes'
-        contracts.size() == 9
+        contracts.size() == 7
     }
 }

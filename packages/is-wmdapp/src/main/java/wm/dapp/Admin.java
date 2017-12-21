@@ -27,9 +27,10 @@ import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSServiceType;
+import com.wm.lang.ns.NSSignature;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Admin {
@@ -45,14 +46,16 @@ public final class Admin {
         // @sigtype java 3.5
         Package pkg = PackageManager.getPackage("WmDApp");
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, String.valueOf(pkg.getManifest().getProperty("node")));
-        List<NSName> nsNames;
+        Map<NSName,NSSignature> nsNodes;
         try {
-            nsNames = Util.getContracts();
+            nsNodes = Util.create().getFunctions();
         } catch (IOException e) {
             throw new ServiceException(e);
         }
         try {
-            for (NSName nsName : nsNames) {
+            for (Map.Entry<NSName,NSSignature> nsNode : nsNodes.entrySet()) {
+                NSName nsName = nsNode.getKey();
+                NSSignature nsSignature = nsNode.getValue();
                 if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
                     DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{""+nsName});
                 }
