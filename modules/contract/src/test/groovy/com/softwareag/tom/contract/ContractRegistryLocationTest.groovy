@@ -74,13 +74,12 @@ class ContractRegistryLocationTest extends Specification {
         contractInterface.constructors.size() == 1
         constructors.get(0).name == null
         //Functions
-        functions.size() == 6
-        functions.get(0).name == 'storedData'
-        functions.get(1).name == 'log'
-        functions.get(2).name == 'set'
-        functions.get(3).name == 'get'
-        functions.get(4).name == 'uintToBytes'
-        functions.get(5).name == 'log'
+        functions.size() == 5
+        functions.get(0).name == 'log'
+        functions.get(1).name == 'set'
+        functions.get(2).name == 'get'
+        functions.get(3).name == 'uintToBytes'
+        functions.get(4).name == 'log'
         //Events
         events.size() == 2
         events.get(0).name == 'LogAddress'

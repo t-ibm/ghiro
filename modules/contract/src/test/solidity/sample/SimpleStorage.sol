@@ -6,7 +6,7 @@ import "./util/Console.sol";
  * @title A contract with one state variable for permanently storing exactly one value in contract storage.
  */
 contract SimpleStorage is Console {
-    uint public storedData;
+    uint private storedData;
     /**
      * @notice A newly deployed contract of this type will result in contract storage being set to value 5.
      */
