@@ -4,10 +4,10 @@ project.description = "$label package"
 dependencies {
     compile (project(":modules:$project.rootProject.name-contract")) { transitive = false }
     compile (project(":modules:$project.rootProject.name-core")) { transitive = false }
+    testCompile project.sag.module.protobuf
     testRuntime(
         project(":modules:$project.rootProject.name-contract"),
         project(":modules:$project.rootProject.name-core"),
-        project.sag.module.protobuf,
     )
 }
 
