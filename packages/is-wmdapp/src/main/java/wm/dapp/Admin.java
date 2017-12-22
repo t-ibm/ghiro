@@ -26,7 +26,6 @@ import com.wm.app.b2b.ws.codegen.FlowGenUtil;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
-import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 
 import java.io.IOException;
@@ -59,7 +58,7 @@ public final class Admin {
                 if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
                     DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{""+nsName});
                 }
-                FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, NSServiceType.SVCSUB_DEFAULT);
+                FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, "dapp");
                 NSFacade.saveNewNSNode(flowSvcImpl);
             }
         } catch (Exception e) {
