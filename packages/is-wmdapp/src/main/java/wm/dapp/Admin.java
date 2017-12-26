@@ -27,7 +27,6 @@ import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.ns.NSName;
-import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 
 import java.io.IOException;
