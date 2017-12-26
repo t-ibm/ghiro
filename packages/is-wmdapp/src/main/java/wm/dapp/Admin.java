@@ -25,7 +25,9 @@ import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.codegen.FlowGenUtil;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
+import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 
 import java.io.IOException;
@@ -59,6 +61,8 @@ public final class Admin {
                     DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{""+nsName});
                 }
                 FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, "dapp");
+                FlowInvoke flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:call");
+                flowSvcImpl.getFlowRoot().addNode(flowInvoke);
                 NSFacade.saveNewNSNode(flowSvcImpl);
             }
         } catch (Exception e) {
