@@ -28,7 +28,9 @@ class UtilTest extends Specification {
         NSSignature nsSignature = contracts[nsName]
 
         then: 'the signature of this ns node is as expected'
-        nsName.interfaceName.toString() == 'sample.util.Console'
+        nsName.fullName == 'sample.util.Console:uintToBytes'
+        nsName.interfaceName as String == 'sample.util.Console'
+        nsName.nodeName as String == 'uintToBytes'
         nsSignature.input.fields.length == 1
         nsSignature.input.fields[0].name == 'v'
         nsSignature.output.fields.length == 1
