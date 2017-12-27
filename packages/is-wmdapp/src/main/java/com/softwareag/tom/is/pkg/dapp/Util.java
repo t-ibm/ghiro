@@ -42,17 +42,35 @@ public final class Util {
         ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation));
         contracts = contractRegistry.load();
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
-            String folderName = entry.getKey();
+            String folderName = entry.getKey().replaceAll("/", ".");
             ContractInterface contractInterface = entry.getValue().getContractAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName();
-                NSName nsName = NSName.create(folderName.replaceAll("/", "."), functionName);
+                NSName nsName = NSName.create(folderName, functionName);
                 NSSignature nsSignature = getSignature(nsName, function);
                 nsNodes.put(nsName, nsSignature);
             }
+            // Add the deploy service
+            NSName nsName = NSName.create(folderName, "deploy");
+            NSSignature nsSignature = getSignatureDeploy();
+            nsNodes.put(nsName, nsSignature);
+            // Add the load service
+            nsName = NSName.create(folderName, "load");
+            nsSignature = getSignatureLoad();
+            nsNodes.put(nsName, nsSignature);
         }
         return nsNodes;
+    }
+
+    private NSSignature getSignatureLoad() {
+        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
+        return  nsSignature;
+    }
+
+    private NSSignature getSignatureDeploy() {
+        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
+        return  nsSignature;
     }
 
     private <T> NSSignature getSignature(NSName nsName, ContractInterface.Specification<T> function) {
