@@ -24,9 +24,11 @@ class UtilTest extends Specification {
         contracts.size() == 6
 
         when: 'a particular ns node is retrieved'
-        NSSignature nsSignature = contracts[NSName.create('sample.util.Console:uintToBytes')]
+        NSName nsName = NSName.create('sample.util.Console:uintToBytes')
+        NSSignature nsSignature = contracts[nsName]
 
         then: 'the signature of this ns node is as expected'
+        nsName.interfaceName.toString() == 'sample.util.Console'
         nsSignature.input.fields.length == 1
         nsSignature.input.fields[0].name == 'v'
         nsSignature.output.fields.length == 1

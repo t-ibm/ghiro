@@ -13,13 +13,39 @@ import com.wm.data.IData;
 
 public class Contract {
     /**
-     * Synchronizes the contracts to the IS namespace.
+     * Calls the contract.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service
      */
     public static void call(IData pipeline) throws ServiceException {
         // --- <<IS-START(call)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        // --- <<IS-END>> ---
+    }
+
+    /**
+     * Loads the contract.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void load(IData pipeline) throws ServiceException {
+        // --- <<IS-START(load)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        // --- <<IS-END>> ---
+    }
+
+    /**
+     * Deploys the contract.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void deploy(IData pipeline) throws ServiceException {
+        // --- <<IS-START(deploy)>> ---
         // @subtype unknown
         // @sigtype java 3.5
         // --- <<IS-END>> ---
