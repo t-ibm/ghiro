@@ -240,9 +240,9 @@ class BurrowTest extends RestClientSpecification {
         String contractBinary = contracts['sample/SimpleStorage'].contractBinary
         ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification setFunction = functions.get(2)
+        ContractInterface.Specification setFunction = functions.get(1)
         assert setFunction.name == 'set'
-        ContractInterface.Specification getFunction = functions.get(3)
+        ContractInterface.Specification getFunction = functions.get(2)
         assert getFunction.name == 'get'
         def caller = [
                 address:'71044204395934D638C3BDA59E89C8219330A574',
