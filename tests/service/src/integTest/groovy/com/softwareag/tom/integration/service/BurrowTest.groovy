@@ -78,7 +78,6 @@ class BurrowTest extends Specification {
 
         def callee = [
                 address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
-                priv_key:'4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
         ]
 
         when: println '(1) the transaction is fully processed'
@@ -172,7 +171,6 @@ class BurrowTest extends Specification {
 
         def callee = [
                 address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
-                priv_key:'4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
         ]
 
         when: println '(1) the transaction is fully processed'
