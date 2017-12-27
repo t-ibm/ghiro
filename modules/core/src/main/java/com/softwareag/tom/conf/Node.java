@@ -22,15 +22,22 @@ public class Node {
     @JsonProperty("environments")  private List<Node> environments;
     @JsonProperty("name") private String name;
     @JsonProperty("host") private Host host;
+    @JsonProperty("key") private Key key;
     @JsonProperty("contract")  private Contract contract;
     public List<Node> getEnvironments() { return environments; }
     public String getName() { return name; }
     public Host getHost() { return host; }
+    public Key getKey() { return key; }
     public Contract getContract() { return contract; }
 
     public static class Host {
         @JsonProperty("ip") String ip;
         public String getIp() { return ip; }
+    }
+
+    public static class Key {
+        @JsonProperty("private") String priv;
+        public String getPrivate() { return priv; }
     }
 
     public static class Contract {
