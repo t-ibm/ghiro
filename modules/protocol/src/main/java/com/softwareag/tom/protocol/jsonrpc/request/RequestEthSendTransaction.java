@@ -7,11 +7,14 @@
 package com.softwareag.tom.protocol.jsonrpc.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.softwareag.tom.conf.Node;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction;
 import com.softwareag.tom.protocol.util.HexValue;
+
+import java.io.IOException;
 
 /**
  * {@code eth_sendTransaction}.
@@ -29,7 +32,11 @@ public class RequestEthSendTransaction extends Request<RequestEthSendTransaction
         @JsonProperty("gas_limit") public long gasLimit;
 
         Params(Types.TxType tx) {
-            this.privKey = "4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20"; //TODO
+            try {
+                this.privKey = Node.instance().getKey().getPrivate(); //TODO :: Replace with client-side cryptographic support for transaction signing
+            } catch (IOException e) {
+                logger.error("Failed to retrieve private key.", e);
+            }
             this.address = validate(tx.getTo());
             this.data = HexValue.stripPrefix(tx.getData());
             this.fee = HexValue.toBigInteger(tx.getGas()).longValueExact();
