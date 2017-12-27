@@ -165,9 +165,9 @@ class BurrowTest extends Specification {
         String contractBinary = contracts['sample/SimpleStorage'].contractBinary
         ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
         List functions = contractAbi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification setFunction = functions.get(2)
+        ContractInterface.Specification setFunction = functions.get(1)
         assert setFunction.name == 'set'
-        ContractInterface.Specification getFunction = functions.get(3)
+        ContractInterface.Specification getFunction = functions.get(2)
         assert getFunction.name == 'get'
 
         def callee = [
