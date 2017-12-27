@@ -3,6 +3,8 @@
 name: "default"
 host:
   ip: "127.0.0.1"
+key:
+  private: "4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20"
 contract:
   registry:
     location: "../../modules/contract/build/solc"
