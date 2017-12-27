@@ -76,9 +76,7 @@ class BurrowTest extends Specification {
         ContractInterface.Specification logFunction = functions.get(0)
         assert logFunction.name == 'log'
 
-        def callee = [
-                address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
-        ]
+        String contractAddress
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
@@ -87,12 +85,18 @@ class BurrowTest extends Specification {
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
+        and: 'the contract address is remembered'
+        request = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(((Types.ResponseEthSendTransaction) response).getHash()).build()
+        response = web3Service.ethGetTransactionReceipt(request)
+        contractAddress = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
+        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthSendTransaction
-        ((Types.ResponseEthSendTransaction) response).getHash() != null
+        response instanceof Types.ResponseEthGetTransactionReceipt
+        ((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt() != null
 
         when: println '(2) the newly created contract account is verified'
-        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
@@ -101,7 +105,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         response = web3Service.ethGetStorageAt(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
@@ -111,7 +115,7 @@ class BurrowTest extends Specification {
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         ).build()
         response = web3Service.ethNewFilter(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -134,7 +138,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) the contract is executed 2 times'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(logFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
         ).build()
         2.times {
             response = web3Service.ethCall(request as Types.RequestEthCall)
@@ -169,9 +173,7 @@ class BurrowTest extends Specification {
         ContractInterface.Specification getFunction = functions.get(2)
         assert getFunction.name == 'get'
 
-        def callee = [
-                address:'33F71BB66F8994DD099C0E360007D4DEAE11BFFE',
-        ]
+        String contractAddress
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
@@ -180,10 +182,10 @@ class BurrowTest extends Specification {
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
-        and: 'the callee address is remembered'
+        and: 'the contract address is remembered'
         request = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(((Types.ResponseEthSendTransaction) response).getHash()).build()
         response = web3Service.ethGetTransactionReceipt(request)
-        callee.address = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
+        contractAddress = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
         then: 'a valid response is received'
@@ -191,7 +193,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt() != null
 
         when: println '(2) the newly created contract account is verified'
-        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
@@ -200,7 +202,7 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         response = web3Service.ethGetStorageAt(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
@@ -210,7 +212,7 @@ class BurrowTest extends Specification {
 
         when: println '(4) we subscribe to events from the the new contract account'
         request = Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         ).build()
         response = web3Service.ethNewFilter(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -233,7 +235,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) the get contract method is executed'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(getFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()
         response = web3Service.ethCall(request as Types.RequestEthCall)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -244,7 +246,7 @@ class BurrowTest extends Specification {
 
         when: println '(7) the set contract method is executed'
         request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(setFunction.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(setFunction.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
         response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -255,7 +257,7 @@ class BurrowTest extends Specification {
 
         when: println '(8) the get contract method is executed again'
         request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(callee.address)).setData(HexValue.toByteString(getFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()
         response = web3Service.ethCall(request as Types.RequestEthCall)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -265,7 +267,7 @@ class BurrowTest extends Specification {
         HexValue.toBigInteger(((Types.ResponseEthCall) response).getReturn()) == BigInteger.valueOf(7)
 
         when: println '(9) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(callee.address)).build()
+        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         response = web3Service.ethGetStorageAt(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
