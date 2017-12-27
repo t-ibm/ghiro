@@ -39,8 +39,8 @@ public class RequestEthSendTransaction extends Request<RequestEthSendTransaction
             }
             this.address = validate(tx.getTo());
             this.data = HexValue.stripPrefix(tx.getData());
-            this.fee = HexValue.toBigInteger(tx.getGas()).longValueExact();
-            this.gasLimit = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
+            this.fee = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
+            this.gasLimit = HexValue.toBigInteger(tx.getGas()).longValueExact();
         }
 
         @Override public boolean equals(Object o) {
