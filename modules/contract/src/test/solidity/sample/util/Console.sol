@@ -7,14 +7,14 @@ contract Console {
     /**
      * @notice Triggering logging of this contract's address.
      */
-    function log() {
+    function log() constant {
         LogAddress(address(this));
     }
     event LogAddress(address);
     /**
      * @notice Triggering logging of an arbitrary unsigned integer value.
      */
-    function log(uint x) {
+    function log(uint x) constant {
         LogUint(uintToBytes(x));
     }
     function uintToBytes(uint v) constant returns (bytes32 ret) {
