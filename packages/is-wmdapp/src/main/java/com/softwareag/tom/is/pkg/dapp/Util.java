@@ -43,7 +43,7 @@ public final class Util {
         contracts = contractRegistry.load();
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
             String folderName = entry.getKey().replaceAll("/", ".");
-            ContractInterface contractInterface = entry.getValue().getContractAbi();
+            ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName();
@@ -95,14 +95,12 @@ public final class Util {
         for (ContractInterface.Parameter parameter : parameters) {
             String parameterName = parameter.getName();
             ParameterType parameterType = parameter.getType();
-            NSField nsField;
             if (parameterType.getType() == String.class) {
                 nsRecord.addField(parameterName, NSField.FIELD_STRING, NSField.DIM_SCALAR);
             } else if (parameterType.getType() == List.class) {
                 nsRecord.addField(parameterName, NSField.FIELD_OBJECT, NSField.DIM_ARRAY);
             } else {
-                nsField = nsRecord.addField(parameterName, NSField.FIELD_OBJECT, NSField.DIM_SCALAR);
-                nsField.setJavaWrapperType(getJavaWrapperType(parameterType));
+                nsRecord.addField(parameterName, NSField.FIELD_OBJECT, NSField.DIM_SCALAR).setJavaWrapperType(getJavaWrapperType(parameterType));
             }
         }
         // Mark existing and added fields as optional
