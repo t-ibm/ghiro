@@ -63,13 +63,25 @@ public final class Util {
         return nsNodes;
     }
 
-    private NSSignature getSignatureLoad() {
-        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
-        return  nsSignature;
-    }
-
     private NSSignature getSignatureDeploy() {
         NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
+        NSRecord outputRecord = new NSRecord(Namespace.current());
+        nsSignature.setOutput(outputRecord);
+
+        NSRecord txReceipt = (NSRecord) outputRecord.addField("txReceipt", NSField.FIELD_RECORD, NSField.DIM_SCALAR);
+        txReceipt.addField("transactionHash", NSField.FIELD_STRING, NSField.DIM_SCALAR);
+        txReceipt.addField("contractAddress", NSField.FIELD_STRING, NSField.DIM_SCALAR);
+
+        return nsSignature;
+    }
+
+    private NSSignature getSignatureLoad() {
+        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
+        NSRecord inputRecord = new NSRecord(Namespace.current());
+        nsSignature.setInput(inputRecord);
+
+        inputRecord.addField("contractAddress", NSField.FIELD_STRING, NSField.DIM_SCALAR);
+
         return  nsSignature;
     }
 

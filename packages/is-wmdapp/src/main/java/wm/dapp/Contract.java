@@ -4,14 +4,14 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in
  * your License Agreement with Software AG.
  */
-
 package wm.dapp;
+
 // --- <<IS-START-IMPORTS>> ---
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.data.IData;
 // --- <<IS-END-IMPORTS>> ---
 
-public class Contract {
+public final class Contract {
     /**
      * Calls the contract.
      *
@@ -33,8 +33,9 @@ public class Contract {
      */
     public static void load(IData pipeline) throws ServiceException {
         // --- <<IS-START(load)>> ---
-        // @subtype unknown
         // @sigtype java 3.5
+        // [i] field:0:required contractAddress
+
         // --- <<IS-END>> ---
     }
 
@@ -46,8 +47,11 @@ public class Contract {
      */
     public static void deploy(IData pipeline) throws ServiceException {
         // --- <<IS-START(deploy)>> ---
-        // @subtype unknown
         // @sigtype java 3.5
+        // [o] record:0:required txReceipt
+        // [o] - field:0:required transactionHash
+        // [o] - field:0:required contractAddress
+
         // --- <<IS-END>> ---
     }
 }
