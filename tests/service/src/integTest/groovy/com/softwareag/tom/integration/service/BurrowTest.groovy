@@ -7,6 +7,7 @@
 package com.softwareag.tom.integration.service
 
 import com.google.protobuf.Message
+import com.softwareag.tom.contract.Contract
 import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
 import com.softwareag.tom.contract.SolidityLocationFileSystem
@@ -70,9 +71,8 @@ class BurrowTest extends Specification {
     def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
-        String contractBinary = contracts['sample/util/Console'].contractBinary
-        ContractInterface contractAbi = contracts['sample/util/Console'].contractAbi
-        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        Contract contract = contracts['sample/util/Console']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
         assert logFunction.name == 'log'
 
@@ -80,7 +80,7 @@ class BurrowTest extends Specification {
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(HexValue.toByteString(contractBinary)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
@@ -165,9 +165,8 @@ class BurrowTest extends Specification {
     def "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
-        String contractBinary = contracts['sample/SimpleStorage'].contractBinary
-        ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
-        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        Contract contract = contracts['sample/SimpleStorage']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)
         assert setFunction.name == 'set'
         ContractInterface.Specification getFunction = functions.get(2)
@@ -177,7 +176,7 @@ class BurrowTest extends Specification {
 
         when: println '(1) the transaction is fully processed'
         Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setData(HexValue.toByteString(contractBinary)).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
         Message response = web3Service.ethSendTransaction(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"

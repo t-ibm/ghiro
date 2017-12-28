@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.integration.protocol
 
+import com.softwareag.tom.contract.Contract
 import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
 import com.softwareag.tom.contract.SolidityLocationFileSystem
@@ -135,9 +136,8 @@ class BurrowTest extends RestClientSpecification {
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
-        String contractBinary = contracts['sample/util/Console'].contractBinary
-        ContractInterface contractAbi = contracts['sample/util/Console'].contractAbi
-        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        Contract contract = contracts['sample/util/Console']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
         assert logFunction.name == 'log'
 
@@ -152,10 +152,10 @@ class BurrowTest extends RestClientSpecification {
         ]
         def params = [
                 'priv_key':caller.priv_key,
-                'data':contractBinary,
+                'data':contract.binary,
                 'address':'',
-                'fee':12,
-                'gas_limit':223,
+                'fee':contract.gasPrice,
+                'gas_limit':contract.gasLimit,
         ]
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.transactAndHold', 'params': params]
 
@@ -237,9 +237,8 @@ class BurrowTest extends RestClientSpecification {
     def "test create solidity contract and store/update data via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
-        String contractBinary = contracts['sample/SimpleStorage'].contractBinary
-        ContractInterface contractAbi = contracts['sample/SimpleStorage'].contractAbi
-        List functions = contractAbi.functions as List<ContractInterface.Specification>
+        Contract contract = contracts['sample/SimpleStorage']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)
         assert setFunction.name == 'set'
         ContractInterface.Specification getFunction = functions.get(2)
@@ -255,10 +254,10 @@ class BurrowTest extends RestClientSpecification {
         ]
         def params = [
                 'priv_key':caller.priv_key,
-                'data':contractBinary,
+                'data':contract.binary,
                 'address':'',
-                'fee':12,
-                'gas_limit':223,
+                'fee':contract.gasPrice,
+                'gas_limit':contract.gasLimit,
         ]
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.transactAndHold', 'params': params]
 
@@ -324,8 +323,8 @@ class BurrowTest extends RestClientSpecification {
                 'priv_key':callee.priv_key,
                 'data':setFunction.encode([BigInteger.valueOf(7)]),
                 'address':callee.address,
-                'fee':12,
-                'gas_limit':223,
+                'fee':contract.gasPrice,
+                'gas_limit':contract.gasLimit,
         ]
         request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.transactAndHold', 'params': params]
         resp = send request

@@ -104,7 +104,7 @@ class RequestTest extends RequestSpecification {
     def "test eth_sendTransaction"() {
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).setGas(HexValue.toByteString(223)).setGasPrice(HexValue.toByteString(12)).build()
         ).build()) {};
         String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20","address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
 
