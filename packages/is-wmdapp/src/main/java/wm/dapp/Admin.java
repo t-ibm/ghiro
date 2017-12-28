@@ -45,33 +45,8 @@ public final class Admin {
         // --- <<IS-START(syncContracts)>> ---
         // @subtype unknown
         // @sigtype java 3.5
-        Package pkg = PackageManager.getPackage("WmDApp");
-        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, String.valueOf(pkg.getManifest().getProperty("node")));
-        Map<NSName,NSSignature> nsNodes;
         try {
-            nsNodes = Util.create().getFunctions();
-        } catch (IOException e) {
-            throw new ServiceException(e);
-        }
-        try {
-            for (Map.Entry<NSName,NSSignature> nsNode : nsNodes.entrySet()) {
-                NSName nsName = nsNode.getKey();
-                NSSignature nsSignature = nsNode.getValue();
-                if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
-                    DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{""+nsName});
-                }
-                FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, "default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
-                FlowInvoke flowInvoke;
-                if (nsName.getNodeName().equals(Name.create("load"))) {
-                    flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:load");
-                } else if (nsName.getNodeName().equals(Name.create("deploy"))) {
-                    flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:deploy");
-                } else {
-                    flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:call");
-                }
-                flowSvcImpl.getFlowRoot().addNode(flowInvoke);
-                NSFacade.saveNewNSNode(flowSvcImpl);
-            }
+            Util.create().syncContracts();
         } catch (Exception e) {
             throw new ServiceException(e);
         }
