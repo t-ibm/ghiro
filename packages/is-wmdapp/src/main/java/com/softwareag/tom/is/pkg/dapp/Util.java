@@ -12,13 +12,20 @@ import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
+import com.wm.app.b2b.server.FlowSvcImpl;
+import com.wm.app.b2b.server.Package;
+import com.wm.app.b2b.server.PackageManager;
 import com.wm.app.b2b.server.ns.Namespace;
+import com.wm.app.b2b.ws.codegen.FlowGenUtil;
+import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IDataFactory;
+import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.ns.NSField;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
+import com.wm.util.Name;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,11 +39,36 @@ public final class Util {
     private Util() { nsNodes = new HashMap<>(); }
     public static Util create() { return new Util(); }
 
+    public void syncContracts() throws Exception {
+        Package pkg = PackageManager.getPackage("WmDApp");
+        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, String.valueOf(pkg.getManifest().getProperty("node")));
+        Map<NSName, NSSignature> nsNodes;
+        nsNodes = Util.create().getFunctions();
+        for (Map.Entry<NSName, NSSignature> nsNode : nsNodes.entrySet()) {
+            NSName nsName = nsNode.getKey();
+            NSSignature nsSignature = nsNode.getValue();
+            if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
+                DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
+            }
+            FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, "default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+            FlowInvoke flowInvoke;
+            if (nsName.getNodeName().equals(Name.create("load"))) {
+                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:load");
+            } else if (nsName.getNodeName().equals(Name.create("deploy"))) {
+                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:deploy");
+            } else {
+                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:call");
+            }
+            flowSvcImpl.getFlowRoot().addNode(flowInvoke);
+            NSFacade.saveNewNSNode(flowSvcImpl);
+        }
+    }
+
     /**
      * @return the contracts as a {@link NSName}/{@link NSSignature} map
      * @throws IOException if the contracts cannot be loaded from the registry
      */
-    public Map<NSName,NSSignature> getFunctions() throws IOException {
+    Map<NSName,NSSignature> getFunctions() throws IOException {
         Map<String, Contract> contracts;
         File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
         ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation));
