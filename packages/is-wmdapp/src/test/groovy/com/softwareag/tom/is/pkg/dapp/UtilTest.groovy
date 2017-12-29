@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
+import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSSignature
 import spock.lang.Specification
@@ -18,14 +19,14 @@ class UtilTest extends Specification {
 
     def "test contract to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        Map<NSName, NSSignature> functions = Util.create().getFunctions()
+        Map<NSName, FlowSvcImpl> functions = Util.create().getFunctions()
 
         expect: 'to retrieve a populated map of ns nodes'
         functions.size() == 10
 
         when: 'a particular ns node is retrieved'
         NSName nsName = NSName.create('sample.util.Console:uintToBytes')
-        NSSignature nsSignature = functions[nsName]
+        NSSignature nsSignature = functions[nsName].signature
 
         then: 'the signature of this ns node is as expected'
         nsName.fullName == 'sample.util.Console:uintToBytes'
@@ -37,7 +38,7 @@ class UtilTest extends Specification {
         nsSignature.output.fields[0].name == 'ret'
 
         when: 'a particular ns node is retrieved'
-        nsSignature = functions[NSName.create('sample.util.Console:log')]
+        nsSignature = functions[NSName.create('sample.util.Console:log')].signature
         nsSignature.input = nsSignature.getInput()
 
         then: 'the signature of this ns node is as expected'

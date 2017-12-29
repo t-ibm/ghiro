@@ -16,16 +16,17 @@ import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
 import com.wm.app.b2b.server.ns.Namespace;
-import com.wm.app.b2b.ws.codegen.FlowGenUtil;
-import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IDataFactory;
 import com.wm.lang.flow.FlowInvoke;
+import com.wm.lang.flow.FlowRoot;
 import com.wm.lang.ns.NSField;
 import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
+import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
-import com.wm.util.Name;
+import com.wm.util.Values;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,64 +36,78 @@ import java.util.List;
 import java.util.Map;
 
 public final class Util {
-    private Map<NSName,NSSignature> nsNodes;
+    private Package pkg = PackageManager.getPackage("WmDApp");
+    private Map<NSName,FlowSvcImpl> nsNodes;
     private Util() { nsNodes = new HashMap<>(); }
     public static Util create() { return new Util(); }
 
-    public void syncContracts() throws Exception {
-        Package pkg = PackageManager.getPackage("WmDApp");
-        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, String.valueOf(pkg.getManifest().getProperty("node")));
-        Map<NSName, NSSignature> nsNodes;
-        nsNodes = Util.create().getFunctions();
-        for (Map.Entry<NSName, NSSignature> nsNode : nsNodes.entrySet()) {
-            NSName nsName = nsNode.getKey();
-            NSSignature nsSignature = nsNode.getValue();
-            if (!pkg.getStore().getNodePath(nsName).mkdirs()) {
-                DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
-            }
-            FlowSvcImpl flowSvcImpl = FlowGenUtil.getFlowSvcImpl(pkg, nsName, nsSignature, "default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
-            FlowInvoke flowInvoke;
-            if (nsName.getNodeName().equals(Name.create("load"))) {
-                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:load");
-            } else if (nsName.getNodeName().equals(Name.create("deploy"))) {
-                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:deploy");
-            } else {
-                flowInvoke = FlowGenUtil.getFlowInvoke("wm.dapp.Contract:call");
-            }
-            flowSvcImpl.getFlowRoot().addNode(flowInvoke);
-            NSFacade.saveNewNSNode(flowSvcImpl);
-        }
-    }
-
     /**
-     * @return the contracts as a {@link NSName}/{@link NSSignature} map
+     * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      * @throws IOException if the contracts cannot be loaded from the registry
      */
-    Map<NSName,NSSignature> getFunctions() throws IOException {
+    public Map<NSName,FlowSvcImpl> getFunctions() throws IOException {
+        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
         Map<String, Contract> contracts;
         File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
         ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation));
         contracts = contractRegistry.load();
+        NSName nsName;
+        NSSignature nsSignature;
+        FlowInvoke flowInvoke;
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
+            // Add the functions as defined in the ABI
             String folderName = entry.getKey().replaceAll("/", ".");
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName();
-                NSName nsName = NSName.create(folderName, functionName);
-                NSSignature nsSignature = getSignature(nsName, function);
-                nsNodes.put(nsName, nsSignature);
+                nsName = NSName.create(folderName, functionName);
+                nsSignature = getSignature(nsName, function);
+                flowInvoke = new FlowInvoke(new Values());
+                flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
+                nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             }
             // Add the deploy service
-            NSName nsName = NSName.create(folderName, "deploy");
-            NSSignature nsSignature = getSignatureDeploy();
-            nsNodes.put(nsName, nsSignature);
+            nsName = NSName.create(folderName, "deploy");
+            nsSignature = getSignatureDeploy();
+            flowInvoke = new FlowInvoke(new Values());
+            flowInvoke.setService(NSName.create("wm.dapp.Contract:deploy"));
+            nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             // Add the load service
             nsName = NSName.create(folderName, "load");
             nsSignature = getSignatureLoad();
-            nsNodes.put(nsName, nsSignature);
+            flowInvoke = new FlowInvoke(new Values());
+            flowInvoke.setService(NSName.create("wm.dapp.Contract:load"));
+            nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
         }
         return nsNodes;
+    }
+
+    private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
+        if (pkg != null && !pkg.getStore().getNodePath(nsName).mkdirs()) {
+            DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
+        }
+
+        FlowSvcImpl flowSvcImpl;
+        NSNode node = Namespace.current().getNode(nsName);
+        if (node != null && node instanceof FlowSvcImpl) {
+            flowSvcImpl = (FlowSvcImpl) node;
+        } else {
+            flowSvcImpl = new FlowSvcImpl(pkg, nsName,null);
+            flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
+            flowSvcImpl.setFlowRoot(new FlowRoot(new Values()));
+            flowSvcImpl.getServiceType().setSubtype("default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+        }
+
+        if (nsSignature != null) {
+            flowSvcImpl.setSignature(nsSignature);
+        } else {
+            flowSvcImpl.setSignature(new NSSignature(new NSRecord(Namespace.current()), new NSRecord(Namespace.current())));
+        }
+
+
+        flowSvcImpl.getFlowRoot().addNode(flowInvoke);
+        return flowSvcImpl;
     }
 
     private NSSignature getSignatureDeploy() {
@@ -119,7 +134,7 @@ public final class Util {
 
     private <T> NSSignature getSignature(NSName nsName, ContractInterface.Specification<T> function) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
-        NSSignature nsSignature = nsNodes.getOrDefault(nsName, NSSignature.create(Namespace.current(), IDataFactory.create()));
+        NSSignature nsSignature = nsNodes.containsKey(nsName) ? nsNodes.get(nsName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
         boolean optional = nsNodes.containsKey(nsName);
 
