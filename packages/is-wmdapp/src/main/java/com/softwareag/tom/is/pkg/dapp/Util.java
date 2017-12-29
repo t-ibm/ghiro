@@ -26,7 +26,6 @@ import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
-import com.wm.util.Values;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,20 +62,20 @@ public final class Util {
                 String functionName = function.getName();
                 nsName = NSName.create(folderName, functionName);
                 nsSignature = getSignature(nsName, function);
-                flowInvoke = new FlowInvoke(new Values());
+                flowInvoke = new FlowInvoke(IDataFactory.create());
                 flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
                 nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             }
             // Add the deploy service
             nsName = NSName.create(folderName, "deploy");
             nsSignature = getSignatureDeploy();
-            flowInvoke = new FlowInvoke(new Values());
+            flowInvoke = new FlowInvoke(IDataFactory.create());
             flowInvoke.setService(NSName.create("wm.dapp.Contract:deploy"));
             nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             // Add the load service
             nsName = NSName.create(folderName, "load");
             nsSignature = getSignatureLoad();
-            flowInvoke = new FlowInvoke(new Values());
+            flowInvoke = new FlowInvoke(IDataFactory.create());
             flowInvoke.setService(NSName.create("wm.dapp.Contract:load"));
             nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
         }
@@ -95,7 +94,7 @@ public final class Util {
         } else {
             flowSvcImpl = new FlowSvcImpl(pkg, nsName,null);
             flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
-            flowSvcImpl.setFlowRoot(new FlowRoot(new Values()));
+            flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
             flowSvcImpl.getServiceType().setSubtype("default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
         }
 
