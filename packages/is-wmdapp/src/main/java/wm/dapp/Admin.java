@@ -15,7 +15,9 @@ package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
 import com.softwareag.tom.is.pkg.dapp.Util;
+import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
+import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 // --- <<IS-END-IMPORTS>> ---
 
@@ -31,7 +33,9 @@ public final class Admin {
         // @subtype unknown
         // @sigtype java 3.5
         try {
-            Util.create().syncContracts();
+            for (FlowSvcImpl flowSvcImpl : Util.create().getFunctions().values()) {
+                NSFacade.saveNewNSNode(flowSvcImpl);
+            }
         } catch (Exception e) {
             throw new ServiceException(e);
         }
