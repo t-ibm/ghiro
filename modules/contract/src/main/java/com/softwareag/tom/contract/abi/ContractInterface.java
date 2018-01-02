@@ -28,9 +28,9 @@ public abstract class ContractInterface {
         String getType();
         List<? extends ContractInterface.Parameter<T>> getInputParameters();
         List<? extends ContractInterface.Parameter<T>> getOutputParameters();
-        boolean getConstant();
-        boolean getPayable();
-        boolean getAnonymous();
+        boolean isConstant();
+        boolean isPayable();
+        boolean isAnonymous();
         /**
          * @return the encoded specification.
          */
@@ -43,7 +43,7 @@ public abstract class ContractInterface {
     public interface Parameter<T> {
         String getName();
         ParameterType getType();
-        boolean getIndexed();
+        boolean isIndexed();
         /**
          * @return the length of an array for a parameter of type fixed-length array, otherwise returns 1
          */

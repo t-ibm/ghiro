@@ -45,9 +45,9 @@ public class SolidityInterface extends ContractInterface {
         @Override public String getType() { return type; }
         @Override public List<? extends ContractInterface.Parameter<T>> getInputParameters() { return inputParameters; }
         @Override public List<? extends ContractInterface.Parameter<T>> getOutputParameters() { return outputParameters; }
-        @Override public boolean getConstant() { return constant; }
-        @Override public boolean getPayable() { return payable; }
-        @Override public boolean getAnonymous() { return anonymous; }
+        @Override public boolean isConstant() { return constant; }
+        @Override public boolean isPayable() { return payable; }
+        @Override public boolean isAnonymous() { return anonymous; }
 
         @Override public String encode(List<T> values) {
             return SpecificationEncoder.encode(this, values);
@@ -65,7 +65,7 @@ public class SolidityInterface extends ContractInterface {
 
         @Override public String getName() { return name; }
         @Override public ParameterType getType() { return type; }
-        @Override public boolean getIndexed() { return indexed; }
+        @Override public boolean isIndexed() { return indexed; }
 
         @Override public short getLength() {
             int start = type.getName().trim().indexOf('[') + 1;
