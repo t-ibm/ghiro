@@ -63,14 +63,18 @@ public final class Util {
                 nsName = NSName.create(folderName, functionName);
                 nsSignature = getSignature(nsName, function);
                 flowInvoke = new FlowInvoke(IDataFactory.create());
-                flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
+                if (function.isConstant()) {
+                    flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
+                } else {
+                    flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
+                }
                 nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             }
             // Add the deploy service
             nsName = NSName.create(folderName, "deploy");
             nsSignature = getSignatureDeploy();
             flowInvoke = new FlowInvoke(IDataFactory.create());
-            flowInvoke.setService(NSName.create("wm.dapp.Contract:deploy"));
+            flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
             nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
             // Add the load service
             nsName = NSName.create(folderName, "load");
