@@ -22,6 +22,9 @@ public final class Contract {
         // --- <<IS-START(call)>> ---
         // @subtype unknown
         // @sigtype java 3.5
+        // [i] field:0:required data
+        // [o] object:0:required return
+
         // --- <<IS-END>> ---
     }
 
@@ -40,14 +43,16 @@ public final class Contract {
     }
 
     /**
-     * Deploys the contract.
+     * Sends a transaction.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service
      */
-    public static void deploy(IData pipeline) throws ServiceException {
-        // --- <<IS-START(deploy)>> ---
+    public static void sendTransaction(IData pipeline) throws ServiceException {
+        // --- <<IS-START(sendTransaction)>> ---
         // @sigtype java 3.5
+        // [i] field:0:optional contractAddress
+        // [i] field:0:required data
         // [o] record:0:required txReceipt
         // [o] - field:0:required transactionHash
         // [o] - field:0:required contractAddress
