@@ -36,20 +36,27 @@ import java.util.Map;
 
 public final class Util {
     private Package pkg = PackageManager.getPackage("WmDApp");
+    private Map<String, Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
-    private Util() { nsNodes = new HashMap<>(); }
-    public static Util create() { return new Util(); }
 
-    /**
-     * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
-     * @throws IOException if the contracts cannot be loaded from the registry
-     */
-    public Map<NSName,FlowSvcImpl> getFunctions() throws IOException {
+    private Util() throws IOException {
+        nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
-        Map<String, Contract> contracts;
         File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
         ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation));
         contracts = contractRegistry.load();
+    }
+
+    /**
+     * @return and initializes a new {@link Util} instance
+     * @throws IOException if the contracts cannot be loaded from the registry
+     */
+    public static Util create() throws IOException { return new Util(); }
+
+    /**
+     * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
+     */
+    public Map<NSName,FlowSvcImpl> getFunctions() {
         NSName nsName;
         NSSignature nsSignature;
         FlowInvoke flowInvoke;
