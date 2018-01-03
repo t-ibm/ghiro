@@ -53,6 +53,7 @@ public final class Util {
         NSName nsName;
         NSSignature nsSignature;
         FlowInvoke flowInvoke;
+        FlowSvcImpl flowSvcImpl;
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
             String folderName = entry.getKey().replaceAll("/", ".");
@@ -65,23 +66,31 @@ public final class Util {
                 flowInvoke = new FlowInvoke(IDataFactory.create());
                 if (function.isConstant()) {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
+                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+                    flowSvcImpl.setStateless(true);
                 } else {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
+                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+                    flowSvcImpl.setStateless(false);
                 }
-                nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
+                nsNodes.put(nsName, flowSvcImpl);
             }
             // Add the deploy service
             nsName = NSName.create(folderName, "deploy");
             nsSignature = getSignatureDeploy();
             flowInvoke = new FlowInvoke(IDataFactory.create());
             flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
-            nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
+            flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+            flowSvcImpl.setStateless(false);
+            nsNodes.put(nsName, flowSvcImpl);
             // Add the load service
             nsName = NSName.create(folderName, "load");
             nsSignature = getSignatureLoad();
             flowInvoke = new FlowInvoke(IDataFactory.create());
             flowInvoke.setService(NSName.create("wm.dapp.Contract:load"));
-            nsNodes.put(nsName, getFlowSvcImpl(nsName, nsSignature, flowInvoke));
+            flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+            flowSvcImpl.setStateless(true);
+            nsNodes.put(nsName, flowSvcImpl);
         }
         return nsNodes;
     }
