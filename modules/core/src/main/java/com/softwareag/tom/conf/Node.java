@@ -26,42 +26,35 @@ public class Node {
     @JsonProperty("config")  private Config config;
     @JsonProperty("contract")  private Contract contract;
     public List<Node> getEnvironments() { return environments; }
-    public String getName() { return validate(name); }
-    public Host getHost() { return validate(host); }
-    public Key getKey() { return validate(key); }
-    public Contract getContract() { return validate(contract); }
-    public Config getConfig() { return validate(config); }
+    public String getName() { return name; }
+    public Host getHost() { return host; }
+    public Key getKey() { return key; }
+    public Contract getContract() { return contract; }
+    public Config getConfig() { return config; }
 
     public static class Host {
         @JsonProperty("ip") String ip;
-        public String getIp() { return validate(ip); }
+        public String getIp() { return ip; }
     }
 
     public static class Key {
         @JsonProperty("private") String priv;
-        public String getPrivate() { return validate(priv); }
+        public String getPrivate() { return priv; }
     }
 
     public static class Config {
         @JsonProperty("location") String location;
-        public URI getLocation() { return URI.create(validate(location)).normalize(); }
+        public URI getLocation() { return URI.create(location).normalize(); }
     }
 
     public static class Contract {
         @JsonProperty("registry") Registry registry;
-        public Registry getRegistry() { return validate(registry); }
+        public Registry getRegistry() { return registry; }
 
         public static class Registry {
             @JsonProperty("location") String location;
-            public URI getLocation() { return URI.create(validate(location)).normalize(); }
+            public URI getLocation() { return URI.create(location).normalize(); }
         }
-    }
-
-    static <T> T validate(T value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Property missing from node configuration.");
-        }
-        return value;
     }
 
     /**
