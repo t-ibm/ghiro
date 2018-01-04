@@ -90,10 +90,7 @@ class ContractRegistryLocationTest extends Specification {
         when: 'the contracts are loaded into memory'
         def  contracts = contractRegistry.load()
 
-        then: 'no contract address is set prior to contract deployment'
-        contracts['sample/util/Console'].contractAddress == null
-
-        when: 'the contract addresses are set and stored'
+        and: 'the contract addresses are set and stored'
         contracts['sample/util/Console'].contractAddress = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         contracts['sample/SimpleStorage'].contractAddress = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         def contractAddresse = contractRegistry.storeContractAddresses(contracts)
