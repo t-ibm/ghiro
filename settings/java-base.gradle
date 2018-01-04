@@ -16,3 +16,9 @@ tasks.withType(JavaCompile) { JavaCompile compile ->
             '-implicit:none', '-Xlint:-options', '-Xlint:unchecked',
     ]
 }
+
+// Ensuring the working directory is not under source control
+tasks.withType(Test) { Test test ->
+    test.workingDir new File( buildDir, 'worker')
+    doFirst { workingDir.mkdirs() }
+}
