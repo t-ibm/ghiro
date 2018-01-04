@@ -41,6 +41,9 @@ public class Contract {
     public String getBinary() {
         return binary;
     }
+    public String getContractAddress() { return contractAddress; }
     public BigInteger getGasPrice() { return gasPrice; }
     public BigInteger getGasLimit() { return gasLimit; }
+
+    void setContractAddress(String contractAddress) { this.contractAddress = contractAddress; }
 }

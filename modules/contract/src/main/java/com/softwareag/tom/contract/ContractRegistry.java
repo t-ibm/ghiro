@@ -9,8 +9,8 @@ package com.softwareag.tom.contract;
 /**
  * Contract registry API.
  */
-public interface ContractRegistry extends ContractLocation {
-    static ContractRegistry build(ContractLocation location) {
-        return new ContractRegistryLocation(location);
+public interface ContractRegistry extends ContractLocation, ConfigLocation  {
+    static ContractRegistry build(ContractLocation contractLocation, ConfigLocation configLocation) {
+        return new ContractRegistryLocation(contractLocation, configLocation);
     }
 }
