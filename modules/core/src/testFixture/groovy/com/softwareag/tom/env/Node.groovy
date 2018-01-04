@@ -8,6 +8,9 @@ node {
             port = 36657
         }
     }
+    config {
+        location = new File('config')
+    }
     contract {
         registry {
             location = new File('../../modules/contract/build/solc')
