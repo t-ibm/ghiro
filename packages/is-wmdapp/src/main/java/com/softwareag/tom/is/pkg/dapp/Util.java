@@ -7,6 +7,7 @@
 package com.softwareag.tom.is.pkg.dapp;
 
 import com.softwareag.tom.conf.Node;
+import com.softwareag.tom.contract.ConfigLocationFileSystem;
 import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
@@ -43,7 +44,8 @@ public final class Util {
         nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
         File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
-        ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation));
+        File configLocation = new File(Node.instance().getConfig().getLocation().getPath());
+        ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
         contracts = contractRegistry.load();
     }
 

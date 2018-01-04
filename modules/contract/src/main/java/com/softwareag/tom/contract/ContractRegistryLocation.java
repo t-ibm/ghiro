@@ -14,13 +14,30 @@ import java.util.Map;
  */
 class ContractRegistryLocation implements ContractRegistry {
 
-    private final ContractLocation location;
+    private final ContractLocation contractLocation;
+    private final ConfigLocation configLocation;
 
-    ContractRegistryLocation(ContractLocation location) {
-        this.location = location;
+    ContractRegistryLocation(ContractLocation contractLocation, ConfigLocation configLocation) {
+        this.contractLocation = contractLocation;
+        this.configLocation = configLocation;
     }
 
     @Override public Map<String, Contract> load() throws IOException {
-        return location.load();
+        Map<String, Contract> contracts = contractLocation.load();
+        Map<String, String> addresses = loadContractAddresses();
+        for (String key : addresses.keySet()) {
+            if (contracts.containsKey(key)) {
+                contracts.get(key).setContractAddress(addresses.get(key));
+            }
+        }
+        return contracts;
+    }
+
+    @Override public Map<String, String> loadContractAddresses() throws IOException {
+        return configLocation.loadContractAddresses();
+    }
+
+    @Override public Map<String, String> storeContractAddresses(Map<String, Contract> contracts) throws IOException {
+        return configLocation.storeContractAddresses(contracts);
     }
 }
