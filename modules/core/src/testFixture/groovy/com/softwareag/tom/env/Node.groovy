@@ -9,7 +9,7 @@ node {
         }
     }
     config {
-        location = new File('config')
+        location = new File('packages/WmDApp/config')
     }
     contract {
         registry {
