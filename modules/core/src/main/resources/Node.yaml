@@ -9,7 +9,7 @@ config:
   location: "config"
 contract:
   registry:
-    location: "../../../../modules/contract/build/solc"
+    location: "../../modules/contract/build/solc"
 # Named nodes extending from the default node
 environments:
   - name: "production"

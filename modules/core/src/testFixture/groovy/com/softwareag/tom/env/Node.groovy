@@ -13,7 +13,7 @@ node {
     }
     contract {
         registry {
-            location = new File('../../../../modules/contract/build/solc')
+            location = new File('../../modules/contract/build/solc')
         }
     }
 }
