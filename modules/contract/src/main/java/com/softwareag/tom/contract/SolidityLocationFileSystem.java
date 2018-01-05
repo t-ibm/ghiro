@@ -46,13 +46,13 @@ public class SolidityLocationFileSystem implements ContractLocation {
         Map<String, Contract> contracts = new HashMap<>();
         Files.find(Paths.get(rootDirectory.toURI()), 64, (path, bfa) -> bfa.isRegularFile() && path.getFileName().toString().matches(".*\\.bin")).forEachOrdered(
             pathBin -> {
-                URI id = rootDirectory.toURI().relativize(pathBin.toUri());
-                id = URI.create(id.toString().substring(0, id.toString().lastIndexOf('.'))); //Remove extension from URI
-                logger.info("Loading contract: " + id);
-                Path pathAbi = FileSystems.getDefault().getPath(rootDirectory.toString(), id.toString() + ".abi");
+                URI uri = rootDirectory.toURI().relativize(pathBin.toUri());
+                uri = URI.create(uri.toString().substring(0, uri.toString().lastIndexOf('.'))); //Remove extension from URI
+                logger.info("Loading contract: " + uri);
+                Path pathAbi = FileSystems.getDefault().getPath(rootDirectory.toString(), uri.toString() + ".abi");
                 try {
                     Contract contract = Contract.create(getContractInterface(Files.readAllBytes(pathAbi)), new String(Files.readAllBytes(pathBin)));
-                    contracts.put(id.toString(), contract);
+                    contracts.put(uri.toString(), contract);
                 } catch (IOException e) {
                     logger.warn("Unable to read file content, got exception: " + e);
                 }
