@@ -17,6 +17,7 @@ import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
 import com.wm.app.b2b.server.ns.Namespace;
+import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.flow.FlowRoot;
@@ -34,36 +35,49 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public final class Util {
+public enum Util {
+    instance;
+
     private Package pkg = PackageManager.getPackage("WmDApp");
-    private Map<String, Contract> contracts;
+    private ContractRegistry contractRegistry;
     private Map<NSName,FlowSvcImpl> nsNodes;
 
-    private Util() throws IOException {
+    Util() throws ExceptionInInitializerError {
         nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
-        File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
-        File configLocation = new File(Node.instance().getConfig().getLocation().getPath());
-        ContractRegistry contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-        contracts = contractRegistry.load();
+        try {
+            File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
+            File configLocation = new File(Node.instance().getConfig().getLocation().getPath());
+            contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 
     /**
-     * @return and initializes a new {@link Util} instance
-     * @throws IOException if the contracts cannot be loaded from the registry
+     * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
-    public static Util create() throws IOException { return new Util(); }
+    public IData[] getContractAddresses() throws IOException {
+        Map<String,Contract> contracts = contractRegistry.load();
+        IData[] contractArray = new IData[contracts.size()];
+        List<IData> contractList = contracts.entrySet().stream().map(entry -> IDataFactory.create(new Object[][]{
+                {"uri", entry.getKey().replaceAll("/", ".")},
+                {"address", entry.getValue().getContractAddress()},
+        })).collect(Collectors.toList());
+        return contractList.toArray(contractArray);
+    }
 
     /**
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
-    public Map<NSName,FlowSvcImpl> getFunctions() {
+    public Map<NSName,FlowSvcImpl> getFunctions() throws IOException {
         NSName nsName;
         NSSignature nsSignature;
         FlowInvoke flowInvoke;
         FlowSvcImpl flowSvcImpl;
-        for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
+        for (Map.Entry<String, Contract> entry : contractRegistry.load().entrySet()) {
             // Add the functions as defined in the ABI
             String folderName = entry.getKey().replaceAll("/", ".");
             ContractInterface contractInterface = entry.getValue().getAbi();

@@ -6,7 +6,9 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
+import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
+import com.wm.data.IData
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSSignature
 import spock.lang.Specification
@@ -19,7 +21,7 @@ class UtilTest extends Specification {
 
     def "test contract to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        Map<NSName, FlowSvcImpl> functions = Util.create().getFunctions()
+        Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions()
 
         expect: 'to retrieve a populated map of ns nodes'
         functions.size() == 10
@@ -45,5 +47,20 @@ class UtilTest extends Specification {
         nsSignature.input.fields.length == 1
         nsSignature.input.fields[0].name == 'x'
         nsSignature.output.fields.length == 0
+    }
+
+    def "test contract address mapping"() {
+        given: 'the contracts can be retrieved from the contract registry'
+        IData[] contractAddresses = Util.instance.getContractAddresses()
+
+        expect: 'to retrieve a populated list of contract address mappings'
+        contractAddresses.length == 2
+
+        when: 'a particular item is retrieved from the list'
+        IDataMap contract = new IDataMap(contractAddresses[0])
+
+        then: 'the values are as expected'
+        contract.get('uri') == 'sample.util.Console'
+        contract.get('address') == null
     }
 }
