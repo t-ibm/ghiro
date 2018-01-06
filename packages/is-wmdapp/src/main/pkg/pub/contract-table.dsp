@@ -10,29 +10,20 @@
     %case 'deploy'%
     %invoke wm.dapp.Admin:deployContract%
     %ifvar message%
-    <tr>
-        <td colspan='2' class='message'>%value message%</td>
-    </tr>
+    <tr><td colspan='2' class='message'>%value message%</td></tr>
     %endif%
     %onerror%
-    <tr>
-        <td colspan='2' class='message'>error: %value errorMessage%</td>
-    </tr>
+    <tr><td colspan='2' class='message'>error: %value errorMessage%</td></tr>
     %endinvoke%
     %case%
-    <tr>
-        <td colspan='2' class='nomessage'>&nbsp;</td>
-    </tr>
-    %endcase%
+    <tr><td colspan='2' class='nomessage'>&nbsp;</td></tr>
+    %endswitch%
 
     <tr>
         <td><img src='../WmRoot/images/blank.gif' height='10' width='0' border='0'></td>
         <td>
             <table class='tableView' width='100%'>
-                <tr>
-                    <td class='heading' colspan='3'>Solidity Contracts</td>
-                </tr>
-
+                <tr><td class='heading' colspan='3'>Solidity Contracts</td></tr>
                 <tr class='subheading2'>
                     <td>Contract</td>
                     <td>Address</td>
@@ -53,12 +44,9 @@
                         %endif%
                     </td>
                 </tr>
-                <script>swapRows();</script>
                 %endloop%
                 %onerror%
-                <tr>
-                    <td colspan='3' class='message'>error: %value errorMessage%</td>
-                </tr>
+                <tr><td colspan='3' class='message'>error: %value errorMessage%</td></tr>
                 %endinvoke%
             </table>
         </td>
