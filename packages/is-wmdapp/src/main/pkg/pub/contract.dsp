@@ -4,9 +4,7 @@
 <html>
 <head>
     <title>Distributed Application - Contracts</title>
-    <meta http-equiv='Pragma' content='no-cache'>
-    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
-    <meta http-equiv='Expires' content='-1'>
+    <meta http-equiv='content-type' content='text/html; charset=UTF-8'/>
     <link rel='stylesheet' type='text/css' href='../WmRoot/webMethods.css'/>
     <script type='text/javascript' src='../WmRoot/webMethods.js'></script>
     <script type='text/javascript'>
@@ -24,7 +22,7 @@
 </head>
 <body>
 %include contract-table.dsp%
-<form name="htmlform_dapp_deploy" action="/WmDApp/contract.dsp" method="POST">
+<form name="htmlform_dapp_deploy" action="/WmDApp/contract.dsp" method="post">
     <input type="hidden" name="uri">
     <input type="hidden" name="mode" value="deploy">
 </form>

@@ -38,9 +38,9 @@
                         %ifvar address -notempty%
                         <img src='../WmRoot/images/green_check.png' border='none' width='16' height='16'/>
                         %else%
-                        <a class='imagelink' href='contract.dsp?action=deploy&uri=%value uri encode(url)%'
-                           onclick="return confirmDeploy('%value uri encode(html)%');">
-                            <img src='../WmRoot/icons/checkdot.png' border='none' width='16' height='16'/></a>
+                        <a class='imagelink' href='contract.dsp?action=deploy&uri=%value uri encode(url)%' onclick="return confirmDeploy('%value uri encode(html)%');">
+                            <img src='../WmRoot/icons/checkdot.png' border='none' width='16' height='16'/>
+                        </a>
                         %endif%
                     </td>
                 </tr>
