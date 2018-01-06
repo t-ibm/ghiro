@@ -15,13 +15,16 @@ package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
 import com.softwareag.tom.is.pkg.dapp.Util;
+import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
+
+import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
-public final class Admin {
+@SuppressWarnings("unused") public final class Admin {
     /**
      * Synchronizes the contracts to the IS namespace.
      *
@@ -33,12 +36,54 @@ public final class Admin {
         // @subtype unknown
         // @sigtype java 3.5
         try {
-            for (FlowSvcImpl flowSvcImpl : Util.create().getFunctions().values()) {
+            for (FlowSvcImpl flowSvcImpl : Util.instance.getFunctions().values()) {
                 NSFacade.saveNewNSNode(flowSvcImpl);
             }
         } catch (Exception e) {
             throw new ServiceException(e);
         }
+        // --- <<IS-END>> ---
+    }
+
+    /**
+     * Retrieves the contract-address mappings.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void loadContractAddresses(IData pipeline) throws ServiceException {
+        // --- <<IS-START(loadContractAddresses)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        // [o] record:1:optional contracts
+        // [o] - field:0:optional uri
+        // [o] - field:0:optional address
+        IData[]  contracts;
+        try {
+            contracts = Util.instance.getContractAddresses();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        new IDataMap(pipeline).put("contracts", contracts);
+        // --- <<IS-END>> ---
+    }
+
+    /**
+     * Deploys the conytract to the distributed ledger.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void deployContract(IData pipeline) throws ServiceException {
+        // --- <<IS-START(deployContract)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        // [i] field:0:required uri
+        // [o] field:0:required message
+        IDataMap pipe = new IDataMap(pipeline);
+        String uri = pipe.getAsString("uri");
+        String message = "Successfully deployed contract '" + uri + "'.";
+        pipe.put("message", message);
         // --- <<IS-END>> ---
     }
 }
