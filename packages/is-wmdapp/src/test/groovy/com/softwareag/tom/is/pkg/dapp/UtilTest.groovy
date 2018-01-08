@@ -60,7 +60,7 @@ class UtilTest extends Specification {
         IDataMap contract = new IDataMap(contractAddresses[0])
 
         then: 'the values are as expected'
-        contract.get('uri') == 'sample.util.Console'
+        contract.get('uri') == 'sample/util/Console'
         contract.get('address') == null
     }
 }

@@ -63,10 +63,22 @@ public enum Util {
         Map<String,Contract> contracts = contractRegistry.load();
         IData[] contractArray = new IData[contracts.size()];
         List<IData> contractList = contracts.entrySet().stream().map(entry -> IDataFactory.create(new Object[][]{
-                {"uri", entry.getKey().replaceAll("/", ".")},
+                {"uri", entry.getKey()},
                 {"address", entry.getValue().getContractAddress()},
         })).collect(Collectors.toList());
         return contractList.toArray(contractArray);
+    }
+
+    /**
+     * @param uri The contract's local location
+     * @param contractAddress The contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public void storeContractAddresse(String uri, String contractAddress) throws IOException {
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, new Object[]{uri, contractAddress});
+        Map<String,Contract> contracts = contractRegistry.load();
+        contracts.put(uri, contracts.get(uri).setContractAddress(contractAddress));
+        contractRegistry.storeContractAddresses(contracts);
     }
 
     /**

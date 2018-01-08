@@ -45,5 +45,8 @@ public class Contract {
     public BigInteger getGasPrice() { return gasPrice; }
     public BigInteger getGasLimit() { return gasLimit; }
 
-    void setContractAddress(String contractAddress) { this.contractAddress = contractAddress; }
+    public Contract setContractAddress(String contractAddress) {
+        this.contractAddress = contractAddress;
+        return this;
+    }
 }

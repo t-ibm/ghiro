@@ -20,8 +20,6 @@ import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
-
-import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
@@ -61,7 +59,7 @@ import java.io.IOException;
         IData[]  contracts;
         try {
             contracts = Util.instance.getContractAddresses();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ServiceException(e);
         }
         new IDataMap(pipeline).put("contracts", contracts);
@@ -82,8 +80,17 @@ import java.io.IOException;
         // [o] field:0:required message
         IDataMap pipe = new IDataMap(pipeline);
         String uri = pipe.getAsString("uri");
-        String message = "Successfully deployed contract '" + uri + "'.";
-        pipe.put("message", message);
+        String contractAddress = "33F71BB66F8994DD099C0E360007D4DEAE11BFFE";
+        String message;
+        try {
+            Util.instance.storeContractAddresse(uri, contractAddress);
+            message = "Successfully deployed contract '" + uri + "'.";
+            pipe.put("message", message);
+        } catch (Exception e) {
+            message = "Failed to deploy contract '" + uri + "'.";
+            pipe.put("message", message);
+            throw new ServiceException(e);
+        }
         // --- <<IS-END>> ---
     }
 }
