@@ -13,11 +13,13 @@ public class DAppMsgBundle extends B2BListResourceBundle {
     static final int FAC = 60;//JournalLogger.FAC_DAPP; //TODO
 
     // Keys
-    public static final int DAPP_SERVICES_MKDIRS = 1;
+    static final int DAPP_SERVICES_MKDIRS = 1;
+    static final int DAPP_CONTRACT_DEPLOY = 2;
 
     // Values
     private static final Object [][] contents = new Object[][]{
-            {FAC + "." + DAPP_SERVICES_MKDIRS, "Node directory \"{0}\" already exists or creation failed."}
+            {FAC + "." + DAPP_SERVICES_MKDIRS, "Node directory \"{0}\" already exists or creation failed."},
+            {FAC + "." + DAPP_CONTRACT_DEPLOY, "Deployed contract \"{0}\" at contract address \"{1}\"."},
     };
 
     @Override protected Object[][] getContents() {
