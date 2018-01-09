@@ -64,7 +64,7 @@ public enum Util {
     public void call(NSName nsName, IData pipeline) {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
-        Contract contract = contracts.get(uri);
+        Contract contract = validate(contracts.get(uri));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
@@ -75,7 +75,7 @@ public enum Util {
     public void sendTransaction(NSName nsName, IData pipeline) {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
-        Contract contract = contracts.get(uri);
+        Contract contract = validate(contracts.get(uri));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
@@ -115,12 +115,12 @@ public enum Util {
         contracts = contractRegistry.load();
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
-            String folderName = entry.getKey().replace('/', '.');
+            String interfaceName = getInterfaceName(entry.getKey());
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName();
-                nsName = NSName.create(folderName, functionName);
+                nsName = NSName.create(interfaceName, functionName);
                 nsSignature = getSignature(nsName, function);
                 flowInvoke = new FlowInvoke(IDataFactory.create());
                 if (function.isConstant()) {
@@ -136,6 +136,21 @@ public enum Util {
             }
         }
         return nsNodes;
+    }
+
+    private Contract validate(Contract contract) throws IllegalStateException {
+        if (contract.getContractAddress() == null) {
+            throw new IllegalStateException("Contract address is null; deploy the contract first before using!");
+        } else if (!contract.isValid()) {
+            //TODO :: load contract from the distributed ledger and compare with the information available from the local location
+            return contract.setValid(true);
+        } else {
+            return contract;
+        }
+    }
+
+    private String getInterfaceName(String uri) {
+        return uri.replace('/', '.');
     }
 
     private String getContractUri(NSName nsName) {
