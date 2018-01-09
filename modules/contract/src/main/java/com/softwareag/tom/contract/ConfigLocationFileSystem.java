@@ -49,7 +49,7 @@ public class ConfigLocationFileSystem implements ConfigLocation {
         }
     }
 
-    @Override public Map<String, String> storeContractAddresses(Map<String, Contract> contracts) throws IOException {
+    @Override public Map<String, Contract> storeContractAddresses(Map<String, Contract> contracts) throws IOException {
         Map<String, String> contractAddresses = new HashMap<>();
         for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
             if (entry.getValue().getContractAddress() != null) {
@@ -60,6 +60,6 @@ public class ConfigLocationFileSystem implements ConfigLocation {
         logger.info("Storing contract-address mapping to directory '{}'.", configDirectory);
         Path path = FileSystems.getDefault().getPath(configDirectory.toString(), "contract-addresses.json");
         objectMapper.writerFor(typeRef).writeValue(path.toFile(), contractAddresses);
-        return  contractAddresses;
+        return  contracts;
     }
 }

@@ -93,10 +93,10 @@ class ContractRegistryLocationTest extends Specification {
         and: 'the contract addresses are set and stored'
         contracts['sample/util/Console'].contractAddress = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         contracts['sample/SimpleStorage'].contractAddress = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        def contractAddresse = contractRegistry.storeContractAddresses(contracts)
+        contracts = contractRegistry.storeContractAddresses(contracts)
 
         then: 'the contract address count is as expected'
-        contractAddresse.size() == 2
+        contracts.size() == 2
         contracts['sample/util/Console'].contractAddress == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
     }
 }

@@ -7,8 +7,11 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
+import com.softwareag.tom.is.pkg.dapp.Util;
+import com.wm.app.b2b.server.InvokeState;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.data.IData;
+import com.wm.lang.ns.NSName;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Contract {
@@ -22,9 +25,8 @@ public final class Contract {
         // --- <<IS-START(call)>> ---
         // @subtype unknown
         // @sigtype java 3.5
-        // [i] field:0:required data
-        // [o] object:0:required return
-
+        NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
+        Util.instance.call(nsName, pipeline);
         // --- <<IS-END>> ---
     }
 
@@ -51,12 +53,8 @@ public final class Contract {
     public static void sendTransaction(IData pipeline) throws ServiceException {
         // --- <<IS-START(sendTransaction)>> ---
         // @sigtype java 3.5
-        // [i] field:0:optional contractAddress
-        // [i] field:0:required data
-        // [o] record:0:required txReceipt
-        // [o] - field:0:required transactionHash
-        // [o] - field:0:required contractAddress
-
+        NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
+        Util.instance.sendTransaction(nsName, pipeline);
         // --- <<IS-END>> ---
     }
 }
