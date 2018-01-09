@@ -134,22 +134,6 @@ public enum Util {
                 }
                 nsNodes.put(nsName, flowSvcImpl);
             }
-            // Add the deploy service
-            nsName = NSName.create(folderName, "deploy");
-            nsSignature = getSignatureDeploy();
-            flowInvoke = new FlowInvoke(IDataFactory.create());
-            flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
-            flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
-            flowSvcImpl.setStateless(false);
-            nsNodes.put(nsName, flowSvcImpl);
-            // Add the load service
-            nsName = NSName.create(folderName, "load");
-            nsSignature = getSignatureLoad();
-            flowInvoke = new FlowInvoke(IDataFactory.create());
-            flowInvoke.setService(NSName.create("wm.dapp.Contract:load"));
-            flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
-            flowSvcImpl.setStateless(true);
-            nsNodes.put(nsName, flowSvcImpl);
         }
         return nsNodes;
     }
@@ -187,28 +171,6 @@ public enum Util {
 
         flowSvcImpl.getFlowRoot().addNode(flowInvoke);
         return flowSvcImpl;
-    }
-
-    private NSSignature getSignatureDeploy() {
-        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
-        NSRecord outputRecord = new NSRecord(Namespace.current());
-        nsSignature.setOutput(outputRecord);
-
-        NSRecord txReceipt = (NSRecord) outputRecord.addField("txReceipt", NSField.FIELD_RECORD, NSField.DIM_SCALAR);
-        txReceipt.addField("transactionHash", NSField.FIELD_STRING, NSField.DIM_SCALAR);
-        txReceipt.addField("contractAddress", NSField.FIELD_STRING, NSField.DIM_SCALAR);
-
-        return nsSignature;
-    }
-
-    private NSSignature getSignatureLoad() {
-        NSSignature nsSignature = NSSignature.create(Namespace.current(), IDataFactory.create());
-        NSRecord inputRecord = new NSRecord(Namespace.current());
-        nsSignature.setInput(inputRecord);
-
-        inputRecord.addField("contractAddress", NSField.FIELD_STRING, NSField.DIM_SCALAR);
-
-        return  nsSignature;
     }
 
     private <T> NSSignature getSignature(NSName nsName, ContractInterface.Specification<T> function) {
