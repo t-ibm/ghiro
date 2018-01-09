@@ -23,6 +23,7 @@ public class Contract {
     private String contractAddress;
     private final BigInteger gasPrice;
     private final BigInteger gasLimit;
+    private boolean valid;
 
     private Contract(ContractInterface abi, String binary, BigInteger gasPrice, BigInteger gasLimit) {
         this.abi = abi;
@@ -44,9 +45,14 @@ public class Contract {
     public String getContractAddress() { return contractAddress; }
     public BigInteger getGasPrice() { return gasPrice; }
     public BigInteger getGasLimit() { return gasLimit; }
+    public boolean isValid() { return valid; }
 
     public Contract setContractAddress(String contractAddress) {
         this.contractAddress = contractAddress;
+        return this;
+    }
+    public Contract setValid(boolean valid) {
+        this.valid = valid;
         return this;
     }
 }
