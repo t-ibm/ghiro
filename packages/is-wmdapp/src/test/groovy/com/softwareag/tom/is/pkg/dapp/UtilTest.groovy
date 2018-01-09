@@ -24,7 +24,7 @@ class UtilTest extends Specification {
         Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions()
 
         expect: 'to retrieve a populated map of ns nodes'
-        functions.size() == 10
+        functions.size() == 6
 
         when: 'a particular ns node is retrieved'
         NSName nsName = NSName.create('sample.util.Console:uintToBytes')

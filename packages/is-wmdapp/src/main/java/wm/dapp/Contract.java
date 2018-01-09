@@ -31,20 +31,6 @@ public final class Contract {
     }
 
     /**
-     * Loads the contract.
-     *
-     * @param pipeline The pipeline
-     * @throws ServiceException If there is an error during execution of this service
-     */
-    public static void load(IData pipeline) throws ServiceException {
-        // --- <<IS-START(load)>> ---
-        // @sigtype java 3.5
-        // [i] field:0:required contractAddress
-
-        // --- <<IS-END>> ---
-    }
-
-    /**
      * Sends a transaction.
      *
      * @param pipeline The pipeline
