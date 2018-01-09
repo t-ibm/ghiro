@@ -37,7 +37,7 @@ class ContractRegistryLocation implements ContractRegistry {
         return configLocation.loadContractAddresses();
     }
 
-    @Override public Map<String, String> storeContractAddresses(Map<String, Contract> contracts) throws IOException {
+    @Override public Map<String, Contract> storeContractAddresses(Map<String, Contract> contracts) throws IOException {
         return configLocation.storeContractAddresses(contracts);
     }
 }

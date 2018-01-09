@@ -14,5 +14,5 @@ import java.util.Map;
  */
 public interface ConfigLocation {
     Map<String, String> loadContractAddresses() throws IOException;
-    Map<String, String> storeContractAddresses(Map<String, Contract> contracts) throws IOException;
+    Map<String, Contract> storeContractAddresses(Map<String, Contract> contracts) throws IOException;
 }

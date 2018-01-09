@@ -42,6 +42,7 @@ public enum Util {
 
     private Package pkg = PackageManager.getPackage("WmDApp");
     private ContractRegistry contractRegistry;
+    private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
 
     Util() throws ExceptionInInitializerError {
@@ -57,10 +58,32 @@ public enum Util {
     }
 
     /**
+     * @param nsName The contract functions ns name
+     * @param pipeline The input pipeline
+     */
+    public void call(NSName nsName, IData pipeline) {
+        String uri = getContractUri(nsName);
+        String functionName = getContractFunction(nsName);
+        Contract contract = contracts.get(uri);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
+    }
+
+    /**
+     * @param nsName The contract functions ns name
+     * @param pipeline The input pipeline
+     */
+    public void sendTransaction(NSName nsName, IData pipeline) {
+        String uri = getContractUri(nsName);
+        String functionName = getContractFunction(nsName);
+        Contract contract = contracts.get(uri);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
+    }
+
+    /**
      * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
     public IData[] getContractAddresses() throws IOException {
-        Map<String,Contract> contracts = contractRegistry.load();
+        contracts = contractRegistry.load();
         IData[] contractArray = new IData[contracts.size()];
         List<IData> contractList = contracts.entrySet().stream().map(entry -> IDataFactory.create(new Object[][]{
                 {"uri", entry.getKey()},
@@ -76,9 +99,9 @@ public enum Util {
      */
     public void storeContractAddresse(String uri, String contractAddress) throws IOException {
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, new Object[]{uri, contractAddress});
-        Map<String,Contract> contracts = contractRegistry.load();
+        contracts = contractRegistry.load();
         contracts.put(uri, contracts.get(uri).setContractAddress(contractAddress));
-        contractRegistry.storeContractAddresses(contracts);
+        contracts = contractRegistry.storeContractAddresses(contracts);
     }
 
     /**
@@ -89,9 +112,10 @@ public enum Util {
         NSSignature nsSignature;
         FlowInvoke flowInvoke;
         FlowSvcImpl flowSvcImpl;
-        for (Map.Entry<String, Contract> entry : contractRegistry.load().entrySet()) {
+        contracts = contractRegistry.load();
+        for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
-            String folderName = entry.getKey().replaceAll("/", ".");
+            String folderName = entry.getKey().replace('/', '.');
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
@@ -128,6 +152,14 @@ public enum Util {
             nsNodes.put(nsName, flowSvcImpl);
         }
         return nsNodes;
+    }
+
+    private String getContractUri(NSName nsName) {
+        return nsName.getInterfaceName().toString().replace('.', '/');
+    }
+
+    private String getContractFunction(NSName nsName) {
+        return nsName.getNodeName().toString();
     }
 
     private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
