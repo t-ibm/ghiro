@@ -7,7 +7,6 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
@@ -15,11 +14,11 @@ import com.softwareag.tom.protocol.util.HexValue;
 /**
  * {@code eth_getBalance}.
  */
-public class ResponseEthGetBalance extends Response<ResponseEthGetBalance.Result> {
+public class ResponseEthGetBalance extends Response<ResponseEthGetBalance.Result, Types.ResponseEthGetBalance> {
 
-    public Message getResponse() {
+    public Types.ResponseEthGetBalance getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             return Types.ResponseEthGetBalance.newBuilder().setBalance(HexValue.toByteString(this.result.balance)).build();
         }

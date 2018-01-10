@@ -7,7 +7,6 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
@@ -17,11 +16,11 @@ import java.util.List;
 /**
  * {@code eth_getFilterChanges}.
  */
-public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterChanges.Result> {
+public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterChanges.Result, Types.ResponseEthGetFilterChanges> {
 
-    public Message getResponse() {
+    public Types.ResponseEthGetFilterChanges getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             Types.ResponseEthGetFilterChanges.Builder builder = Types.ResponseEthGetFilterChanges.newBuilder();
             for (int i = 0; i < this.result.events.size(); i++) {

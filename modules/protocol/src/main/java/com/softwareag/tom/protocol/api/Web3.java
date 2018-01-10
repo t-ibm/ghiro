@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.api;
 
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 
 /**
@@ -18,5 +17,5 @@ public interface Web3 extends Net, Eth {
      * @param req An empty request
      * @return the current client version
      */
-    Message web3ClientVersion(Types.RequestWeb3ClientVersion req);
+    Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req);
 }
