@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.integration.protocol
 
+import com.softwareag.tom.contract.ConfigLocationFileSystem
 import com.softwareag.tom.contract.Contract
 import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
@@ -135,7 +136,7 @@ class BurrowTest extends RestClientSpecification {
 
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
@@ -236,7 +237,7 @@ class BurrowTest extends RestClientSpecification {
 
     def "test create solidity contract and store/update data via rpc"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)
