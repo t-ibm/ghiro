@@ -13,6 +13,8 @@ import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
+import com.softwareag.tom.protocol.Web3Service;
+import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
@@ -44,6 +46,7 @@ public enum Util {
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
+    private Web3Service web3Service;
 
     Util() throws ExceptionInInitializerError {
         nsNodes = new HashMap<>();
@@ -52,6 +55,7 @@ public enum Util {
             File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
             File configLocation = new File(Node.instance().getConfig().getLocation().getPath());
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
+            web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() +':' + Node.instance().getHost().getPort() + "/rpc"));
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }

@@ -34,7 +34,9 @@ public class Node {
 
     public static class Host {
         @JsonProperty("ip") String ip;
+        @JsonProperty("port") int port;
         public String getIp() { return ip; }
+        public int getPort() { return port; }
     }
 
     public static class Key {
