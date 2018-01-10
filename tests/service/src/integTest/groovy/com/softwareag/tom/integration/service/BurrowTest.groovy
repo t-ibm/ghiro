@@ -7,6 +7,7 @@
 package com.softwareag.tom.integration.service
 
 import com.google.protobuf.Message
+import com.softwareag.tom.contract.ConfigLocationFileSystem
 import com.softwareag.tom.contract.Contract
 import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
@@ -70,7 +71,7 @@ class BurrowTest extends Specification {
 
     def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
@@ -137,17 +138,17 @@ class BurrowTest extends Specification {
         ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 0
 
         when: println '(6) the contract is executed 2 times'
-        request = Types.RequestEthCall.newBuilder().setTx(
+        Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
         ).build()
+        Types.ResponseEthCall responseEthCall = null
         2.times {
-            response = web3Service.ethCall(request as Types.RequestEthCall)
-            println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+            responseEthCall = web3Service.ethCall(requestEthCall)
+            println ">>> $request.descriptorForType.fullName....$requestEthCall<<< $response.descriptorForType.fullName...$responseEthCall"
         }
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthCall
-        ((Types.ResponseEthCall) response).getReturn() != null
+        responseEthCall.return != null
 
         when: println '(7) we poll for events again'
         request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
@@ -164,7 +165,7 @@ class BurrowTest extends Specification {
 
     def "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)
