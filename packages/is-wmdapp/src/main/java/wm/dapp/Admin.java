@@ -80,7 +80,7 @@ import com.wm.data.IData;
         // [o] field:0:required message
         IDataMap pipe = new IDataMap(pipeline);
         String uri = pipe.getAsString("uri");
-        String contractAddress = "33F71BB66F8994DD099C0E360007D4DEAE11BFFE";
+        String contractAddress = Util.instance.deployContract(uri);
         String message;
         try {
             Util.instance.storeContractAddresse(uri, contractAddress);

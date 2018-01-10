@@ -5,7 +5,7 @@ dependencies {
     compile (project(":modules:$project.rootProject.name-contract")) { transitive = false }
     compile (project(":modules:$project.rootProject.name-core")) { transitive = false }
     compile (project(":modules:$project.rootProject.name-protocol")) { transitive = false }
-    testCompile project.sag.module.protobuf
+    compile project.sag.module.protobuf
     testRuntime(
         project(":modules:$project.rootProject.name-contract"),
         project(":modules:$project.rootProject.name-protocol"),
