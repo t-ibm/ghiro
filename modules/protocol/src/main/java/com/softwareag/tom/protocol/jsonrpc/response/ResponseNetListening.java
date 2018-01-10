@@ -7,18 +7,17 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 
 /**
  * {@code net_listening}.
  */
-public class ResponseNetListening extends Response<ResponseNetListening.Result> {
+public class ResponseNetListening extends Response<ResponseNetListening.Result, Types.ResponseNetListening> {
 
-    public Message getResponse() {
+    public Types.ResponseNetListening getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             return Types.ResponseNetListening.newBuilder().setListening(this.result.listening).build();
         }

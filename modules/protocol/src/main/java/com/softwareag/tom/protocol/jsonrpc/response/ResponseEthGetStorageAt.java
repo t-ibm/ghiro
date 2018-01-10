@@ -7,7 +7,6 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
@@ -15,11 +14,11 @@ import com.softwareag.tom.protocol.util.HexValue;
 /**
  * {@code eth_getStorageAt}.
  */
-public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Result> {
+public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Result, Types.ResponseEthGetStorageAt> {
 
-    public Message getResponse() {
+    public Types.ResponseEthGetStorageAt getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             return Types.ResponseEthGetStorageAt.newBuilder().setValue(HexValue.toByteString(this.result.value)).build();
         }

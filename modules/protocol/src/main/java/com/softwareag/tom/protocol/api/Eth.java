@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.api;
 
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 
 /**
@@ -18,47 +17,47 @@ interface Eth {
      * @param req A request object containing the address to check for balance as well as a parameter of type {@link Types.BlockHeightType}
      * @return the integer of the current balance in wei
      */
-    Message ethGetBalance(Types.RequestEthGetBalance req);
+    Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance req);
 
     /**
      * Method {@code eth_getStorageAt}.
      * @param req A request object containing the address and position in storage as well as a parameter of type {@link Types.BlockHeightType}
      * @return the value from a storage position at a given address
      */
-    Message ethGetStorageAt(Types.RequestEthGetStorageAt req);
+    Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt req);
 
     /**
      * Method {@code eth_sendTransaction}.
      * @param req A request object containing the transaction object of type {@link Types.TxType}
      * @return the transaction hash, or the zero hash if the transaction is not yet available
      */
-    Message ethSendTransaction(Types.RequestEthSendTransaction req);
+    Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction req);
 
     /**
      * Method {@code eth_call}.
      * @param req A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.BlockHeightType}
      * @return the return value of executed contract
      */
-    Message ethCall(Types.RequestEthCall req);
+    Types.ResponseEthCall ethCall(Types.RequestEthCall req);
 
     /**
      * Method {@code eth_newFilter}.
      * @param req A request object containing the filter object of type {@link Types.FilterOptionType}
      * @return the filter id
      */
-    Message ethNewFilter(Types.RequestEthNewFilter req);
+    Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req);
 
     /**
      * Method {@code eth_getFilterChanges}.
      * @param req A request object containing the filter id
      * @return a list of objects of type {@link Types.FilterLogType}
      */
-    Message ethGetFilterChanges(Types.RequestEthGetFilterChanges req);
+    Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges req);
 
     /**
      * Method {@code eth_getTransactionReceipt}.
      * @param req A request object containing the hash of a transaction
      * @return an object of type {@link Types.TxReceiptType}
      */
-    Message ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req);
+    Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req);
 }

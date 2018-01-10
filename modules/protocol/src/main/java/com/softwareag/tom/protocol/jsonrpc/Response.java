@@ -7,19 +7,19 @@
 package com.softwareag.tom.protocol.jsonrpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 
 /**
  * JSON-RPC base response implementation.
  * @param <T> The expected result type of this response
+ * @param <M> The expected protocol buffer message type of this response
  */
-public abstract class Response<T> {
+public abstract class Response<T, M> {
     @JsonProperty("jsonrpc") protected String jsonrpc;
     @JsonProperty("result") protected T result;
     @JsonProperty("error") protected Error error;
     @JsonProperty("id") protected long id;
 
-    public abstract Message getResponse();
+    public abstract M getResponse();
 
     @SuppressWarnings("WeakerAccess") protected static class Error {
         @JsonProperty("code") public int code;
@@ -57,7 +57,7 @@ public abstract class Response<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Response<?> response = (Response<?>) o;
+        Response<?, ?> response = (Response<?, ?>) o;
 
         if (id != response.id) return false;
         if (jsonrpc != null ? !jsonrpc.equals(response.jsonrpc) : response.jsonrpc != null) return false;

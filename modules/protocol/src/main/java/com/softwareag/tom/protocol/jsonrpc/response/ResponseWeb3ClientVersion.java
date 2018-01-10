@@ -7,18 +7,17 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 
 /**
  * {@code web3_clientVersion}.
  */
-public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersion.Result> {
+public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersion.Result, Types.ResponseWeb3ClientVersion> {
 
-    public Message getResponse() {
+    public Types.ResponseWeb3ClientVersion getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             return Types.ResponseWeb3ClientVersion.newBuilder().setVersion(this.result.clientVersion).build();
         }

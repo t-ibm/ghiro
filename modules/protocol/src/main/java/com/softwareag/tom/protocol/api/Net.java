@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.api;
 
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 
 /**
@@ -18,5 +17,5 @@ interface Net {
      * @param req An empty request
      * @return {@code true} when listening, otherwise {@code false}
      */
-    Message netListening(Types.RequestNetListening req);
+    Types.ResponseNetListening netListening(Types.RequestNetListening req);
 }

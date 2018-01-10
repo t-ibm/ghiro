@@ -7,7 +7,6 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.tx.TransactionManager;
@@ -16,11 +15,11 @@ import com.softwareag.tom.protocol.util.HexValue;
 /**
  * {@code eth_sendTransaction}.
  */
-public class ResponseEthSendTransaction extends Response<ResponseEthSendTransaction.Result> {
+public class ResponseEthSendTransaction extends Response<ResponseEthSendTransaction.Result, Types.ResponseEthSendTransaction> {
 
-    public Message getResponse() {
+    public Types.ResponseEthSendTransaction getResponse() {
         if (this.error != null) {
-            return Types.ResponseException.newBuilder().setCode(Types.CodeType.InternalError).setMessage(this.error.message).build();
+            throw new UnsupportedOperationException(this.error.message);
         } else {
             TransactionManager.instance.setTransactionReceipt(Types.TxReceiptType.newBuilder().setTransactionHash(HexValue.toByteString(this.result.txId)).setContractAddress(HexValue.toByteString(this.result.callData.contractAddress)).build());
             return Types.ResponseEthSendTransaction.newBuilder().setHash(HexValue.toByteString(this.result.txId)).build();

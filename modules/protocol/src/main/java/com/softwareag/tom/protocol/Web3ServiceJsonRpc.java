@@ -6,9 +6,7 @@
  */
 package com.softwareag.tom.protocol;
 
-import com.google.protobuf.Message;
 import com.softwareag.tom.protocol.abi.Types;
-import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
@@ -31,47 +29,47 @@ class Web3ServiceJsonRpc implements Web3Service {
         this.jsonRpcService = jsonRpcService;
     }
 
-    @Override public Message web3ClientVersion(Types.RequestWeb3ClientVersion req) {
-        Request jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService, req) {};
+    @Override public Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) {
+        RequestWeb3ClientVersion jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message netListening(Types.RequestNetListening req) {
-        Request jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
+    @Override public Types.ResponseNetListening netListening(Types.RequestNetListening req) {
+        RequestNetListening jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethGetBalance(Types.RequestEthGetBalance req) {
-        Request jsonRpcRequest = new RequestEthGetBalance(jsonRpcService, req) {};
+    @Override public Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance req) {
+        RequestEthGetBalance jsonRpcRequest = new RequestEthGetBalance(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethGetStorageAt(Types.RequestEthGetStorageAt req) {
-        Request jsonRpcRequest = new RequestEthGetStorageAt(jsonRpcService, req) {};
+    @Override public Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt req) {
+        RequestEthGetStorageAt jsonRpcRequest = new RequestEthGetStorageAt(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethSendTransaction(Types.RequestEthSendTransaction req) {
-        Request jsonRpcRequest = new RequestEthSendTransaction(jsonRpcService, req) {};
+    @Override public Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction req) {
+        RequestEthSendTransaction jsonRpcRequest = new RequestEthSendTransaction(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethCall(Types.RequestEthCall req) {
-        Request jsonRpcRequest = new RequestEthCall(jsonRpcService, req) {};
+    @Override public Types.ResponseEthCall ethCall(Types.RequestEthCall req) {
+        RequestEthCall jsonRpcRequest = new RequestEthCall(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethNewFilter(Types.RequestEthNewFilter req) {
-        Request jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
+    @Override public Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) {
+        RequestEthNewFilter jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethGetFilterChanges(Types.RequestEthGetFilterChanges req) {
-        Request jsonRpcRequest = new RequestEthGetFilterChanges(jsonRpcService, req) {};
+    @Override public Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges req) {
+        RequestEthGetFilterChanges jsonRpcRequest = new RequestEthGetFilterChanges(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Message ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) {
+    @Override public Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) {
         return Types.ResponseEthGetTransactionReceipt.newBuilder().setTxReceipt(TransactionManager.instance.getTransactionReceipt(req.getHash())).build();
     }
 }
