@@ -14,7 +14,9 @@ import com.softwareag.tom.contract.SolidityLocationFileSystem;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
 import com.softwareag.tom.protocol.Web3Service;
+import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
+import com.softwareag.tom.protocol.util.HexValue;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
@@ -83,6 +85,25 @@ public enum Util {
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
+    public String deployContract(String uri) {
+        Contract contract = contracts.get(uri);
+        String contractAddress;
+        if (contract.getContractAddress() != null) {
+            throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
+        } else {
+            // eth_sendTransaction
+            Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
+                    Types.TxType.newBuilder().setData(HexValue.toByteString(contract.getBinary())).setGas(HexValue.toByteString(contract.getGasLimit())).setGasPrice(HexValue.toByteString(contract.getGasPrice())).build()
+            ).build();
+            Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction);
+            // eth_getTransactionReceipt
+            Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build();
+            Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt);
+            contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
+        }
+        return contractAddress;
+    }
+
     /**
      * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
@@ -146,8 +167,10 @@ public enum Util {
         if (contract.getContractAddress() == null) {
             throw new IllegalStateException("Contract address is null; deploy the contract first before using!");
         } else if (!contract.isValid()) {
-            //TODO :: load contract from the distributed ledger and compare with the information available from the local location
-            return contract.setValid(true);
+            //TODO :: Replace with eth_getCode when available
+            Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build();
+            Types.ResponseEthGetBalance response = web3Service.ethGetBalance(request);
+            return response.getBalance() == HexValue.toByteString(0) ? contract.setValid(true) : contract;
         } else {
             return contract;
         }
