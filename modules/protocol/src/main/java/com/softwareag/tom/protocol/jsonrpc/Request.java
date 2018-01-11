@@ -68,13 +68,8 @@ public abstract class Request<P, R extends Response> {
         return "";
     }
 
-    public R send() {
-        try {
-            return jsonRpcService.send(this, getResponseType());
-        } catch (IOException e) {
-            logger.warn("Unable to send the request, got exception: " + e);
-        }
-        return null;
+    public R send() throws IOException {
+        return jsonRpcService.send(this, getResponseType());
     }
 
     @Override public boolean equals(Object o) {

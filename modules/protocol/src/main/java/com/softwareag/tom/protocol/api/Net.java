@@ -8,6 +8,8 @@ package com.softwareag.tom.protocol.api;
 
 import com.softwareag.tom.protocol.abi.Types;
 
+import java.io.IOException;
+
 /**
  * The net portion of the Ethereum JSON-RPC API. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC">JSON-RPC Wiki</a> for more info.
  */
@@ -17,5 +19,5 @@ interface Net {
      * @param req An empty request
      * @return {@code true} when listening, otherwise {@code false}
      */
-    Types.ResponseNetListening netListening(Types.RequestNetListening req);
+    Types.ResponseNetListening netListening(Types.RequestNetListening req) throws IOException;
 }

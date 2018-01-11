@@ -67,7 +67,7 @@ public enum Util {
      * @param nsName The contract functions ns name
      * @param pipeline The input pipeline
      */
-    public void call(NSName nsName, IData pipeline) {
+    public void call(NSName nsName, IData pipeline) throws IOException {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
@@ -78,14 +78,14 @@ public enum Util {
      * @param nsName The contract functions ns name
      * @param pipeline The input pipeline
      */
-    public void sendTransaction(NSName nsName, IData pipeline) {
+    public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
-    public String deployContract(String uri) {
+    public String deployContract(String uri) throws IOException {
         Contract contract = contracts.get(uri);
         String contractAddress;
         if (contract.getContractAddress() != null) {
@@ -163,7 +163,7 @@ public enum Util {
         return nsNodes;
     }
 
-    private Contract validate(Contract contract) throws IllegalStateException {
+    private Contract validate(Contract contract) throws IOException {
         if (contract.getContractAddress() == null) {
             throw new IllegalStateException("Contract address is null; deploy the contract first before using!");
         } else if (!contract.isValid()) {

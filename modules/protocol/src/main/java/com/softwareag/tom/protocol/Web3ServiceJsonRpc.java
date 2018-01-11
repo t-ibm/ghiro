@@ -18,6 +18,8 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
 import com.softwareag.tom.protocol.tx.TransactionManager;
 
+import java.io.IOException;
+
 /**
  * Web3 over JSON-RPC service implementation.
  */
@@ -29,42 +31,42 @@ class Web3ServiceJsonRpc implements Web3Service {
         this.jsonRpcService = jsonRpcService;
     }
 
-    @Override public Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) {
+    @Override public Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) throws IOException {
         RequestWeb3ClientVersion jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseNetListening netListening(Types.RequestNetListening req) {
+    @Override public Types.ResponseNetListening netListening(Types.RequestNetListening req) throws IOException {
         RequestNetListening jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance req) {
+    @Override public Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance req) throws IOException {
         RequestEthGetBalance jsonRpcRequest = new RequestEthGetBalance(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt req) {
+    @Override public Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt req) throws IOException {
         RequestEthGetStorageAt jsonRpcRequest = new RequestEthGetStorageAt(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction req) {
+    @Override public Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction req) throws IOException {
         RequestEthSendTransaction jsonRpcRequest = new RequestEthSendTransaction(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthCall ethCall(Types.RequestEthCall req) {
+    @Override public Types.ResponseEthCall ethCall(Types.RequestEthCall req) throws IOException {
         RequestEthCall jsonRpcRequest = new RequestEthCall(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) {
+    @Override public Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) throws IOException {
         RequestEthNewFilter jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges req) {
+    @Override public Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges req) throws IOException {
         RequestEthGetFilterChanges jsonRpcRequest = new RequestEthGetFilterChanges(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
