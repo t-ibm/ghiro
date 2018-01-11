@@ -12,6 +12,8 @@ import com.wm.app.b2b.server.InvokeState;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
+
+import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Contract {
@@ -26,7 +28,11 @@ public final class Contract {
         // @subtype unknown
         // @sigtype java 3.5
         NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
-        Util.instance.call(nsName, pipeline);
+        try {
+            Util.instance.call(nsName, pipeline);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
         // --- <<IS-END>> ---
     }
 
@@ -40,7 +46,11 @@ public final class Contract {
         // --- <<IS-START(sendTransaction)>> ---
         // @sigtype java 3.5
         NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
-        Util.instance.sendTransaction(nsName, pipeline);
+        try {
+            Util.instance.sendTransaction(nsName, pipeline);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
         // --- <<IS-END>> ---
     }
 }

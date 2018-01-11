@@ -8,6 +8,8 @@ package com.softwareag.tom.protocol.api;
 
 import com.softwareag.tom.protocol.abi.Types;
 
+import java.io.IOException;
+
 /**
  * The Ethereum JSON-RPC API. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC">JSON-RPC Wiki</a> for more info.
  */
@@ -17,5 +19,5 @@ public interface Web3 extends Net, Eth {
      * @param req An empty request
      * @return the current client version
      */
-    Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req);
+    Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) throws IOException;
 }
