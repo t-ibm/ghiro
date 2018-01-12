@@ -17,6 +17,7 @@ import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
+import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
@@ -36,7 +37,9 @@ import com.wm.util.JavaWrapperType;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +74,13 @@ public enum Util {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
+        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
+        assert function != null;
+        Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
+        ).build();
+        Types.ResponseEthCall response = web3Service.ethCall(request);
+        decodeOutput(function, pipeline, HexValue.toString(response.getReturn()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
@@ -161,6 +171,38 @@ public enum Util {
             }
         }
         return nsNodes;
+    }
+
+    private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
+        IDataMap pipe = new IDataMap(pipeline);
+        List<T> values = new ArrayList<>();
+        List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
+        for (ContractInterface.Parameter<T> parameter : inputParameters) {
+            ParameterType<T> parameterType = parameter.getType();
+            Class<T> javaClass = parameterType.getType();
+            values.add( javaClass.cast(pipe.get(parameter.getName())));
+        }
+        return function.encode(values);
+    }
+
+    private <T> void decodeOutput(ContractInterface.Specification<T> function, IData pipeline, String response) {
+        List<T> values = decode(function, response);
+        List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
+        assert values.size() == outputParameters.size();
+        Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = outputParameters.iterator();
+        Iterator<T> valuesIterator = values.iterator();
+        while (outputParametersIterator.hasNext() && valuesIterator.hasNext()) {
+            new IDataMap(pipeline).put(outputParametersIterator.next().getName(), valuesIterator.next());
+        }
+    }
+
+    private <T> List<T> decode(ContractInterface.Specification<T> function, String response) {
+        List<T> values = new ArrayList<>();
+        List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
+        for (ContractInterface.Parameter<T> parameter : outputParameters) {
+            values.add(getAsType(parameter.getType(), response));
+        }
+        return values;
     }
 
     private Contract validate(Contract contract) throws IOException {
@@ -263,5 +305,22 @@ public enum Util {
             javaWrapperType = JavaWrapperType.JAVA_TYPE_byte_ARRAY;
         }
         return  javaWrapperType;
+    }
+
+    private <T> T getAsType(ParameterType<T> parameterType, String value) {
+        Class<T> javaClass = parameterType.getType();
+        if (javaClass == String.class) {
+            return javaClass.cast(value);
+        } else if (javaClass == List.class) {
+            return null; //TODO
+        } else if (javaClass.equals(Boolean.class)) {
+            return javaClass.cast(Boolean.valueOf(value));
+        } else if (javaClass.equals(BigInteger.class)) {
+            return javaClass.cast(HexValue.toBigInteger(value));
+        } else if (javaClass.equals(byte[].class)) {
+            return javaClass.cast(value.getBytes());
+        } else {
+            return null;
+        }
     }
 }
