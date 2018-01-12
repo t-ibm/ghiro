@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public enum Util {
@@ -92,26 +93,20 @@ public enum Util {
         String uri = getContractUri(nsName);
         String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
+        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
+        assert function != null;
+        contract = sendTransaction(contract, encodeInput(function, pipeline));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
     public String deployContract(String uri) throws IOException {
         Contract contract = contracts.get(uri);
-        String contractAddress;
         if (contract.getContractAddress() != null) {
             throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
         } else {
-            // eth_sendTransaction
-            Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
-                    Types.TxType.newBuilder().setData(HexValue.toByteString(contract.getBinary())).setGas(HexValue.toByteString(contract.getGasLimit())).setGasPrice(HexValue.toByteString(contract.getGasPrice())).build()
-            ).build();
-            Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction);
-            // eth_getTransactionReceipt
-            Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build();
-            Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt);
-            contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
+            contract = sendTransaction(contract, contract.getBinary());
         }
-        return contractAddress;
+        return contract.getContractAddress();
     }
 
     /**
@@ -216,6 +211,28 @@ public enum Util {
         } else {
             return contract;
         }
+    }
+
+    private Contract sendTransaction(Contract contract, String data) throws IOException {
+        String contractAddress = contract.getContractAddress();
+        // eth_sendTransaction
+        Types.TxType.Builder txBuilder = Types.TxType.newBuilder();
+        if (contractAddress != null) {
+            txBuilder.setTo(HexValue.toByteString(contractAddress));
+        }
+        txBuilder.setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(contract.getGasLimit())).setGasPrice(HexValue.toByteString(contract.getGasPrice()));
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(txBuilder.build()).build();
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction);
+        // eth_getTransactionReceipt
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build();
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt);
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
+        if (contract.getContractAddress() == null && contractAddress != null) {
+            contract.setContractAddress(contractAddress);
+        } else if (!Objects.equals(contract.getContractAddress(), contractAddress)){
+            throw new IllegalStateException("Returned contract address is different from known contract address!");
+        }
+        return contract;
     }
 
     private String getInterfaceName(String uri) {
