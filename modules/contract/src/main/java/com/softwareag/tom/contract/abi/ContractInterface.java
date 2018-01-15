@@ -42,7 +42,7 @@ public abstract class ContractInterface {
      */
     public interface Parameter<T> {
         String getName();
-        ParameterType<T> getType();
+        ParameterType getType();
         boolean isIndexed();
         /**
          * @return the length of an array for a parameter of type fixed-length array, otherwise returns 1

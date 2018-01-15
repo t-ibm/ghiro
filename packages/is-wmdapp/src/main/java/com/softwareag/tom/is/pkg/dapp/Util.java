@@ -173,7 +173,7 @@ public enum Util {
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
         for (ContractInterface.Parameter<T> parameter : inputParameters) {
-            ParameterType<T> parameterType = parameter.getType();
+            ParameterType parameterType = parameter.getType();
             Class<T> javaClass = parameterType.getType();
             values.add( javaClass.cast(pipe.get(parameter.getName())));
         }
@@ -324,7 +324,7 @@ public enum Util {
         return  javaWrapperType;
     }
 
-    private <T> T getAsType(ParameterType<T> parameterType, String value) {
+    private <T> T getAsType(ParameterType parameterType, String value) {
         Class<T> javaClass = parameterType.getType();
         if (javaClass == String.class) {
             return javaClass.cast(value);
