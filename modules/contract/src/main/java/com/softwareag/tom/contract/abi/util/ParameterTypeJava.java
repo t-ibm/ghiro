@@ -30,6 +30,7 @@ final class ParameterTypeJava {
         UNKNOWN;
 
         @Override public Class<Object> getType() { return Object.class; }
+        @Override public Object asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return getDeclaringClass().getName() + "." + name(); }
     }
 
@@ -43,6 +44,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<Boolean> getType() { return Boolean.class; }
+        @Override public Boolean asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
     }
 
@@ -60,6 +62,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<BigInteger> getType() { return BigInteger.class; }
+        @Override public BigInteger asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
         boolean isUnsigned() { return name.charAt(0) == 'u'; }
     }
@@ -76,6 +79,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<byte[]> getType() { return byte[].class; }
+        @Override public byte[] asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
         boolean isDynamic() { return dynamic; }
     }
@@ -90,6 +94,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<String> getType() { return String.class; }
+        @Override public String asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
     }
 
@@ -102,6 +107,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<List> getType() { return List.class; }
+        @Override public List asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
         boolean isDynamic() {
             int start = name.trim().indexOf('[');

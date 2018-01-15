@@ -12,4 +12,5 @@ package com.softwareag.tom.contract.abi;
 public interface ParameterType<T>  {
     Class<T> getType();
     String getName();
+    T asType(Object value);
 }
