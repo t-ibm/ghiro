@@ -172,7 +172,7 @@ public enum Util {
         IDataMap pipe = new IDataMap(pipeline);
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
-        for (ContractInterface.Parameter parameter : inputParameters) {
+        for (ContractInterface.Parameter<T> parameter : inputParameters) {
             ParameterType<T> parameterType = parameter.getType();
             T value = parameterType.asType(pipe.get(parameter.getName()));
             values.add( value);
