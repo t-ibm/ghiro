@@ -56,7 +56,7 @@ public class SolidityInterface extends ContractInterface {
 
     public static class SolidityParameter<T> implements ContractInterface.Parameter<T> {
         @JsonProperty("name") String name;
-        @JsonProperty("type") ParameterType type;
+        @JsonProperty("type") ParameterType<T> type;
         @JsonProperty("indexed") boolean indexed;
 
         @SuppressWarnings("unused") public void setType(String type) {
@@ -64,7 +64,7 @@ public class SolidityInterface extends ContractInterface {
         }
 
         @Override public String getName() { return name; }
-        @Override public ParameterType getType() { return type; }
+        @Override public ParameterType<T> getType() { return type; }
         @Override public boolean isIndexed() { return indexed; }
 
         @Override public short getLength() {
