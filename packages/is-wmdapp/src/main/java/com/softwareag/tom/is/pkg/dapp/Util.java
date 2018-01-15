@@ -172,10 +172,10 @@ public enum Util {
         IDataMap pipe = new IDataMap(pipeline);
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
-        for (ContractInterface.Parameter<T> parameter : inputParameters) {
-            ParameterType parameterType = parameter.getType();
-            Class<T> javaClass = parameterType.getType();
-            values.add( javaClass.cast(pipe.get(parameter.getName())));
+        for (ContractInterface.Parameter parameter : inputParameters) {
+            ParameterType<T> parameterType = parameter.getType();
+            T value = parameterType.asType(pipe.get(parameter.getName()));
+            values.add( value);
         }
         return function.encode(values);
     }
@@ -195,7 +195,8 @@ public enum Util {
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
         for (ContractInterface.Parameter<T> parameter : outputParameters) {
-            values.add(getAsType(parameter.getType(), response));
+            ParameterType<T> parameterType = parameter.getType();
+            values.add(parameterType.asType(response));
         }
         return values;
     }
@@ -322,22 +323,5 @@ public enum Util {
             javaWrapperType = JavaWrapperType.JAVA_TYPE_byte_ARRAY;
         }
         return  javaWrapperType;
-    }
-
-    private <T> T getAsType(ParameterType parameterType, String value) {
-        Class<T> javaClass = parameterType.getType();
-        if (javaClass == String.class) {
-            return javaClass.cast(value);
-        } else if (javaClass == List.class) {
-            return null; //TODO
-        } else if (javaClass.equals(Boolean.class)) {
-            return javaClass.cast(Boolean.valueOf(value));
-        } else if (javaClass.equals(BigInteger.class)) {
-            return javaClass.cast(HexValue.toBigInteger(value));
-        } else if (javaClass.equals(byte[].class)) {
-            return javaClass.cast(value.getBytes());
-        } else {
-            return null;
-        }
     }
 }
