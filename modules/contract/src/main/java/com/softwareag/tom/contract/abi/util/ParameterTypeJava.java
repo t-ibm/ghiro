@@ -7,6 +7,7 @@
 package com.softwareag.tom.contract.abi.util;
 
 import com.softwareag.tom.contract.abi.ParameterType;
+import com.softwareag.tom.util.HexValueBase;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -62,7 +63,7 @@ final class ParameterTypeJava {
         }
 
         @Override public Class<BigInteger> getType() { return BigInteger.class; }
-        @Override public BigInteger asType(Object value) { return getType().cast(value); }
+        @Override public BigInteger asType(Object value) { return value instanceof String ? getType().cast(HexValueBase.toBigInteger((String) value)) : getType().cast(value); }
         @Override public String getName() { return name; }
         boolean isUnsigned() { return name.charAt(0) == 'u'; }
     }
