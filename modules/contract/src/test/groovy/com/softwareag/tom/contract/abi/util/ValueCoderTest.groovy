@@ -13,10 +13,10 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
- * System under specification: {@link ValueEncoder}.
+ * Systems under specification: {@link ValueEncoder} and {@link ValueDecoder}.
  * @author tglaeser
  */
-class ValueEncoderTest extends Specification {
+class ValueCoderTest extends Specification {
 
     def "test unsupported operation exception"() {
         given: 'a parameter of type "bool"'
@@ -39,6 +39,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         javaValue << [
@@ -51,6 +52,33 @@ class ValueEncoderTest extends Specification {
         ]
     }
 
+    @Unroll def "test bool parameter with offset #offset and value #value"() {
+        given: 'a parameter of type "bool"'
+        String source = '{"name":"a","type":"bool"}'
+        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
+
+        expect: 'a valid conversion'
+        ValueDecoder.decode(parameter.type, hexValue, offset) == javaValue
+
+        where: 'the given value is valid'
+        offset << [
+                64,
+                64,
+        ]
+        javaValue << [
+                Boolean.FALSE,
+                Boolean.TRUE,
+        ]
+        hexValue << [
+                '0000000000000000000000000000000000000000000000007fffffffffffffff'
+                        + '0000000000000000000000000000000000000000000000000000000000000000'
+                        + '0000000000000000000000000000000000000000000000007fffffffffffffff',
+                '0000000000000000000000000000000000000000000000007fffffffffffffff'
+                        + '0000000000000000000000000000000000000000000000000000000000000001'
+                        + '0000000000000000000000000000000000000000000000007fffffffffffffff',
+        ]
+    }
+
     def "test address parameter"() {
         given: 'a parameter of type "address" and matching values'
         String source = '{"name":"a","type":"address"}'
@@ -60,6 +88,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
     @Unroll def "test uint<M> parameter with value #value"() {
@@ -68,6 +97,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -96,6 +126,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -124,6 +155,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -149,6 +181,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -177,6 +210,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -202,6 +236,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
@@ -259,6 +294,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
     def "test fixed-length array parameter"() {
@@ -274,6 +310,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
     def "test single item array parameter"() {
@@ -285,6 +322,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
     def "test dynamic array parameter"() {
@@ -301,6 +339,7 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
     def "test empty array parameter"() {
@@ -312,5 +351,6 @@ class ValueEncoderTest extends Specification {
 
         expect: 'a valid conversion'
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
+        ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 }
