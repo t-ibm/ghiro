@@ -37,51 +37,52 @@ class ValueEncoderTest extends Specification {
         String source = '{"name":"a","type":"bool"}'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
-        value << [
+        where: 'the given values are valid'
+        javaValue << [
                 Boolean.FALSE,
                 Boolean.TRUE,
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000001',
         ]
     }
 
     def "test address parameter"() {
-        given: 'a parameter of type "address" and a matching value'
+        given: 'a parameter of type "address" and matching values'
         String source = '{"name":"a","type":"address"}'
-        BigInteger value = HexValueBase.toBigInteger('0xbe5422d15f39373eb0a97ff8c10fbd0e40e29338')
+        String hexValue = '000000000000000000000000be5422d15f39373eb0a97ff8c10fbd0e40e29338'
+        BigInteger javaValue = HexValueBase.toBigInteger('0xbe5422d15f39373eb0a97ff8c10fbd0e40e29338')
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == '000000000000000000000000be5422d15f39373eb0a97ff8c10fbd0e40e29338'
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 
     @Unroll def "test uint<M> parameter with value #value"() {
         given: 'a parameter of type "uint<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"uint64"}',
                 '{"name":"b","type":"uint64"}',
                 '{"name":"c","type":"uint"}',
                 '{"name":"d","type":"uint"}',
         ]
-        value << [
+        javaValue << [
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
                 new BigInteger("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe", 16),
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -93,23 +94,23 @@ class ValueEncoderTest extends Specification {
         given: 'a parameter of type "int<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"int64"}',
                 '{"name":"b","type":"int64"}',
                 '{"name":"c","type":"int64"}',
                 '{"name":"d","type":"int"}',
         ]
-        value << [
+        javaValue << [
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 BigInteger.valueOf(Long.MIN_VALUE),
                 BigInteger.valueOf(-1),
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000',
@@ -121,21 +122,21 @@ class ValueEncoderTest extends Specification {
         given: 'a parameter of type "ufixed<M>x<N>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"ufixed24x40"}',
                 '{"name":"b","type":"ufixed24x40"}',
                 '{"name":"c","type":"ufixed128x128"}',
         ]
-        value << [
+        javaValue << [
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -146,23 +147,23 @@ class ValueEncoderTest extends Specification {
         given: 'a parameter of type "fixed<M>x<N>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"fixed24x40"}',
                 '{"name":"b","type":"fixed24x40"}',
                 '{"name":"c","type":"fixed24x40"}',
                 '{"name":"d","type":"fixed24x40"}',
         ]
-        value << [
+        javaValue << [
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 BigInteger.valueOf(Long.MIN_VALUE),
                 BigInteger.valueOf(-1),
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000',
@@ -174,21 +175,21 @@ class ValueEncoderTest extends Specification {
         given: 'a parameter of type "bytes<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"bytes6"}',
                 '{"name":"b","type":"bytes1"}',
                 '{"name":"c","type":"bytes4"}',
         ]
-        value << [
+        javaValue << [
                 [0, 1, 2, 3, 4, 5 ] as byte[],
                 [0] as byte[],
                 "dave".bytes,
         ]
-        result << [
+        hexValue << [
                 '0001020304050000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '6461766500000000000000000000000000000000000000000000000000000000',
@@ -199,17 +200,17 @@ class ValueEncoderTest extends Specification {
         given: 'a parameter of type "bytes"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == result
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
 
-        where: 'the given value is valid'
+        where: 'the given values are valid'
         source << [
                 '{"name":"a","type":"bytes"}',
                 '{"name":"b","type":"bytes"}',
                 '{"name":"c","type":"bytes"}',
                 '{"name":"d","type":"bytes"}',
         ]
-        value << [
+        javaValue << [
                 [0, 1, 2, 3, 4, 5 ] as byte[],
                 [0] as byte[],
                 'dave'.bytes,
@@ -221,7 +222,7 @@ class ValueEncoderTest extends Specification {
                         + 'sint occaecat cupidatat non proident, sunt in culpa qui officia '
                         + 'deserunt mollit anim id est laborum.').bytes
         ]
-        result << [
+        hexValue << [
                 '0000000000000000000000000000000000000000000000000000000000000006'
                         + '0001020304050000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000001'
@@ -247,62 +248,69 @@ class ValueEncoderTest extends Specification {
     }
 
     def "test string parameter"() {
-        given: 'a parameter of type "string" and a matching value'
+        given: 'a parameter of type "string" and matching values'
         String source = '{"name":"a","type":"string"}'
-        String value = "Hello, world!"
+        String javaValue = 'Hello, world!'
+        String hexValue = (
+                '000000000000000000000000000000000000000000000000000000000000000d'
+                        + '48656c6c6f2c20776f726c642100000000000000000000000000000000000000'
+        )
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == ('000000000000000000000000000000000000000000000000000000000000000d'
-                + '48656c6c6f2c20776f726c642100000000000000000000000000000000000000')
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 
     def "test fixed-length array parameter"() {
-        given: 'a parameter of type "<type>[M]" and a matching value'
+        given: 'a parameter of type "<type>[M]" and matching values'
         String source = '{"name":"a","type":"uint[3]"}'
-        List<BigInteger> value = [BigInteger.ONE,BigInteger.valueOf(2),BigInteger.valueOf(3)]
-        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
-
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == (
+        List<BigInteger> javaValue = [BigInteger.ONE,BigInteger.valueOf(2),BigInteger.valueOf(3)]
+        String hexValue = (
                 '0000000000000000000000000000000000000000000000000000000000000001'
                         + '0000000000000000000000000000000000000000000000000000000000000002'
                         + '0000000000000000000000000000000000000000000000000000000000000003'
         )
+        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
+
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 
     def "test single item array parameter"() {
-        given: 'a parameter of type "<type>[M]" and a matching value'
+        given: 'a parameter of type "<type>[M]" and matching values'
         String source = '{"name":"a","type":"uint[1]"}'
-        List<BigInteger> value = [BigInteger.ONE]
+        List<BigInteger> javaValue = [BigInteger.ONE]
+        String hexValue = '0000000000000000000000000000000000000000000000000000000000000001'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == '0000000000000000000000000000000000000000000000000000000000000001'
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 
     def "test dynamic array parameter"() {
-        given: 'a parameter of type "<type>[]" and a matching value'
+        given: 'a parameter of type "<type>[]" and a matching values'
         String source = '{"name":"a","type":"uint[]"}'
-        List<BigInteger> value = [BigInteger.ONE,BigInteger.valueOf(2),BigInteger.valueOf(3)]
-        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
-
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == (
+        List<BigInteger> javaValue = [BigInteger.ONE,BigInteger.valueOf(2),BigInteger.valueOf(3)]
+        String hexValue = (
                 '0000000000000000000000000000000000000000000000000000000000000003'
                         + '0000000000000000000000000000000000000000000000000000000000000001'
                         + '0000000000000000000000000000000000000000000000000000000000000002'
                         + '0000000000000000000000000000000000000000000000000000000000000003'
         )
+        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
+
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 
     def "test empty array parameter"() {
-        given: 'a parameter of type "<type>[]" and a matching value'
+        given: 'a parameter of type "<type>[]" and matching values'
         String source = '{"name":"a","type":"uint[]"}'
-        List<BigInteger> value = []
+        List<BigInteger> javaValue = []
+        String hexValue = '0000000000000000000000000000000000000000000000000000000000000000'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
-        expect: 'a valid result'
-        ValueEncoder.encode(parameter.type, value) == '0000000000000000000000000000000000000000000000000000000000000000'
+        expect: 'a valid conversion'
+        ValueEncoder.encode(parameter.type, javaValue) == hexValue
     }
 }
