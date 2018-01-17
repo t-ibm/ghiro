@@ -115,7 +115,7 @@ public class ValueEncoder extends ValueBase {
         return HexValueBase.stripPrefix(HexValueBase.toString(dest));
     }
 
-    private static <T> String encodeArray(ParameterType type, boolean isDynamic, List<T> values) {
+    private static <T> String encodeArray(ParameterType<T> type, boolean isDynamic, List<T> values) {
         if (!isDynamic) {
             return encodeArray(type, values);
         }
@@ -126,7 +126,7 @@ public class ValueEncoder extends ValueBase {
         return encodedLength + encodedValues;
     }
 
-    private static <T> String encodeArray(ParameterType type, List<T> values) {
+    private static <T> String encodeArray(ParameterType<T> type, List<T> values) {
         StringBuilder result = new StringBuilder();
         for (T value : values) {
             result.append(ValueEncoder.encode(type, value));

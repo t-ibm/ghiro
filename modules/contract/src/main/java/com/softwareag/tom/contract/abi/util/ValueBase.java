@@ -13,8 +13,10 @@ import com.softwareag.tom.contract.abi.ParameterType;
  */
 public abstract class ValueBase {
 
-    final static int MAX_BIT_LENGTH = 256;
-    final static int MAX_BYTE_LENGTH = MAX_BIT_LENGTH / 8;
+    static final int ADDRESS_LENGTH = 160;
+    static final int MAX_BIT_LENGTH = 256;
+    static final int MAX_BYTE_LENGTH = MAX_BIT_LENGTH / 8;
+    static final int MAX_BYTE_LENGTH_FOR_HEX_STRING = MAX_BYTE_LENGTH << 1;
 
     /**
      * @param type The parameter type name
