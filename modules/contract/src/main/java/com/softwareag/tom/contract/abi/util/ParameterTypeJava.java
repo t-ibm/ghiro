@@ -66,6 +66,7 @@ final class ParameterTypeJava {
         @Override public BigInteger asType(Object value) { return value instanceof String ? getType().cast(HexValueBase.toBigInteger((String) value)) : getType().cast(value); }
         @Override public String getName() { return name; }
         boolean isUnsigned() { return name.charAt(0) == 'u'; }
+        boolean isFixed() { return name.startsWith("fixed") || name.startsWith("ufixed"); }
     }
 
     static class BytesType implements ParameterType<byte[]> {
@@ -114,6 +115,12 @@ final class ParameterTypeJava {
             int start = name.trim().indexOf('[');
             int end = name.trim().indexOf(']');
             return end - start == 1;
+        }
+        int size() {
+            int start = name.trim().indexOf('[') + 1;
+            int end = name.trim().indexOf(']');
+            String value = name.substring(start,end);
+            return Integer.parseInt(value);
         }
     }
 }
