@@ -18,53 +18,9 @@ import java.util.List;
  * <p>
  * Adapted from the <a href="https://github.com/web3j/web3j/blob/master/abi/src/main/java/org/web3j/abi/TypeEncoder.java">Web3 Java</a> implementation.
  */
-public class ValueEncoder {
-
-    private final static int MAX_BIT_LENGTH = 256;
-    final static int MAX_BYTE_LENGTH = MAX_BIT_LENGTH / 8;
+public class ValueEncoder extends ValueBase {
 
     private ValueEncoder() {}
-
-    public static ParameterType parse(String type) {
-        if (getDefaultType(type) != ParameterTypeJava.UNKNOWN) {
-            return getDefaultType(type);
-        } else if (isArray(type)) {
-            return new ParameterTypeJava.ArrayType(type);
-        } else if (type.startsWith("uint") || type.startsWith("ufixed") || type.startsWith("int") || type.startsWith("fixed")) {
-            return new ParameterTypeJava.NumericType(type);
-        } else if (type.startsWith("bytes")) {
-            return new ParameterTypeJava.BytesType(type, false);
-        } else {
-            return ParameterTypeJava.UNKNOWN;
-        }
-    }
-
-    private static ParameterType getDefaultType(String type) {
-        if ("address".equals(type)) {
-            return ParameterTypeJava.ADDRESS;
-        } else if ("uint".equals(type) || "uint256".equals(type)) {
-            return ParameterTypeJava.UINT;
-        } else if ("int".equals(type) || "int256".equals(type)) {
-            return ParameterTypeJava.INT;
-        } else if ("ufixed".equals(type) || "ufixed128x19".equals(type)) {
-            return ParameterTypeJava.UFIXED;
-        } else if ("fixed".equals(type) || "fixed128x19".equals(type)) {
-            return ParameterTypeJava.FIXED;
-        } else if ("bool".equals(type)) {
-            return ParameterTypeJava.BOOL;
-        } else if ("string".equals(type)) {
-            return ParameterTypeJava.STRING;
-        } else if ("bytes".equals(type)) {
-            return ParameterTypeJava.BYTES;
-        } else {
-            return ParameterTypeJava.UNKNOWN;
-        }
-    }
-    private static boolean isArray(String type) {
-        int start = type.trim().indexOf('[');
-        int end = type.trim().indexOf(']');
-        return end - start > 0;
-    }
 
     public static <T> String encode(ParameterType type, T value) {
         if (type instanceof ParameterTypeJava.NumericType && value instanceof BigInteger) {
