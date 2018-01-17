@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.util;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 /**
@@ -27,8 +26,9 @@ public class HexValueBase {
         if (value == null) {
             throw new NumberFormatException("Value cannot be null.");
         } else if (!value.startsWith(PREFIX)) {
-            throw new NumberFormatException("Value must start with prefix " + PREFIX + ".");
-        } else if (value.length() < 3) {
+            value = addPrefix(value);
+        }
+        if (value.length() < 3) {
             throw new NumberFormatException("Value must be 0[xX][0-9a-fA-F]+.");
         }
         return value;
@@ -81,7 +81,7 @@ public class HexValueBase {
         return result;
     }
 
-    protected static byte[] toByteArray(String input) {
+    public static byte[] toByteArray(String input) {
         String cleanInput = stripPrefix(input);
 
         int len = cleanInput.length();
@@ -123,8 +123,12 @@ public class HexValueBase {
         return PREFIX + sb.toString();
     }
 
-    public static String decode(String hexStr) throws UnsupportedEncodingException {
-        return new String(toByteArray(hexStr), "UTF-8").trim();
+    public static String decode(byte[] bytes) {
+        return  new String(bytes).trim();
+    }
+
+    public static String decode(String hexStr) {
+        return new String(toByteArray(hexStr)).trim();
     }
 
     public static String encode(String str) {

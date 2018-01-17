@@ -49,7 +49,7 @@ class HexValueBaseTest extends Specification {
         thrown NumberFormatException
 
         where:
-        source << ['0x', 'ff']
+        source << ['0x']
     }
 
     def 'test positive long to string'() {
@@ -140,5 +140,14 @@ class HexValueBaseTest extends Specification {
         where:
         hexData << ['0x3700000000000000000000000000000000000000000000000000000000000000']
         utfData << ['7']
+    }
+
+    def 'test encode data'() {
+        expect:
+        HexValueBase.encode(utfData) == hexData
+
+        where:
+        utfData << ['7']
+        hexData << ['0x37']
     }
 }
