@@ -116,11 +116,5 @@ public final class ParameterTypeJava {
             int end = name.trim().indexOf(']');
             return end - start == 1;
         }
-        int size() {
-            int start = name.trim().indexOf('[') + 1;
-            int end = name.trim().indexOf(']');
-            String value = name.substring(start,end);
-            return Integer.parseInt(value);
-        }
     }
 }

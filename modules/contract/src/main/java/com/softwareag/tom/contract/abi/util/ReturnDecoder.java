@@ -23,7 +23,7 @@ public class ReturnDecoder extends ValueBase {
     private ReturnDecoder() {}
 
     /**
-     * @param hexValue The contract's return valu as a hex string
+     * @param hexValue         The contract's return valu as a hex string
      * @param outputParameters The output parameters
      * @return the output parameter values as a list of Java types
      */
@@ -43,23 +43,20 @@ public class ReturnDecoder extends ValueBase {
         int offset = 0;
         for (ContractInterface.Parameter<T> parameterType : outputParameters) {
             ParameterType<T> type = parameterType.getType();
-
-            int hexStringDataOffset = parameterType.getOffset(input, offset);
-
-            T result;
-            if (type instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) type).isDynamic()) {
-                result = parameterType.decode(input, hexStringDataOffset);
-                offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;
-            } else if (type instanceof ParameterTypeJava.ArrayType && !((ParameterTypeJava.ArrayType) type).isDynamic()) {
-                int length = ((ParameterTypeJava.ArrayType) type).size();
-                result = parameterType.decode(input, hexStringDataOffset);
-                offset += length * MAX_BYTE_LENGTH_FOR_HEX_STRING;
-            } else {
-                result = parameterType.decode(input, hexStringDataOffset);
-                offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;
-            }
+            int hexStringDataOffset = getOffset(type, input, offset);
+            int length = type.size();
+            T result = parameterType.decode(input, hexStringDataOffset);
+            offset += length * MAX_BYTE_LENGTH_FOR_HEX_STRING;
             results.add(result);
         }
         return results;
+    }
+
+    private static <T> int getOffset(ParameterType<T> type, String value, int offset) {
+        if (type == ParameterTypeJava.BYTES || type == ParameterTypeJava.STRING || (type instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) type).isDynamic())) {
+            return ValueDecoder.decodeUintAsInt(value, offset) << 1;
+        } else {
+            return offset;
+        }
     }
 }
