@@ -6,8 +6,10 @@
  */
 package com.softwareag.tom.contract.abi;
 
+import com.softwareag.tom.contract.abi.util.ParameterTypeJava;
 import com.softwareag.tom.contract.abi.util.ReturnDecoder;
 import com.softwareag.tom.contract.abi.util.SpecificationEncoder;
+import com.softwareag.tom.contract.abi.util.ValueDecoder;
 import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
 import java.util.List;
@@ -47,6 +49,16 @@ public abstract class ContractInterface {
         default List<T> decode(String value) {
             return ReturnDecoder.decode(getOutputParameters(), value);
         }
+        /**
+         * @return the input parameter size. Note, that this value will only be equal to the input parameter count if all input parameters are simple types
+         */
+        default int getInputParametersSize() {
+            int count = 0;
+            for (ContractInterface.Parameter parameter : getInputParameters()) {
+                count += parameter.getLength();
+            }
+            return count;
+        }
     }
 
     /**
@@ -61,10 +73,31 @@ public abstract class ContractInterface {
          */
         short getLength();
         /**
-         * @return the encoded parameter value
+         * @param value The value as a Java type
+         * @return the value as hex string
          */
         default String encode(T value) {
             return ValueEncoder.encode(getType(), value);
+        }
+        /**
+         * @param value The value as hex string
+         * @param offset The index of the hex string where this particular value starts
+         * @return the value as a Java type
+         */
+        default T decode(String value, int offset) {
+            return ValueDecoder.decode(getType(), value, offset);
+        }
+        /**
+         * @param value The value as hex string
+         * @param offset The index of the hex string where this particular value starts
+         * @return the index of the hex string where this particular value starts
+         */
+        default int getOffset(String value, int offset) {
+            if (getType() == ParameterTypeJava.BYTES || getType() == ParameterTypeJava.STRING || (getType() instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) getType()).isDynamic())) {
+                return ValueDecoder.decodeUintAsInt(value, offset) << 1;
+            } else {
+                return offset;
+            }
         }
     }
 }

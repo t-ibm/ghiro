@@ -25,21 +25,19 @@ public class SpecificationEncoder {
     private SpecificationEncoder() {}
 
     public static <T> String encode(ContractInterface.Specification<T> specification, List<T> values) {
-        List<? extends ContractInterface.Parameter<T>> parameters = specification.getInputParameters();
-
-        String specificationSignature = getSpecificationSignature(specification.getName(), parameters);
+        String specificationSignature = getSpecificationSignature(specification);
         String specificationId = getSpecificationId(specificationSignature);
 
-        return encodeParameters(parameters, specificationId, values);
+        return encodeParameters(specification, specificationId, values);
     }
 
-    static <T> String encodeParameters(List<? extends ContractInterface.Parameter<T>> parameters, String specificationId, List<T> values) {
+    static <T> String encodeParameters(ContractInterface.Specification<T> specification, String specificationId, List<T> values) {
         StringBuilder result = new StringBuilder(specificationId);
 
-        int dynamicDataOffset = getParameterCount(parameters) * MAX_BYTE_LENGTH;
+        int dynamicDataOffset = specification.getInputParametersSize() * MAX_BYTE_LENGTH;
         StringBuilder dynamicData = new StringBuilder();
 
-        Iterator<? extends ContractInterface.Parameter<T>> parameterIterator = parameters.iterator();
+        Iterator<? extends ContractInterface.Parameter<T>> parameterIterator = specification.getInputParameters().iterator();
         Iterator<T> valueIterator = values.iterator();
 
         while (parameterIterator.hasNext() && valueIterator.hasNext()) {
@@ -61,17 +59,9 @@ public class SpecificationEncoder {
         return result.toString();
     }
 
-    static int getParameterCount(List<? extends ContractInterface.Parameter> parameters) {
-        int count = 0;
-        for (ContractInterface.Parameter parameter:parameters) {
-            count += parameter.getLength();
-        }
-        return count;
-    }
-
-    static String getSpecificationSignature(String methodName, List<? extends ContractInterface.Parameter> parameters) {
-        String params = parameters.stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
-        return methodName + "(" + params + ")";
+    static <T> String getSpecificationSignature(ContractInterface.Specification<T> specification) {
+        String params = specification.getInputParameters().stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
+        return specification.getName() + "(" + params + ")";
     }
 
     static String getSpecificationId(String methodSignature) {

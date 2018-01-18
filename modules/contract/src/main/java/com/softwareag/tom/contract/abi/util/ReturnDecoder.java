@@ -41,33 +41,25 @@ public class ReturnDecoder extends ValueBase {
         List<T> results = new ArrayList<>(outputParameters.size());
 
         int offset = 0;
-        for (ContractInterface.Parameter<T> typeReference:outputParameters) {
-            ParameterType<T> type = typeReference.getType();
+        for (ContractInterface.Parameter<T> parameterType : outputParameters) {
+            ParameterType<T> type = parameterType.getType();
 
-            int hexStringDataOffset = getDataOffset(type, input, offset);
+            int hexStringDataOffset = parameterType.getOffset(input, offset);
 
             T result;
             if (type instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) type).isDynamic()) {
-                result = (T) ValueDecoder.decodeArray((ParameterTypeJava.ArrayType) type, input, hexStringDataOffset);
+                result = parameterType.decode(input, hexStringDataOffset);
                 offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;
             } else if (type instanceof ParameterTypeJava.ArrayType && !((ParameterTypeJava.ArrayType) type).isDynamic()) {
                 int length = ((ParameterTypeJava.ArrayType) type).size();
-                result = (T) ValueDecoder.decodeArray((ParameterTypeJava.ArrayType) type, input, hexStringDataOffset);
+                result = parameterType.decode(input, hexStringDataOffset);
                 offset += length * MAX_BYTE_LENGTH_FOR_HEX_STRING;
             } else {
-                result = ValueDecoder.decode(type, input, hexStringDataOffset);
+                result = parameterType.decode(input, hexStringDataOffset);
                 offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;
             }
             results.add(result);
         }
         return results;
-    }
-
-    private static <T> int getDataOffset(ParameterType<T> type, String input, int offset) {
-        if (type == ParameterTypeJava.BYTES || type == ParameterTypeJava.STRING || (type instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) type).isDynamic())) {
-            return ValueDecoder.decodeUintAsInt(input, offset) << 1;
-        } else {
-            return offset;
-        }
     }
 }
