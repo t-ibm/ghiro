@@ -62,16 +62,5 @@ public class SolidityInterface extends ContractInterface {
         @Override public String getName() { return name; }
         @Override public ParameterType<T> getType() { return type; }
         @Override public boolean isIndexed() { return indexed; }
-
-        @Override public short getLength() {
-            int start = type.getName().trim().indexOf('[') + 1;
-            int end = type.getName().trim().indexOf(']');
-            if (end - start > 0) {
-                String length = type.getName().substring(start,end);
-                return Short.parseShort(length);
-            } else {
-                return 1;
-            }
-        }
     }
 }
