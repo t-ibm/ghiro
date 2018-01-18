@@ -80,86 +80,80 @@ class BurrowTest extends Specification {
         String contractAddress
 
         when: println '(1) the transaction is fully processed'
-        Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
-        Message response = web3Service.ethSendTransaction(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+        println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
 
         and: 'the contract address is remembered'
-        request = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(((Types.ResponseEthSendTransaction) response).getHash()).build()
-        response = web3Service.ethGetTransactionReceipt(request)
-        contractAddress = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().contractAddress)
+        println ">>> $requestEthGetTransactionReceipt.descriptorForType.fullName....$requestEthGetTransactionReceipt<<< $responseEthGetTransactionReceipt.descriptorForType.fullName...$responseEthGetTransactionReceipt"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetTransactionReceipt
-        ((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt() != null
+        responseEthGetTransactionReceipt.getTxReceipt() != null
 
         when: println '(2) the newly created contract account is verified'
-        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
-        response = web3Service.ethGetBalance(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetBalance requestEthGetBalance = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        Types.ResponseEthGetBalance responseEthGetBalance = web3Service.ethGetBalance(requestEthGetBalance)
+        println ">>> $requestEthGetBalance.descriptorForType.fullName....$requestEthGetBalance<<< $responseEthGetBalance.descriptorForType.fullName...$responseEthGetBalance"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetBalance
-        ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
+        responseEthGetBalance.getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
-        response = web3Service.ethGetStorageAt(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetStorageAt requestEthGetStorageAt = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        Types.ResponseEthGetStorageAt responseEthGetStorageAt = web3Service.ethGetStorageAt(requestEthGetStorageAt)
+        println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetStorageAt
-        ((Types.ResponseEthGetStorageAt) response).getValue() != null
+        responseEthGetStorageAt.getValue() != null
 
         when: println '(4) we subscribe to events from the the new contract account'
-        request = Types.RequestEthNewFilter.newBuilder().setOptions(
+        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
                 Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         ).build()
-        response = web3Service.ethNewFilter(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.ResponseEthNewFilter responseEthNewFilter = web3Service.ethNewFilter(requestEthNewFilter)
+        println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $responseEthNewFilter.descriptorForType.fullName...$responseEthNewFilter"
 
         and: 'the filter id is remembered'
-        def filterId = ((Types.ResponseEthNewFilter) response).getId()
+        def filterId = responseEthNewFilter.getId()
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthNewFilter
-        ((Types.ResponseEthNewFilter) response).getId().size() == 32*2+2
+        responseEthNewFilter.getId().size() == 32*2+2
 
         when: println '(5) we poll for events'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
-        response = web3Service.ethGetFilterChanges(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
+        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        Types.ResponseEthGetFilterChanges responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
+        println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetFilterChanges
-        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 0
+        responseEthGetFilterChanges.getLogCount() == 0
 
-        when: println '(6) the contract is executed 2 times'
+        when: println "(6) the contract's log function is executed 2 times"
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
         ).build()
         Types.ResponseEthCall responseEthCall = null
         2.times {
             responseEthCall = web3Service.ethCall(requestEthCall)
-            println ">>> $request.descriptorForType.fullName....$requestEthCall<<< $response.descriptorForType.fullName...$responseEthCall"
+            println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
         }
 
         then: 'a valid response is received'
         responseEthCall.return != null
 
         when: println '(7) we poll for events again'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
-        response = web3Service.ethGetFilterChanges(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
+        println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetFilterChanges
-        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 2
-        ((Types.ResponseEthGetFilterChanges) response).getLog(1).address.size() == 32*2+2
-        ((Types.ResponseEthGetFilterChanges) response).getLog(1).data.size() == 32*2+2
+        responseEthGetFilterChanges.getLogCount() == 2
+        responseEthGetFilterChanges.getLog(1).address.size() == 32*2+2
+        responseEthGetFilterChanges.getLog(1).data.size() == 32*2+2
     }
 
 
@@ -176,116 +170,106 @@ class BurrowTest extends Specification {
         String contractAddress
 
         when: println '(1) the transaction is fully processed'
-        Message request = Types.RequestEthSendTransaction.newBuilder().setTx(
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
-        Message response = web3Service.ethSendTransaction(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+        println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
 
         and: 'the contract address is remembered'
-        request = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(((Types.ResponseEthSendTransaction) response).getHash()).build()
-        response = web3Service.ethGetTransactionReceipt(request)
-        contractAddress = HexValue.toString(((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt().contractAddress)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().contractAddress)
+        println ">>> $requestEthGetTransactionReceipt.descriptorForType.fullName....$requestEthGetTransactionReceipt<<< $responseEthGetTransactionReceipt.descriptorForType.fullName...$responseEthGetTransactionReceipt"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetTransactionReceipt
-        ((Types.ResponseEthGetTransactionReceipt) response).getTxReceipt() != null
+        responseEthGetTransactionReceipt.getTxReceipt() != null
 
         when: println '(2) the newly created contract account is verified'
-        request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
-        response = web3Service.ethGetBalance(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetBalance requestEthGetBalance = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        Types.ResponseEthGetBalance responseEthGetBalance = web3Service.ethGetBalance(requestEthGetBalance)
+        println ">>> $requestEthGetBalance.descriptorForType.fullName....$requestEthGetBalance<<< $responseEthGetBalance.descriptorForType.fullName...$responseEthGetBalance"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetBalance
-        ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(0)
+        responseEthGetBalance.getBalance() == HexValue.toByteString(0)
 
         when: println '(3) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
-        response = web3Service.ethGetStorageAt(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.RequestEthGetStorageAt requestEthGetStorageAt = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        Types.ResponseEthGetStorageAt responseEthGetStorageAt = web3Service.ethGetStorageAt(requestEthGetStorageAt)
+        println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetStorageAt
-        HexValue.toBigInteger(((Types.ResponseEthGetStorageAt) response).getValue()) == BigInteger.valueOf(5)
+        HexValue.toBigInteger(responseEthGetStorageAt.getValue()) == BigInteger.valueOf(5)
 
         when: println '(4) we subscribe to events from the the new contract account'
-        request = Types.RequestEthNewFilter.newBuilder().setOptions(
+        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
                 Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         ).build()
-        response = web3Service.ethNewFilter(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.ResponseEthNewFilter responseEthNewFilter = web3Service.ethNewFilter(requestEthNewFilter)
+        println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $responseEthNewFilter.descriptorForType.fullName...$responseEthNewFilter"
 
         and: 'the filter id is remembered'
-        def filterId = ((Types.ResponseEthNewFilter) response).getId()
+        def filterId = responseEthNewFilter.getId()
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthNewFilter
-        ((Types.ResponseEthNewFilter) response).getId().size() == 32*2+2
+        responseEthNewFilter.getId().size() == 32*2+2
 
         when: println '(5) we poll for events'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
-        response = web3Service.ethGetFilterChanges(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response\n"
+        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        Types.ResponseEthGetFilterChanges responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
+        println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'no events exist'
-        response instanceof Types.ResponseEthGetFilterChanges
-        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 0
+        responseEthGetFilterChanges.getLogCount() == 0
 
         when: println '(6) the get contract method is executed'
-        request = Types.RequestEthCall.newBuilder().setTx(
+        Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()
-        response = web3Service.ethCall(request as Types.RequestEthCall)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        Types.ResponseEthCall responseEthCall = web3Service.ethCall(requestEthCall)
+        println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthCall
-        HexValue.toBigInteger(((Types.ResponseEthCall) response).getReturn()) == BigInteger.valueOf(5)
+        HexValue.toBigInteger(responseEthCall.getReturn()) == BigInteger.valueOf(5)
 
         when: println '(7) the set contract method is executed'
-        request = Types.RequestEthSendTransaction.newBuilder().setTx(
+        requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(setFunction.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
-        response = web3Service.ethSendTransaction(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+        println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthSendTransaction
-        ((Types.ResponseEthSendTransaction) response).getHash() != null
+        responseEthSendTransaction.getHash() != null
 
         when: println '(8) the get contract method is executed again'
-        request = Types.RequestEthCall.newBuilder().setTx(
+        requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()
-        response = web3Service.ethCall(request as Types.RequestEthCall)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        responseEthCall = web3Service.ethCall(requestEthCall)
+        println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthCall
-        HexValue.toBigInteger(((Types.ResponseEthCall) response).getReturn()) == BigInteger.valueOf(7)
+        HexValue.toBigInteger(responseEthCall.getReturn()) == BigInteger.valueOf(7)
 
         when: println '(9) the storage of the contract is retrieved'
-        request = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
-        response = web3Service.ethGetStorageAt(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        requestEthGetStorageAt = Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        responseEthGetStorageAt = web3Service.ethGetStorageAt(requestEthGetStorageAt)
+        println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetStorageAt
-        HexValue.toBigInteger(((Types.ResponseEthGetStorageAt) response).getValue()) == BigInteger.valueOf(7)
+        HexValue.toBigInteger(responseEthGetStorageAt.getValue()) == BigInteger.valueOf(7)
 
         when: println '(10) we poll for events again'
-        request = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
-        response = web3Service.ethGetFilterChanges(request)
-        println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
+        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
+        println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        response instanceof Types.ResponseEthGetFilterChanges
-        ((Types.ResponseEthGetFilterChanges) response).getLogCount() == 3
-        ((Types.ResponseEthGetFilterChanges) response).getLog(0).address.size() == 32*2+2
-        HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(0).data)) == '5'
-        HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(1).data)) == '7'
-        HexValue.decode(HexValue.toString(((Types.ResponseEthGetFilterChanges) response).getLog(2).data)) == '7'
+        responseEthGetFilterChanges.getLogCount() == 3
+        responseEthGetFilterChanges.getLog(0).address.size() == 32*2+2
+        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(0).data)) == '5'
+        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(1).data)) == '7'
+        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(2).data)) == '7'
     }
 }
