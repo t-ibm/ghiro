@@ -22,25 +22,36 @@ public class ValueEncoder extends ValueBase {
 
     private ValueEncoder() {}
 
-    public static <T> String encode(ParameterType type, T value) {
-        if (type instanceof ParameterTypeJava.NumericType && value instanceof BigInteger) {
-            return encodeNumeric(type, (BigInteger) value);
-        } else if (type == ParameterTypeJava.BOOL && value instanceof Boolean) {
+    /**
+     * @param parameterType The parameter type
+     * @param value The parameter value as a Java type
+     * @param <T> The Java type
+     * @return the parameter value as hex string
+     */
+    public static <T> String encode(ParameterType parameterType, T value) {
+        if (parameterType instanceof ParameterTypeJava.NumericType && value instanceof BigInteger) {
+            return encodeNumeric((ParameterTypeJava.NumericType)parameterType, (BigInteger) value);
+        } else if (parameterType == ParameterTypeJava.BOOL && value instanceof Boolean) {
             return encodeBool((Boolean) value);
-        } else if (type instanceof ParameterTypeJava.BytesType && value instanceof byte[]) {
-            return encodeBytes(type, (byte[]) value);
-        } else if (type == ParameterTypeJava.STRING && value instanceof String) {
+        } else if (parameterType instanceof ParameterTypeJava.BytesType && value instanceof byte[]) {
+            return encodeBytes(parameterType, (byte[]) value);
+        } else if (parameterType == ParameterTypeJava.STRING && value instanceof String) {
             return encodeString((String) value);
-        } else if (type instanceof ParameterTypeJava.ArrayType && value instanceof List) {
-            String baseType = type.getName().substring(0, type.getName().indexOf('['));
-            return encodeArray(parse(baseType), type.isDynamic(), (List<?>) value);
+        } else if (parameterType instanceof ParameterTypeJava.ArrayType && value instanceof List) {
+            String baseType = parameterType.getName().substring(0, parameterType.getName().indexOf('['));
+            return encodeArray(parse(baseType), parameterType.isDynamic(), (List<?>) value);
         } else {
-            throw new UnsupportedOperationException("Value of type '" + value.getClass() + "' cannot be encoded as '" + type.getName() + "'.");
+            throw new UnsupportedOperationException("Value of type '" + value.getClass() + "' cannot be encoded as '" + parameterType.getName() + "'.");
         }
     }
 
-    static String encodeNumeric(ParameterType type, BigInteger value) {
-        byte[] rawValue = toByteArray(type, value);
+    /**
+     * @param numericType The parameter type
+     * @param value The parameter value as a {@link BigInteger}
+     * @return the parameter value as hex string
+     */
+    static String encodeNumeric(ParameterTypeJava.NumericType numericType, BigInteger value) {
+        byte[] rawValue = toByteArray(numericType, value);
         byte paddingValue = getPaddingValue(value);
         byte[] paddedRawValue = new byte[MAX_BYTE_LENGTH];
         if (paddingValue != 0) {
@@ -48,11 +59,7 @@ public class ValueEncoder extends ValueBase {
                 paddedRawValue[i] = paddingValue;
             }
         }
-
-        System.arraycopy(
-            rawValue, 0,
-            paddedRawValue, MAX_BYTE_LENGTH - rawValue.length,
-            rawValue.length);
+        System.arraycopy(rawValue, 0, paddedRawValue, MAX_BYTE_LENGTH - rawValue.length, rawValue.length);
         return HexValueBase.stripPrefix(HexValueBase.toString(paddedRawValue));
     }
 
@@ -64,8 +71,8 @@ public class ValueEncoder extends ValueBase {
         }
     }
 
-    private static byte[] toByteArray(ParameterType type, BigInteger value) {
-        if (((ParameterTypeJava.NumericType) type).isUnsigned() && value.bitLength() == MAX_BIT_LENGTH) {
+    private static byte[] toByteArray(ParameterTypeJava.NumericType numericType, BigInteger value) {
+        if (numericType.isUnsigned() && value.bitLength() == MAX_BIT_LENGTH) {
             // As BigInteger is signed, if we have a 256 bit value, the resultant byte array
             // will contain a sign byte in it's MSB, which we should ignore for this unsigned
             // integer type.
@@ -89,8 +96,8 @@ public class ValueEncoder extends ValueBase {
         return encodeBytes(ParameterTypeJava.BYTES, utfEncoded);
     }
 
-    private static String encodeBytes(ParameterType type, byte[] value) {
-        if (!type.isDynamic()) {
+    private static String encodeBytes(ParameterType parameterType, byte[] value) {
+        if (!parameterType.isDynamic()) {
             return encodeBytes(value);
         }
         int size = value.length;
@@ -115,21 +122,21 @@ public class ValueEncoder extends ValueBase {
         return HexValueBase.stripPrefix(HexValueBase.toString(dest));
     }
 
-    private static <T> String encodeArray(ParameterType<T> type, boolean isDynamic, List<T> values) {
+    private static <T> String encodeArray(ParameterType<T> parameterType, boolean isDynamic, List<T> values) {
         if (!isDynamic) {
-            return encodeArray(type, values);
+            return encodeArray(parameterType, values);
         }
         int size = values.size();
         String encodedLength = encodeNumeric(ParameterTypeJava.UINT, BigInteger.valueOf(size));
-        String encodedValues = encodeArray(type, values);
+        String encodedValues = encodeArray(parameterType, values);
 
         return encodedLength + encodedValues;
     }
 
-    private static <T> String encodeArray(ParameterType<T> type, List<T> values) {
+    private static <T> String encodeArray(ParameterType<T> parameterType, List<T> values) {
         StringBuilder result = new StringBuilder();
         for (T value : values) {
-            result.append(ValueEncoder.encode(type, value));
+            result.append(ValueEncoder.encode(parameterType, value));
         }
         return result.toString();
     }

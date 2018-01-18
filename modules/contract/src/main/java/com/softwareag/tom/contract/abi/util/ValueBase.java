@@ -19,42 +19,42 @@ public abstract class ValueBase {
     static final int MAX_BYTE_LENGTH_FOR_HEX_STRING = MAX_BYTE_LENGTH << 1;
 
     /**
-     * @param type The parameter type name
+     * @param typeName The parameter type name
      * @return the parameter type as {@link ParameterType}
      */
-    @SuppressWarnings("unchecked") public static <T> ParameterType<T> parse(String type) {
+    @SuppressWarnings("unchecked") public static <T> ParameterType<T> parse(String typeName) {
         ParameterType parameterType;
-        if (getDefaultType(type) != ParameterTypeJava.UNKNOWN) {
-            parameterType = getDefaultType(type);
-        } else if (isArray(type)) {
-            parameterType = new ParameterTypeJava.ArrayType(type);
-        } else if (type.startsWith("uint") || type.startsWith("ufixed") || type.startsWith("int") || type.startsWith("fixed")) {
-            parameterType = new ParameterTypeJava.NumericType(type);
-        } else if (type.startsWith("bytes")) { // Fixed-size bytes
-            parameterType = new ParameterTypeJava.BytesType(type, false);
+        if (getDefaultType(typeName) != ParameterTypeJava.UNKNOWN) {
+            parameterType = getDefaultType(typeName);
+        } else if (isArray(typeName)) {
+            parameterType = new ParameterTypeJava.ArrayType(typeName);
+        } else if (typeName.startsWith("uint") || typeName.startsWith("ufixed") || typeName.startsWith("int") || typeName.startsWith("fixed")) {
+            parameterType = new ParameterTypeJava.NumericType(typeName);
+        } else if (typeName.startsWith("bytes")) { // Fixed-size bytes
+            parameterType = new ParameterTypeJava.BytesType(typeName, false);
         } else {
             parameterType = ParameterTypeJava.UNKNOWN;
         }
         return parameterType;
     }
 
-    @SuppressWarnings("unchecked") private static <T> ParameterType<T> getDefaultType(String type) {
+    @SuppressWarnings("unchecked") private static <T> ParameterType<T> getDefaultType(String typeName) {
         ParameterType parameterType;
-        if ("address".equals(type)) {
+        if ("address".equals(typeName)) {
             parameterType =  ParameterTypeJava.ADDRESS;
-        } else if ("uint".equals(type) || "uint256".equals(type)) {
+        } else if ("uint".equals(typeName) || "uint256".equals(typeName)) {
             parameterType =  ParameterTypeJava.UINT;
-        } else if ("int".equals(type) || "int256".equals(type)) {
+        } else if ("int".equals(typeName) || "int256".equals(typeName)) {
             parameterType =  ParameterTypeJava.INT;
-        } else if ("ufixed".equals(type) || "ufixed128x19".equals(type)) {
+        } else if ("ufixed".equals(typeName) || "ufixed128x19".equals(typeName)) {
             parameterType =  ParameterTypeJava.UFIXED;
-        } else if ("fixed".equals(type) || "fixed128x19".equals(type)) {
+        } else if ("fixed".equals(typeName) || "fixed128x19".equals(typeName)) {
             parameterType =  ParameterTypeJava.FIXED;
-        } else if ("bool".equals(type)) {
+        } else if ("bool".equals(typeName)) {
             parameterType =  ParameterTypeJava.BOOL;
-        } else if ("string".equals(type)) {
+        } else if ("string".equals(typeName)) {
             parameterType =  ParameterTypeJava.STRING;
-        } else if ("bytes".equals(type)) { // Dynamic bytes
+        } else if ("bytes".equals(typeName)) { // Dynamic bytes
             parameterType =  ParameterTypeJava.BYTES;
         } else {
             parameterType =  ParameterTypeJava.UNKNOWN;
@@ -62,9 +62,9 @@ public abstract class ValueBase {
         return parameterType;
     }
 
-    private static boolean isArray(String type) {
-        int start = type.trim().indexOf('[');
-        int end = type.trim().indexOf(']');
+    private static boolean isArray(String typeName) {
+        int start = typeName.trim().indexOf('[');
+        int end = typeName.trim().indexOf(']');
         return end - start > 0;
     }
 }
