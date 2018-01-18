@@ -34,9 +34,10 @@ import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,8 +59,8 @@ public enum Util {
         nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
         try {
-            File contractRegistryLocation = new File(Node.instance().getContract().getRegistry().getLocation().getPath());
-            File configLocation = new File(Node.instance().getConfig().getLocation().getPath());
+            Path contractRegistryLocation = Paths.get(Node.instance().getContract().getRegistry().getLocation().getPath());
+            Path configLocation = Paths.get(Node.instance().getConfig().getLocation().getPath());
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
             web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() +':' + Node.instance().getHost().getPort() + "/rpc"));
         } catch (IOException e) {

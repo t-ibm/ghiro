@@ -13,11 +13,11 @@ import com.softwareag.tom.contract.abi.sol.SolidityInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -31,25 +31,25 @@ public class SolidityLocationFileSystem implements ContractLocation {
 
     private static final Logger logger = LoggerFactory.getLogger(SolidityLocationFileSystem.class);
     private final ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper();
-    private final File rootDirectory;
+    private final URI rootUri;
 
-    public SolidityLocationFileSystem(File rootDirectory) throws IOException {
-        this.rootDirectory = rootDirectory;
-        if (!rootDirectory.exists()) {
-            throw new IOException("File system location does not exist: " + rootDirectory.getCanonicalPath());
-        } else  if (!rootDirectory.isDirectory()) {
-            throw new IOException("File system location is not a directory: " + rootDirectory.getCanonicalPath());
+    public SolidityLocationFileSystem(Path rootDirectory) throws IOException {
+        this.rootUri = rootDirectory.toUri();
+        if (!Files.exists(rootDirectory)) {
+            throw new NoSuchFileException(rootUri.getPath());
+        } else  if (!Files.isDirectory(rootDirectory)) {
+            throw new NotDirectoryException(rootUri.getPath());
         }
     }
 
     @Override public Map<String, Contract> load() throws IOException {
         Map<String, Contract> contracts = new HashMap<>();
-        Files.find(Paths.get(rootDirectory.toURI()), 64, (path, bfa) -> bfa.isRegularFile() && path.getFileName().toString().matches(".*\\.bin")).forEachOrdered(
+        Files.find(Paths.get(rootUri), 64, (path, bfa) -> bfa.isRegularFile() && path.getFileName().toString().matches(".*\\.bin")).forEachOrdered(
             pathBin -> {
-                URI uri = rootDirectory.toURI().relativize(pathBin.toUri());
+                URI uri = rootUri.relativize(pathBin.toUri());
                 uri = URI.create(uri.toString().substring(0, uri.toString().lastIndexOf('.'))); //Remove extension from URI
-                logger.info("Loading contract: " + uri);
-                Path pathAbi = FileSystems.getDefault().getPath(rootDirectory.toString(), uri.toString() + ".abi");
+                logger.info("Loading contract '{}'.", uri);
+                Path pathAbi = Paths.get(rootUri.resolve(uri.toString() + ".abi"));
                 try {
                     Contract contract = Contract.create(getContractInterface(Files.readAllBytes(pathAbi)), new String(Files.readAllBytes(pathBin)));
                     contracts.put(uri.toString(), contract);
