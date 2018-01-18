@@ -48,10 +48,6 @@ public class SolidityInterface extends ContractInterface {
         @Override public boolean isConstant() { return constant; }
         @Override public boolean isPayable() { return payable; }
         @Override public boolean isAnonymous() { return anonymous; }
-
-        @Override public String encode(List<T> values) {
-            return SpecificationEncoder.encode(this, values);
-        }
     }
 
     public static class SolidityParameter<T> implements ContractInterface.Parameter<T> {

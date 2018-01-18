@@ -7,6 +7,7 @@
 package com.softwareag.tom.contract.abi;
 
 import com.softwareag.tom.contract.abi.util.ReturnDecoder;
+import com.softwareag.tom.contract.abi.util.SpecificationEncoder;
 import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
 import java.util.List;
@@ -36,7 +37,9 @@ public abstract class ContractInterface {
          * @param values A list of Java values
          * @return the encoded specification as a hex string
          */
-        String encode(List<T> values);
+        default String encode(List<T> values) {
+            return SpecificationEncoder.encode(this, values);
+        }
         /**
          * @param value The returned hex string
          * @return a list of Java values
