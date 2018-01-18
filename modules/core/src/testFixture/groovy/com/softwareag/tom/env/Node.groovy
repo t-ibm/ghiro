@@ -9,11 +9,11 @@ node {
         }
     }
     config {
-        location = new File('packages/WmDApp/config')
+        location = 'packages/WmDApp/config'
     }
     contract {
         registry {
-            location = new File('../../modules/contract/build/solc')
+            location = '../../modules/contract/build/solc'
         }
     }
 }
