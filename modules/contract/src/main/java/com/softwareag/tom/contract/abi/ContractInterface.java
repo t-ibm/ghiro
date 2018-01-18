@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.contract.abi;
 
+import com.softwareag.tom.contract.abi.util.ReturnDecoder;
 import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
 import java.util.List;
@@ -32,9 +33,17 @@ public abstract class ContractInterface {
         boolean isPayable();
         boolean isAnonymous();
         /**
-         * @return the encoded specification.
+         * @param values A list of Java values
+         * @return the encoded specification as a hex string
          */
         String encode(List<T> values);
+        /**
+         * @param value The returned hex string
+         * @return a list of Java values
+         */
+        default List<T> decode(String value) {
+            return ReturnDecoder.decode(getOutputParameters(), value);
+        }
     }
 
     /**

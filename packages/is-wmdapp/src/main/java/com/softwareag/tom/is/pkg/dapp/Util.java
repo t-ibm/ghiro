@@ -181,7 +181,7 @@ public enum Util {
     }
 
     private <T> void decodeOutput(ContractInterface.Specification<T> function, IData pipeline, String response) {
-        List<T> values = decode(function, response);
+        List<T> values = function.decode(response);
         List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
         assert values.size() == outputParameters.size();
         Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = outputParameters.iterator();
@@ -189,16 +189,6 @@ public enum Util {
         while (outputParametersIterator.hasNext() && valuesIterator.hasNext()) {
             new IDataMap(pipeline).put(outputParametersIterator.next().getName(), valuesIterator.next());
         }
-    }
-
-    private <T> List<T> decode(ContractInterface.Specification<T> function, String response) {
-        List<T> values = new ArrayList<>();
-        List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
-        for (ContractInterface.Parameter<T> parameter : outputParameters) {
-            ParameterType<T> parameterType = parameter.getType();
-            values.add(parameterType.asType(response));
-        }
-        return values;
     }
 
     private Contract validate(Contract contract) throws IOException {
