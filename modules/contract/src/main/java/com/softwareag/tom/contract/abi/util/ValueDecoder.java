@@ -21,73 +21,94 @@ import java.util.function.BiFunction;
  */
 public class ValueDecoder extends ValueBase {
 
-    public static <T> T decode(ParameterType<T> type, String input) {
-        return decode(type, input, 0);
+    private ValueDecoder() {}
+
+    /**
+     * @param parameterType The parameter type
+     * @param hexValue The parameter value as hex string
+     * @param <T> The Java type
+     * @return the parameter value as a Java type
+     */
+    public static <T> T decode(ParameterType<T> parameterType, String hexValue) {
+        return decode(parameterType, hexValue, 0);
     }
 
-    @SuppressWarnings("unchecked") public static <T> T decode(ParameterType<T> type, String input, int offset) {
-        if (type instanceof ParameterTypeJava.NumericType) {
-            return (T) decodeNumeric((ParameterTypeJava.NumericType) type, input.substring(offset));
-        } else if (type == ParameterTypeJava.BOOL) {
-            return (T) decodeBool(input, offset);
-        } else if (type instanceof ParameterTypeJava.BytesType) {
-            return (T) decodeBytes((ParameterTypeJava.BytesType) type, input, offset);
-        } else if (type == ParameterTypeJava.STRING) {
-            return (T) decodeUtf8String(input, offset);
-        } else if (type instanceof ParameterTypeJava.ArrayType) {
-            return (T) decodeArray(type, input, offset);
+    /**
+     * @param parameterType The parameter type
+     * @param hexValue The parameter value as hex string
+     * @param offset The index of the hex string where this particular parameter value starts
+     * @param <T> The Java type
+     * @return the parameter value as a Java type
+     */
+    @SuppressWarnings("unchecked") public static <T> T decode(ParameterType<T> parameterType, String hexValue, int offset) {
+        if (parameterType instanceof ParameterTypeJava.NumericType) {
+            return (T) decodeNumeric((ParameterTypeJava.NumericType) parameterType, hexValue.substring(offset));
+        } else if (parameterType == ParameterTypeJava.BOOL) {
+            return (T) decodeBool(hexValue, offset);
+        } else if (parameterType instanceof ParameterTypeJava.BytesType) {
+            return (T) decodeBytes(parameterType, hexValue, offset);
+        } else if (parameterType == ParameterTypeJava.STRING) {
+            return (T) decodeString(hexValue, offset);
+        } else if (parameterType instanceof ParameterTypeJava.ArrayType) {
+            return (T) decodeArray(parameterType, hexValue, offset);
         } else {
-            throw new UnsupportedOperationException("Unknown type, value '" + input + "' cannot be decoded.");
+            throw new UnsupportedOperationException("Unknown type, value '" + hexValue + "' cannot be decoded.");
         }
     }
 
-    private static <T> List<T> decodeArray(ParameterType<T> type, String input, int offset) {
-        if (!type.isDynamic()) {
-            return decodeStaticArray(type, input, offset);
-        } else if (type.isDynamic()) {
-            return decodeDynamicArray(type, input, offset);
+    /**
+     * @param hexValue The parameter value as hex string
+     * @param offset The index of the hex string where this particular parameter value starts
+     * @return the value as an {@code int}
+     */
+    public static int decodeUintAsInt(String hexValue, int offset) {
+        String input = hexValue.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
+        return decode(ParameterTypeJava.UINT, input, 0).intValue();
+    }
+
+    private static <T> List<T> decodeArray(ParameterType<T> parameterType, String input, int offset) {
+        if (!parameterType.isDynamic()) {
+            return decodeStaticArray(parameterType, input, offset);
+        } else if (parameterType.isDynamic()) {
+            return decodeDynamicArray(parameterType, input, offset);
         } else {
-            throw new UnsupportedOperationException("Unsupported TypeReference: " + type.getName() + ", only Array types can be passed as TypeReferences");
+            throw new UnsupportedOperationException("Unsupported TypeReference: " + parameterType.getName() + ", only Array types can be passed as TypeReferences");
         }
     }
 
-    private static BigInteger decodeNumeric(ParameterTypeJava.NumericType type, String input) {
-        try {
-            byte[] inputByteArray = HexValueBase.toByteArray(input);
-            int typeLengthAsBytes = getTypeLengthInBytes(type);
+    private static BigInteger decodeNumeric(ParameterTypeJava.NumericType numericType, String input) {
+        byte[] inputByteArray = HexValueBase.toByteArray(input);
+        int typeLengthAsBytes = getTypeLengthInBytes(numericType);
 
-            byte[] resultByteArray = new byte[typeLengthAsBytes + 1];
+        byte[] resultByteArray = new byte[typeLengthAsBytes + 1];
 
-            if (!type.isUnsigned()) {
-                resultByteArray[0] = inputByteArray[0];  // take MSB as sign bit
-            }
-
-            int valueOffset = MAX_BYTE_LENGTH - typeLengthAsBytes;
-            System.arraycopy(inputByteArray, valueOffset, resultByteArray, 1, typeLengthAsBytes);
-
-            return new BigInteger(resultByteArray);
-        } catch ( SecurityException | IllegalArgumentException e) {
-            throw new UnsupportedOperationException("Unable to create instance of " + type.getName(), e);
+        if (!numericType.isUnsigned()) {
+            resultByteArray[0] = inputByteArray[0];  // take MSB as sign bit
         }
+
+        int valueOffset = MAX_BYTE_LENGTH - typeLengthAsBytes;
+        System.arraycopy(inputByteArray, valueOffset, resultByteArray, 1, typeLengthAsBytes);
+
+        return new BigInteger(resultByteArray);
     }
 
-    private static int getTypeLengthInBytes(ParameterTypeJava.NumericType type) {
-        int typeLength = getTypeLength(type);  // divide by 8
+    private static int getTypeLengthInBytes(ParameterTypeJava.NumericType numericType) {
+        int typeLength = getTypeLength(numericType);  // divide by 8
         return  typeLength >> 3;
     }
 
-    private static int getTypeLength(ParameterTypeJava.NumericType type) {
-        if (type == ParameterTypeJava.ADDRESS) {
+    private static int getTypeLength(ParameterTypeJava.NumericType numericType) {
+        if (numericType == ParameterTypeJava.ADDRESS) {
             return ADDRESS_LENGTH;
-        } else if (!type.isFixed()) {
+        } else if (!numericType.isFixed()) {
             String regex = "(uint|int)";
-            String[] splitName = type.getName().split(regex);
+            String[] splitName = numericType.getName().split(regex);
             if (splitName.length == 2) {
                 return Integer.parseInt(splitName[1]);
             }
-        } else if (type.isFixed()) {
+        } else if (numericType.isFixed()) {
             String regex = "(ufixed|fixed)";
-            String[] splitName = type.getName().split(regex);
+            String[] splitName = numericType.getName().split(regex);
             if (splitName.length == 2) {
                 String[] bitsCounts = splitName[1].split("x");
                 return Integer.parseInt(bitsCounts[0]) + Integer.parseInt(bitsCounts[1]);
@@ -96,34 +117,24 @@ public class ValueDecoder extends ValueBase {
         return MAX_BIT_LENGTH;
     }
 
-    public static int decodeUintAsInt(String rawInput, int offset) {
-        String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
-        return decode(ParameterTypeJava.UINT, input, 0).intValue();
-    }
-
     private static Boolean decodeBool(String rawInput, int offset) {
         String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
         BigInteger numericValue = HexValueBase.toBigInteger(input);
         return numericValue.equals(BigInteger.ONE);
     }
 
-    private static byte[] decodeBytes(ParameterTypeJava.BytesType type, String input, int offset) {
-        if (type.isDynamic()) {
-            return decodeDynamicBytes(input, offset);
+    private static <T> byte[] decodeBytes(ParameterType<T> parameterType, String input, int offset) {
+        if (parameterType.isDynamic()) {
+            return decodeBytes(input, offset);
         }
-        try {
-            String simpleName = type.getName();
-            String[] splitName = simpleName.split("bytes");
-            int length = Integer.parseInt(splitName[1]);
-            int hexStringLength = length << 1;
-
-            return HexValueBase.toByteArray(input.substring(offset, offset + hexStringLength));
-        } catch (SecurityException | IllegalArgumentException e) {
-            throw new UnsupportedOperationException("Unable to create instance of " + type.getName(), e);
-        }
+        String simpleName = parameterType.getName();
+        String[] splitName = simpleName.split("bytes");
+        int length = Integer.parseInt(splitName[1]);
+        int hexStringLength = length << 1;
+        return HexValueBase.toByteArray(input.substring(offset, offset + hexStringLength));
     }
 
-    private static byte[] decodeDynamicBytes(String input, int offset) {
+    private static byte[] decodeBytes(String input, int offset) {
         int encodedLength = decodeUintAsInt(input, offset);
         int hexStringEncodedLength = encodedLength << 1;
 
@@ -133,15 +144,15 @@ public class ValueDecoder extends ValueBase {
         return HexValueBase.toByteArray(data);
     }
 
-    private static String decodeUtf8String(String input, int offset) {
-        byte[] bytes = decodeDynamicBytes(input, offset);
+    private static String decodeString(String input, int offset) {
+        byte[] bytes = decodeBytes(input, offset);
         return HexValueBase.decode(bytes);
     }
 
     /**
      * Static array length cannot be passed as a type.
      */
-    private static <T> List<T> decodeStaticArray(ParameterType<T> type, String input, int offset) {
+    private static <T> List<T> decodeStaticArray(ParameterType<T> parameterType, String input, int offset) {
 
         BiFunction<List<T>, String, List<T>> function = (elements, typeName) -> {
             if (elements.isEmpty()) {
@@ -151,13 +162,13 @@ public class ValueDecoder extends ValueBase {
             }
         };
 
-        ParameterType<T> baseType =  getItemType(type);
-        int length = type.size();
+        ParameterType<T> baseType =  getItemType(parameterType);
+        int length = parameterType.size();
 
         return decodeArrayElements(input, offset, baseType, length, function);
     }
 
-    private static <T> List<T> decodeDynamicArray(ParameterType<T> type, String input, int offset) {
+    private static <T> List<T> decodeDynamicArray(ParameterType<T> parameterType, String input, int offset) {
 
         int length = decodeUintAsInt(input, offset);
 
@@ -171,18 +182,18 @@ public class ValueDecoder extends ValueBase {
 
         int valueOffset = offset + MAX_BYTE_LENGTH_FOR_HEX_STRING;
 
-        ParameterType<T> baseType =  getItemType(type);
+        ParameterType<T> baseType =  getItemType(parameterType);
 
         return decodeArrayElements(input, valueOffset, baseType, length, function);
     }
 
-    private static <T> ParameterType<T> getItemType(ParameterType<T> type) {
-        String baseType = type.getName().substring(0, type.getName().indexOf('['));
+    private static <T> ParameterType<T> getItemType(ParameterType<T> parameterType) {
+        String baseType = parameterType.getName().substring(0, parameterType.getName().indexOf('['));
         return ValueEncoder.parse(baseType);
     }
 
-    private static <T> List<T> decodeArrayElements(String input, int offset, ParameterType<T> type, int length, BiFunction<List<T>, String, List<T>> consumer) {
-        String name = type.getName();
+    private static <T> List<T> decodeArrayElements(String input, int offset, ParameterType<T> parameterType, int length, BiFunction<List<T>, String, List<T>> consumer) {
+        String name = parameterType.getName();
         if (name.trim().contains("[")) {
             throw new UnsupportedOperationException("Arrays of arrays are not currently supported for external functions, see http://solidity.readthedocs.io/en/develop/types.html#members");
         } else {
@@ -190,19 +201,19 @@ public class ValueDecoder extends ValueBase {
 
             for (int i = 0, currOffset = offset;
                     i < length;
-                    i++, currOffset += getSingleElementLength(type, input, currOffset)
+                    i++, currOffset += getSingleElementLength(parameterType, input, currOffset)
                          * MAX_BYTE_LENGTH_FOR_HEX_STRING) {
-                T value = decode(type, input, currOffset);
+                T value = decode(parameterType, input, currOffset);
                 elements.add(value);
             }
-            return consumer.apply(elements, type.getName());
+            return consumer.apply(elements, parameterType.getName());
         }
     }
 
-    private static int getSingleElementLength(ParameterType type, String input, int offset) {
+    private static int getSingleElementLength(ParameterType parameterType, String input, int offset) {
         if (input.length() == offset) {
             return 0;
-        } else if (type == ParameterTypeJava.BYTES || type ==  ParameterTypeJava.STRING) {
+        } else if (parameterType == ParameterTypeJava.BYTES || parameterType ==  ParameterTypeJava.STRING) {
             // length field + data value
             return (decodeUintAsInt(input, offset) / MAX_BYTE_LENGTH) + 2;
         } else {

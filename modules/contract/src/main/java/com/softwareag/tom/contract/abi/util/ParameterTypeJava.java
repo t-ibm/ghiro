@@ -17,15 +17,15 @@ import java.util.List;
  */
 public final class ParameterTypeJava {
 
-    static final ParameterType<Object> UNKNOWN = UnknownType.UNKNOWN;
-    static final ParameterType<Boolean> BOOL = BoolType.BOOL;
-    static final ParameterType<BigInteger> INT = NumericType.INT;
-    static final ParameterType<BigInteger> UINT = NumericType.UINT;
-    static final ParameterType<BigInteger> ADDRESS = NumericType.ADDRESS;
-    static final ParameterType<BigInteger> FIXED = NumericType.FIXED;
-    static final ParameterType<BigInteger> UFIXED = NumericType.UFIXED;
-    static final ParameterType<byte[]> BYTES = BytesType.BYTES;
-    static final ParameterType<String> STRING = StringType.STRING;
+    static final UnknownType UNKNOWN = UnknownType.UNKNOWN;
+    static final BoolType BOOL = BoolType.BOOL;
+    static final NumericType INT = NumericType.INT;
+    static final NumericType UINT = NumericType.UINT;
+    static final NumericType ADDRESS = NumericType.ADDRESS;
+    static final NumericType FIXED = NumericType.FIXED;
+    static final NumericType UFIXED = NumericType.UFIXED;
+    static final BytesType BYTES = BytesType.BYTES;
+    static final StringType STRING = StringType.STRING;
 
     private enum UnknownType implements ParameterType<Object> {
         UNKNOWN;

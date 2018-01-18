@@ -23,13 +23,12 @@ public class ReturnDecoder extends ValueBase {
     private ReturnDecoder() {}
 
     /**
-     * @param hexValue         The contract's return valu as a hex string
+     * @param hexValue The contract's return value as a hex string
      * @param outputParameters The output parameters
      * @return the output parameter values as a list of Java types
      */
     public static <T> List<T> decode(List<? extends ContractInterface.Parameter<T>> outputParameters, String hexValue) {
         String input = HexValueBase.stripPrefix(hexValue);
-
         if (input.isEmpty()) {
             return Collections.emptyList();
         } else {
@@ -39,21 +38,20 @@ public class ReturnDecoder extends ValueBase {
 
     private static <T> List<T> build(List<? extends ContractInterface.Parameter<T>> outputParameters, String input) {
         List<T> results = new ArrayList<>(outputParameters.size());
-
         int offset = 0;
-        for (ContractInterface.Parameter<T> parameterType : outputParameters) {
-            ParameterType<T> type = parameterType.getType();
-            int hexStringDataOffset = getOffset(type, input, offset);
-            int length = type.size();
-            T result = parameterType.decode(input, hexStringDataOffset);
+        for (ContractInterface.Parameter<T> parameter : outputParameters) {
+            ParameterType<T> parameterType = parameter.getType();
+            int hexStringDataOffset = getOffset(parameterType, input, offset);
+            int length = parameterType.size();
+            T result = parameter.decode(input, hexStringDataOffset);
             offset += length * MAX_BYTE_LENGTH_FOR_HEX_STRING;
             results.add(result);
         }
         return results;
     }
 
-    private static <T> int getOffset(ParameterType<T> type, String value, int offset) {
-        if (type.isDynamic()) {
+    private static <T> int getOffset(ParameterType<T> parameterType, String value, int offset) {
+        if (parameterType.isDynamic()) {
             return ValueDecoder.decodeUintAsInt(value, offset) << 1;
         } else {
             return offset;
