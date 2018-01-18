@@ -14,6 +14,8 @@ import com.softwareag.tom.contract.SolidityLocationFileSystem
 import com.softwareag.tom.util.HexValueBase
 import groovyx.net.http.RESTClient
 
+import java.nio.file.Paths
+
 /**
  * System under specification: Burrow endpoints.
  * @author tglaeser
@@ -136,7 +138,7 @@ class BurrowTest extends RestClientSpecification {
 
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(Paths.get(config.node.contract.registry.location as String)), new ConfigLocationFileSystem(Paths.get(config.node.config.location as String))).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
@@ -237,7 +239,7 @@ class BurrowTest extends RestClientSpecification {
 
     def "test create solidity contract and store/update data via rpc"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as File), new ConfigLocationFileSystem(config.node.config.location as File)).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(Paths.get(config.node.contract.registry.location as String)), new ConfigLocationFileSystem(Paths.get(config.node.config.location as String))).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)
@@ -362,6 +364,6 @@ class BurrowTest extends RestClientSpecification {
         then: 'an event for each call is received'
         resp.data.result.events.size() == 3
         resp.data.result.events.get(1).data.size() == 64
-        HexValueBase.decode(resp.data.result.events.get(1).data) == '7'
+        HexValueBase.decode(resp.data.result.events.get(1).data as String) == '7'
     }
 }
