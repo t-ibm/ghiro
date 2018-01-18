@@ -30,7 +30,7 @@ public abstract class ValueBase {
             parameterType = new ParameterTypeJava.ArrayType(type);
         } else if (type.startsWith("uint") || type.startsWith("ufixed") || type.startsWith("int") || type.startsWith("fixed")) {
             parameterType = new ParameterTypeJava.NumericType(type);
-        } else if (type.startsWith("bytes")) {
+        } else if (type.startsWith("bytes")) { // Fixed-size bytes
             parameterType = new ParameterTypeJava.BytesType(type, false);
         } else {
             parameterType = ParameterTypeJava.UNKNOWN;
@@ -54,7 +54,7 @@ public abstract class ValueBase {
             parameterType =  ParameterTypeJava.BOOL;
         } else if ("string".equals(type)) {
             parameterType =  ParameterTypeJava.STRING;
-        } else if ("bytes".equals(type)) {
+        } else if ("bytes".equals(type)) { // Dynamic bytes
             parameterType =  ParameterTypeJava.BYTES;
         } else {
             parameterType =  ParameterTypeJava.UNKNOWN;

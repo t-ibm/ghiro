@@ -33,7 +33,7 @@ public class ValueEncoder extends ValueBase {
             return encodeString((String) value);
         } else if (type instanceof ParameterTypeJava.ArrayType && value instanceof List) {
             String baseType = type.getName().substring(0, type.getName().indexOf('['));
-            return encodeArray(parse(baseType), ((ParameterTypeJava.ArrayType) type).isDynamic(), (List<?>) value);
+            return encodeArray(parse(baseType), type.isDynamic(), (List<?>) value);
         } else {
             throw new UnsupportedOperationException("Value of type '" + value.getClass() + "' cannot be encoded as '" + type.getName() + "'.");
         }
@@ -90,7 +90,7 @@ public class ValueEncoder extends ValueBase {
     }
 
     private static String encodeBytes(ParameterType type, byte[] value) {
-        if (!((ParameterTypeJava.BytesType) type).isDynamic()) {
+        if (!type.isDynamic()) {
             return encodeBytes(value);
         }
         int size = value.length;
