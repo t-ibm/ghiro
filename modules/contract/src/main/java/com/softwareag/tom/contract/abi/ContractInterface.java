@@ -55,7 +55,7 @@ public abstract class ContractInterface {
         default int getInputParametersSize() {
             int count = 0;
             for (ContractInterface.Parameter parameter : getInputParameters()) {
-                count += parameter.getLength();
+                count += parameter.size();
             }
             return count;
         }
@@ -69,9 +69,18 @@ public abstract class ContractInterface {
         ParameterType<T> getType();
         boolean isIndexed();
         /**
-         * @return the length of an array for a parameter of type fixed-length array, otherwise returns 1
+         * @return the size of an array for a parameter of type fixed-length array, otherwise returns 1
          */
-        short getLength();
+        default short size() {
+            int start = getType().getName().trim().indexOf('[') + 1;
+            int end = getType().getName().trim().indexOf(']');
+            if (end - start > 0) {
+                String length = getType().getName().substring(start,end);
+                return Short.parseShort(length);
+            } else {
+                return 1;
+            }
+        }
         /**
          * @param value The value as a Java type
          * @return the value as hex string
