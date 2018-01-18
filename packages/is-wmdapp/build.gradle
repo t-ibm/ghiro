@@ -1,5 +1,5 @@
 project.label = 'WmDApp'
-project.description = "$label package"
+project.description = "Provides support for Distributed Applications"
 
 dependencies {
     compile (project(":modules:$project.rootProject.name-contract")) { transitive = false }
