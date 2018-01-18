@@ -81,7 +81,7 @@ class BurrowTest extends Specification {
 
         String contractAddress
 
-        when: println '(1) the transaction is fully processed'
+        when: println '(1) contract "sample/util/Console" gets deployed'
         Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
@@ -134,7 +134,7 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         responseEthGetFilterChanges.getLogCount() == 0
 
-        when: println "(6) the contract's log function is executed 2 times"
+        when: println '(6) function "log" is executed 2 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
         ).build()
@@ -171,7 +171,7 @@ class BurrowTest extends Specification {
 
         String contractAddress
 
-        when: println '(1) the transaction is fully processed'
+        when: println '(1) contract "sample/SimpleStorage" gets deployed'
         Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
@@ -224,7 +224,7 @@ class BurrowTest extends Specification {
         then: 'no events exist'
         responseEthGetFilterChanges.getLogCount() == 0
 
-        when: println '(6) the get contract method is executed'
+        when: println '(6) function "get" is executed'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()
@@ -234,7 +234,7 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         HexValue.toBigInteger(responseEthCall.getReturn()) == BigInteger.valueOf(5)
 
-        when: println '(7) the set contract method is executed'
+        when: println '(7) function "set" is executed'
         requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(setFunction.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
@@ -244,7 +244,7 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         responseEthSendTransaction.getHash() != null
 
-        when: println '(8) the get contract method is executed again'
+        when: println '(8) function "get" is executed again'
         requestEthCall = Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
         ).build()

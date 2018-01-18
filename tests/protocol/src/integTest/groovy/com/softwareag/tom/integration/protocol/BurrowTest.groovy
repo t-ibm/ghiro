@@ -162,7 +162,7 @@ class BurrowTest extends RestClientSpecification {
         ]
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.transactAndHold', 'params': params]
 
-        when: println '(1) the transaction is fully processed'
+        when: println '(1) contract "sample/util/Console" gets deployed'
         resp = send request
 
         and: 'the callee address is remembered'
@@ -211,7 +211,7 @@ class BurrowTest extends RestClientSpecification {
         then: 'no events exist'
         resp.data.result.events == []
 
-        when: println '(6) the contract is executed 3 times'
+        when: println '(6) function "log" is executed 3 times'
         3.times {
             request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':logFunction.encode([])]]
             resp = send request
@@ -264,7 +264,7 @@ class BurrowTest extends RestClientSpecification {
         ]
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.transactAndHold', 'params': params]
 
-        when: println '(1) the transaction is fully processed'
+        when: println '(1) contract "sample/SimpleStorage" gets deployed'
         resp = send request
 
         and: 'the callee address is remembered'
@@ -314,14 +314,14 @@ class BurrowTest extends RestClientSpecification {
         then: 'no events exist'
         resp.data.result.events == []
 
-        when: println '(6) the get contract method is executed'
+        when: println '(6) function "get" is executed'
         request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
         resp = send request
 
         then: 'a valid response is received'
         resp.data.result.return == '0000000000000000000000000000000000000000000000000000000000000005'
 
-        when: println '(7) the set contract method is executed'
+        when: println '(7) function "set" is executed'
         params = [
                 'priv_key':callee.priv_key,
                 'data':setFunction.encode([BigInteger.valueOf(7)]),
@@ -340,7 +340,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.call_data.callee == callee.address
         resp.data.result.tx_id != null
 
-        when: println '(8) the get contract method is executed again'
+        when: println '(8) function "get" is executed again'
         request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
         resp = send request
 
