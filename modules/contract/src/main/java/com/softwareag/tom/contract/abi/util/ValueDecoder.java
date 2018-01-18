@@ -21,7 +21,7 @@ import java.util.function.BiFunction;
  */
 public class ValueDecoder extends ValueBase {
 
-    static <T> T decode(ParameterType<T> type, String input) {
+    public static <T> T decode(ParameterType<T> type, String input) {
         return decode(type, input, 0);
     }
 
@@ -41,11 +41,11 @@ public class ValueDecoder extends ValueBase {
         }
     }
 
-    private static <T> List<T> decodeArray(ParameterTypeJava.ArrayType type, String input, int offset) {
+    static <T> List<T> decodeArray(ParameterTypeJava.ArrayType type, String input, int offset) {
         if (!type.isDynamic()) {
-            return decodeStaticArray(input, offset, type);
+            return decodeStaticArray(type, input, offset);
         } else if (type.isDynamic()) {
-            return decodeDynamicArray(input, offset, type);
+            return decodeDynamicArray(type, input, offset);
         } else {
             throw new UnsupportedOperationException("Unsupported TypeReference: " + type.getName() + ", only Array types can be passed as TypeReferences");
         }
@@ -96,7 +96,7 @@ public class ValueDecoder extends ValueBase {
         return MAX_BIT_LENGTH;
     }
 
-    private static int decodeUintAsInt(String rawInput, int offset) {
+    static int decodeUintAsInt(String rawInput, int offset) {
         String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
         return decode(ParameterTypeJava.UINT, input, 0).intValue();
     }
@@ -141,7 +141,7 @@ public class ValueDecoder extends ValueBase {
     /**
      * Static array length cannot be passed as a type.
      */
-    private static <T> List<T> decodeStaticArray(String input, int offset, ParameterTypeJava.ArrayType type) {
+    private static <T> List<T> decodeStaticArray(ParameterTypeJava.ArrayType type, String input, int offset) {
 
         BiFunction<List<T>, String, List<T>> function = (elements, typeName) -> {
             if (elements.isEmpty()) {
@@ -157,7 +157,7 @@ public class ValueDecoder extends ValueBase {
         return decodeArrayElements(input, offset, baseType, length, function);
     }
 
-    private static <T> List<T> decodeDynamicArray(String input, int offset, ParameterTypeJava.ArrayType type) {
+    private static <T> List<T> decodeDynamicArray(ParameterTypeJava.ArrayType type, String input, int offset) {
 
         int length = decodeUintAsInt(input, offset);
 
