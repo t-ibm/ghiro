@@ -35,13 +35,13 @@ public class ValueDecoder extends ValueBase {
         } else if (type == ParameterTypeJava.STRING) {
             return (T) decodeUtf8String(input, offset);
         } else if (type instanceof ParameterTypeJava.ArrayType) {
-            return (T) decodeArray((ParameterTypeJava.ArrayType)type, input, offset);
+            return (T) decodeArray(type, input, offset);
         } else {
             throw new UnsupportedOperationException("Unknown type, value '" + input + "' cannot be decoded.");
         }
     }
 
-    private static <T> List<T> decodeArray(ParameterTypeJava.ArrayType type, String input, int offset) {
+    private static <T> List<T> decodeArray(ParameterType<T> type, String input, int offset) {
         if (!type.isDynamic()) {
             return decodeStaticArray(type, input, offset);
         } else if (type.isDynamic()) {
@@ -141,7 +141,7 @@ public class ValueDecoder extends ValueBase {
     /**
      * Static array length cannot be passed as a type.
      */
-    private static <T> List<T> decodeStaticArray(ParameterTypeJava.ArrayType type, String input, int offset) {
+    private static <T> List<T> decodeStaticArray(ParameterType<T> type, String input, int offset) {
 
         BiFunction<List<T>, String, List<T>> function = (elements, typeName) -> {
             if (elements.isEmpty()) {
@@ -157,7 +157,7 @@ public class ValueDecoder extends ValueBase {
         return decodeArrayElements(input, offset, baseType, length, function);
     }
 
-    private static <T> List<T> decodeDynamicArray(ParameterTypeJava.ArrayType type, String input, int offset) {
+    private static <T> List<T> decodeDynamicArray(ParameterType<T> type, String input, int offset) {
 
         int length = decodeUintAsInt(input, offset);
 
@@ -176,7 +176,7 @@ public class ValueDecoder extends ValueBase {
         return decodeArrayElements(input, valueOffset, baseType, length, function);
     }
 
-    private static <T> ParameterType<T> getItemType(ParameterTypeJava.ArrayType type) {
+    private static <T> ParameterType<T> getItemType(ParameterType<T> type) {
         String baseType = type.getName().substring(0, type.getName().indexOf('['));
         return ValueEncoder.parse(baseType);
     }

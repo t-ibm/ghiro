@@ -44,8 +44,7 @@ public class SpecificationEncoder {
             ContractInterface.Parameter<T> parameter = parameterIterator.next();
             String encodedValue = parameter.encode(valueIterator.next());
 
-            if (parameter.getType() == ParameterTypeJava.STRING || parameter.getType() == ParameterTypeJava.BYTES
-                || parameter.getType() instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType)parameter.getType()).isDynamic()) {
+            if (parameter.getType().isDynamic()) {
                 String encodedDataOffset = ValueEncoder.encodeNumeric(ParameterTypeJava.UINT, BigInteger.valueOf(dynamicDataOffset));
                 result.append(encodedDataOffset);
                 dynamicData.append(encodedValue);

@@ -11,8 +11,9 @@ package com.softwareag.tom.contract.abi;
  */
 public interface ParameterType<T>  {
     Class<T> getType();
-    String getName();
     T asType(Object value);
+    String getName();
+    boolean isDynamic();
     /**
      * @return the size of an array for a parameter of type fixed-length array, otherwise returns 1
      */

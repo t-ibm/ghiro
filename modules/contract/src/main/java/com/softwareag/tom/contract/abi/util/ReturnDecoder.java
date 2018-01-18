@@ -53,7 +53,7 @@ public class ReturnDecoder extends ValueBase {
     }
 
     private static <T> int getOffset(ParameterType<T> type, String value, int offset) {
-        if (type == ParameterTypeJava.BYTES || type == ParameterTypeJava.STRING || (type instanceof ParameterTypeJava.ArrayType && ((ParameterTypeJava.ArrayType) type).isDynamic())) {
+        if (type.isDynamic()) {
             return ValueDecoder.decodeUintAsInt(value, offset) << 1;
         } else {
             return offset;

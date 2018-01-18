@@ -24,8 +24,8 @@ public final class ParameterTypeJava {
     static final ParameterType<BigInteger> ADDRESS = NumericType.ADDRESS;
     static final ParameterType<BigInteger> FIXED = NumericType.FIXED;
     static final ParameterType<BigInteger> UFIXED = NumericType.UFIXED;
-    public static final ParameterType<byte[]> BYTES = BytesType.BYTES;
-    public static final ParameterType<String> STRING = StringType.STRING;
+    static final ParameterType<byte[]> BYTES = BytesType.BYTES;
+    static final ParameterType<String> STRING = StringType.STRING;
 
     private enum UnknownType implements ParameterType<Object> {
         UNKNOWN;
@@ -33,6 +33,7 @@ public final class ParameterTypeJava {
         @Override public Class<Object> getType() { return Object.class; }
         @Override public Object asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return getDeclaringClass().getName() + "." + name(); }
+        @Override public boolean isDynamic() { return false; }
     }
 
     private enum BoolType implements ParameterType<Boolean> {
@@ -47,6 +48,7 @@ public final class ParameterTypeJava {
         @Override public Class<Boolean> getType() { return Boolean.class; }
         @Override public Boolean asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
+        @Override public boolean isDynamic() { return false; }
     }
 
     static class NumericType implements ParameterType<BigInteger> {
@@ -65,6 +67,7 @@ public final class ParameterTypeJava {
         @Override public Class<BigInteger> getType() { return BigInteger.class; }
         @Override public BigInteger asType(Object value) { return value instanceof String ? getType().cast(HexValueBase.toBigInteger((String) value)) : getType().cast(value); }
         @Override public String getName() { return name; }
+        @Override public boolean isDynamic() { return false; }
         boolean isUnsigned() { return name.charAt(0) == 'u'; }
         boolean isFixed() { return name.startsWith("fixed") || name.startsWith("ufixed"); }
     }
@@ -83,7 +86,7 @@ public final class ParameterTypeJava {
         @Override public Class<byte[]> getType() { return byte[].class; }
         @Override public byte[] asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
-        boolean isDynamic() { return dynamic; }
+        @Override public boolean isDynamic() { return dynamic; }
     }
 
     private enum StringType implements ParameterType<String> {
@@ -98,9 +101,10 @@ public final class ParameterTypeJava {
         @Override public Class<String> getType() { return String.class; }
         @Override public String asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
+        @Override public boolean isDynamic() { return true; }
     }
 
-    public static class ArrayType implements ParameterType<List> {
+    static class ArrayType implements ParameterType<List> {
 
         private String name;
 
@@ -111,7 +115,7 @@ public final class ParameterTypeJava {
         @Override public Class<List> getType() { return List.class; }
         @Override public List asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
-        public boolean isDynamic() {
+        @Override public boolean isDynamic() {
             int start = name.trim().indexOf('[');
             int end = name.trim().indexOf(']');
             return end - start == 1;
