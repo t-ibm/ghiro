@@ -25,7 +25,7 @@ public class ValueDecoder extends ValueBase {
         return decode(type, input, 0);
     }
 
-    @SuppressWarnings("unchecked") static <T> T decode(ParameterType<T> type, String input, int offset) {
+    @SuppressWarnings("unchecked") public static <T> T decode(ParameterType<T> type, String input, int offset) {
         if (type instanceof ParameterTypeJava.NumericType) {
             return (T) decodeNumeric((ParameterTypeJava.NumericType) type, input.substring(offset));
         } else if (type == ParameterTypeJava.BOOL) {
@@ -41,7 +41,7 @@ public class ValueDecoder extends ValueBase {
         }
     }
 
-    static <T> List<T> decodeArray(ParameterTypeJava.ArrayType type, String input, int offset) {
+    private static <T> List<T> decodeArray(ParameterTypeJava.ArrayType type, String input, int offset) {
         if (!type.isDynamic()) {
             return decodeStaticArray(type, input, offset);
         } else if (type.isDynamic()) {
@@ -96,7 +96,7 @@ public class ValueDecoder extends ValueBase {
         return MAX_BIT_LENGTH;
     }
 
-    static int decodeUintAsInt(String rawInput, int offset) {
+    public static int decodeUintAsInt(String rawInput, int offset) {
         String input = rawInput.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
         return decode(ParameterTypeJava.UINT, input, 0).intValue();
     }

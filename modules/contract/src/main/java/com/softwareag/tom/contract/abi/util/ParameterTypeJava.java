@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * ABI types implementation.
  */
-final class ParameterTypeJava {
+public final class ParameterTypeJava {
 
     static final ParameterType<Object> UNKNOWN = UnknownType.UNKNOWN;
     static final ParameterType<Boolean> BOOL = BoolType.BOOL;
@@ -24,8 +24,8 @@ final class ParameterTypeJava {
     static final ParameterType<BigInteger> ADDRESS = NumericType.ADDRESS;
     static final ParameterType<BigInteger> FIXED = NumericType.FIXED;
     static final ParameterType<BigInteger> UFIXED = NumericType.UFIXED;
-    static final ParameterType<byte[]> BYTES = BytesType.BYTES;
-    static final ParameterType<String> STRING = StringType.STRING;
+    public static final ParameterType<byte[]> BYTES = BytesType.BYTES;
+    public static final ParameterType<String> STRING = StringType.STRING;
 
     private enum UnknownType implements ParameterType<Object> {
         UNKNOWN;
@@ -100,7 +100,7 @@ final class ParameterTypeJava {
         @Override public String getName() { return name; }
     }
 
-    static class ArrayType implements ParameterType<List> {
+    public static class ArrayType implements ParameterType<List> {
 
         private String name;
 
@@ -111,7 +111,7 @@ final class ParameterTypeJava {
         @Override public Class<List> getType() { return List.class; }
         @Override public List asType(Object value) { return getType().cast(value); }
         @Override public String getName() { return name; }
-        boolean isDynamic() {
+        public boolean isDynamic() {
             int start = name.trim().indexOf('[');
             int end = name.trim().indexOf(']');
             return end - start == 1;

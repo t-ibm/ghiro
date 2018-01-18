@@ -23,13 +23,13 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(src.bytes, SolidityInterface.SoliditySpecification.class)
 
         when: 'the function signature is retrieved'
-        String signature = SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters())
+        String signature = SpecificationEncoder.getSpecificationSignature(specification)
 
         then: 'the signature is as expected'
         signature == 'foo(uint32,bool,uint8[2],uint16[])'
 
         when: 'the parameter count is retrieved'
-        int length = SpecificationEncoder.getParameterCount(specification.getInputParameters())
+        int length = specification.getInputParametersSize()
 
         then: 'its length is as expected'
         length == 5
@@ -42,7 +42,7 @@ class SpecificationEncoderTest extends Specification {
 
         when: 'the function is encode'
         def values = [BigInteger.ZERO,Boolean.TRUE,[BigInteger.valueOf(2), BigInteger.valueOf(3)],[BigInteger.valueOf(4), BigInteger.valueOf(5), BigInteger.valueOf(6)]]
-        String result = SpecificationEncoder.encodeParameters(specification.getInputParameters(), id, values)
+        String result = SpecificationEncoder.encodeParameters(specification, id, values)
 
         then: 'the returned string is as expected'
         result == (
@@ -67,7 +67,7 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
+        SpecificationEncoder.getSpecificationSignature(specification) == signature
         SpecificationEncoder.getSpecificationId(signature) == id
 
         where: 'the specification items are from the Console contract'
@@ -94,7 +94,7 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getSpecificationSignature(specification.getName(), specification.getInputParameters()) == signature
+        SpecificationEncoder.getSpecificationSignature(specification) == signature
         SpecificationEncoder.getSpecificationId(signature) == id
 
         where: 'the specification items are from the SimpleStorage contract'
