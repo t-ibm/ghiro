@@ -1,0 +1,10 @@
+project.label = 'WmDAppContract'
+project.description = "Contains the actual Distributed Applications"
+
+pkg {
+    manifest.values(
+        'name': project.label,
+        'description': project.description,
+        'requires' : ['WmDApp':project.build.version],
+    )
+}

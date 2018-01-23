@@ -49,7 +49,8 @@ import java.util.stream.Collectors;
 public enum Util {
     instance;
 
-    private Package pkg = PackageManager.getPackage("WmDApp");
+    private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
+    private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
@@ -57,7 +58,7 @@ public enum Util {
 
     Util() throws ExceptionInInitializerError {
         nsNodes = new HashMap<>();
-        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkg == null ? "default" : String.valueOf(pkg.getManifest().getProperty("node")));
+        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
             Path contractRegistryLocation = Paths.get(Node.instance().getContract().getRegistry().getLocation().getPath());
             Path configLocation = Paths.get(Node.instance().getConfig().getLocation().getPath());
@@ -240,7 +241,7 @@ public enum Util {
     }
 
     private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
-        if (pkg != null && !pkg.getStore().getNodePath(nsName).mkdirs()) {
+        if (pkgWmDAppContract != null && !pkgWmDAppContract.getStore().getNodePath(nsName).mkdirs()) {
             DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
         }
 
@@ -249,7 +250,7 @@ public enum Util {
         if (node != null && node instanceof FlowSvcImpl) {
             flowSvcImpl = (FlowSvcImpl) node;
         } else {
-            flowSvcImpl = new FlowSvcImpl(pkg, nsName,null);
+            flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName,null);
             flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
             flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
             flowSvcImpl.getServiceType().setSubtype("dapp"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
