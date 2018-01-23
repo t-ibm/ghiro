@@ -5,7 +5,6 @@ A minimal viable product implementing a transaction oriented middleware approach
 
 A multi-layered architecture for distributed applications.
 
-|------:|:-----------------|
 |Layer 4|Quality of Service|
 |------:|:-----------------|
 |**Layer 3**|**Distributed Applications**|
