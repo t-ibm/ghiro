@@ -8,7 +8,7 @@ dependencies {
         project.sag.module.httpcomponents,
         project.sag.module.protobuf,
     )
-    testCompile project.sag.module.spock
+    testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
 }
 
 idea {
