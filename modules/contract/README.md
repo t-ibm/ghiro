@@ -21,7 +21,7 @@ the run-time.
 $ ./gradlew :modules:ghiro-contract:solc
 ````
 ###### ~~Run-Time Approach~~
-With this approach the Solidity sources are directly picked up by the run-time and then the needed BIN and ABI results
+With this approach the Solidity sources are directly picked up by the run-time and then the needed `*.bin` and `*.abi` results
 are created on the fly.
 
 #### Contract ABI
