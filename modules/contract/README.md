@@ -24,12 +24,12 @@ $ ./gradlew :modules:ghiro-contract:solc
 With this approach the Solidity sources are directly picked up by the run-time and then the needed BIN and ABI results
 are created on the fly.
 
-#### Solidity ABI
-Providing a type-system for Solidity smart contracts.
+#### Contract ABI
+Providing a type-system for smart contracts.
 
 A contract interface essentially declares a set of specifications that allow to interact with the contract. Those
-specifications are of type Constructor, Function, or Event. Beyond other properties, a Function specification is composed
-of inputParameters and outputParameters whereas Constructor and Event specifications are composed of inputParameters only.
+specifications are of type `constructor`, `function`, or `event`. Beyond other properties, a function specification is composed
+of `inputParameters` and `outputParameters` whereas constructor and event specifications are composed of `inputParameters` only.
 For the complete set of declared properties see the [Ethereum Contract ABI specification](https://github.com/ethereum/wiki/blob/master/Ethereum-Contract-ABI.md).
 
 For a Java application to interact with the contract, aka Ethereum Distributed Application (DApp), a type-system mapping
