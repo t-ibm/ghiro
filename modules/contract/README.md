@@ -15,7 +15,7 @@ We are mostly interested in the binary representation and the ABI specification 
 its functions.
 
 ###### Build-Time Approach
-With this approach the Solidity sources are compiled during build-time and then the BIN and ABI results are picked up by
+With this approach the Solidity sources are compiled during build-time and then the `*.bin` and `*.abi` results are picked up by
 the run-time.
 ````
 $ ./gradlew :modules:ghiro-contract:solc
