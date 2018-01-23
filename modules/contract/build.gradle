@@ -2,10 +2,7 @@ description = "The $project.name module"
 
 dependencies {
     compile project(":modules:$project.rootProject.name-core")
-    testCompile(
-        project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
-        project.sag.module.spock,
-    )
+    testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
 }
 
 task solc(type:SolidityCompile) {
