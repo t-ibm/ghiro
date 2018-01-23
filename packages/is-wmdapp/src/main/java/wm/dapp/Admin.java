@@ -20,6 +20,9 @@ import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
+import com.wm.lang.ns.NSName;
+
+import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
@@ -34,8 +37,13 @@ import com.wm.data.IData;
         // @subtype unknown
         // @sigtype java 3.5
         try {
-            for (FlowSvcImpl flowSvcImpl : Util.instance.getFunctions().values()) {
-                NSFacade.saveNewNSNode(flowSvcImpl);
+            Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions();
+            for (NSName nsName : functions.keySet()) {
+                if (NSFacade.getNSNode(nsName.getFullName()) == null) {
+                    NSFacade.saveNewNSNode(functions.get(nsName));
+                } else {
+                    NSFacade.updateNSNode(functions.get(nsName));
+                }
             }
         } catch (Exception e) {
             throw new ServiceException(e);
