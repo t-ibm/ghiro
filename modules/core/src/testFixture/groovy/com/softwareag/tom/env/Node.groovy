@@ -9,7 +9,7 @@ node {
         }
     }
     config {
-        location = 'packages/WmDApp/config'
+        location = 'build/config'
     }
     contract {
         registry {
