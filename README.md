@@ -2,7 +2,6 @@
 A minimal viable product implementing a transaction oriented middleware approach.
 
 #### Architecture
-
 A multi-layered architecture for distributed applications.
 
 |Layer 4|Quality of Service|
@@ -10,6 +9,15 @@ A multi-layered architecture for distributed applications.
 |**Layer 3**|**Distributed Applications**|
 |**Layer 2**|**Distributed Ledger Technology**|
 |**Layer 1**|**Network Infrastructure**|
+
+#### Platform
+As the underlying platform we are using a Gentoo distribution containing the necessary development tools as well as a single
+node integration test environment. It is available as a Docker image [sagtom/gentoo-dev](https://hub.docker.com/r/sagtom/gentoo-dev)
+via Docker Hub.
+````
+$ docker pull sagtom/gentoo-dev
+$ cd ./projects
+````
 
 #### Prerequisites
 This project requires a Java JDK version 8 or higher to be installed.
