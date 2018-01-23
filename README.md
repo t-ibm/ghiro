@@ -5,11 +5,12 @@ A minimal viable product implementing a transaction oriented middleware approach
 
 A multi-layered architecture for distributed applications.
 
+|------:|:-----------------|
 |Layer 4|Quality of Service|
 |------:|:-----------------|
-|**Layer 3**|Distributed Applications|
-|**Layer 2**|Distributed Ledger Technology|
-|**Layer 1**|Network Infrastructure|
+|**Layer 3**|**Distributed Applications**|
+|**Layer 2**|**Distributed Ledger Technology**|
+|**Layer 1**|**Network Infrastructure**|
 
 #### Prerequisites
 This project requires a Java JDK version 8 or higher to be installed.
