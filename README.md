@@ -14,9 +14,17 @@ A multi-layered architecture for distributed applications.
 As the underlying platform we are using a Gentoo distribution containing the necessary development tools as well as a single
 node integration test environment. It is available as a Docker image [sagtom/gentoo-dev](https://hub.docker.com/r/sagtom/gentoo-dev)
 via Docker Hub.
+
+After spawning-off the container login as a non-root user and configure your environment.
 ````
-$ docker pull sagtom/gentoo-dev
-$ cd ./projects
+$ ssh -i ~/.ssh/id_ed25519 tglaeser@niue.eur.ad.sag
+tglaeser@niue ~ $ echo export GOPATH=/usr/local/go >> ~/.bashrc
+tglaeser@niue ~ $ echo export PATH=\$PATH:\$GOPATH/bin >> ~/.bashrc
+tglaeser@niue ~ $ git config --global user.name "Thomas Glaeser"
+tglaeser@niue ~ $ git config --global user.email thomas@webmethods.com
+tglaeser@niue ~ $ git config --global core.editor nano
+tglaeser@niue ~ $ mkdir projects
+tglaeser@niue ~ $ cd ./projects
 ````
 
 #### Prerequisites
