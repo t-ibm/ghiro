@@ -252,7 +252,7 @@ public enum Util {
             flowSvcImpl = new FlowSvcImpl(pkg, nsName,null);
             flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
             flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
-            flowSvcImpl.getServiceType().setSubtype("default"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+            flowSvcImpl.getServiceType().setSubtype("dapp"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
         }
 
         if (nsSignature != null) {
