@@ -1,5 +1,5 @@
 File sagRootDir = new File( project.buildDir, 'installs')
-File isRootDir = new File( System.getProperty( 'com.softwareag.is.test.install.root.dir', "$sagRootDir/IntegrationServer/instances/default"))
+File isRootDir = new File( System.getProperty( 'com.softwareag.tom.test.is.instance.dir', "$sagRootDir/IntegrationServer/instances/default"))
 /*
  * Common dependencies
  */
