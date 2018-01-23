@@ -52,8 +52,8 @@ $ ./gradlew tasks
 $ ./gradlew build
 ```
 
-#### Sync the Distributed Application package to an IS instance
-Layer 3 is provided by IS package `WmDApp`.
+#### Sync the Distributed Application packages to an IS instance
+Layer 3 is provided by IS packages `WmDApp` and `WmDAppContract`.
 ```
 $ ./gradlew syncPkg -Dcom.softwareag.tom.test.is.instance.dir=${sagRootDir}/IntegrationServer/instances/default
 ```
