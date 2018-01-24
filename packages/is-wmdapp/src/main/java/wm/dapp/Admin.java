@@ -75,7 +75,7 @@ import java.util.Map;
     }
 
     /**
-     * Deploys the contract to the distributed ledger and stores the contract-address mapping to file {@code ${config.location}/contract-addresses.json} if successful.
+     * Deploys the contract to the distributed ledger and stores the contract-address mappings to file {@code ${config.location}/contract-addresses.json} if successful.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service

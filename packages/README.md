@@ -13,7 +13,7 @@ Declaring a named node is done via package property `node` as persisted in file 
 |-------|-----------|
 |`wm.dapp.Admin:syncContracts`|Synchronizes the contracts to the IS namespace.|
 |`wm.dapp.Admin:loadContractAddresses`|Retrieves the contract-address mappings as persisted in file `${config.location}/contract-addresses.json`.|
-|`wm.dapp.Admin:deployContract`|Deploys the contract to the distributed ledger and stores the contract-address mapping to file `${config.location}/contract-addresses.json` if successful.|
+|`wm.dapp.Admin:deployContract`|Deploys the contract to the distributed ledger and stores the contract-address mappings to file `${config.location}/contract-addresses.json` if successful.|
 
 ###### Runtime Services
 |Service|Description|
