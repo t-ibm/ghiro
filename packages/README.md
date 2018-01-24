@@ -1,5 +1,5 @@
 # Application Layer
-User interaction with the DLT is through two IS packages.
+User interaction with the DLT layer is through two IS packages.
 
 #### Support for Distributed Applications
 IS package `WmDApp` contains administrative services as well as the runtime services mapping the contract to the DLT layer.
