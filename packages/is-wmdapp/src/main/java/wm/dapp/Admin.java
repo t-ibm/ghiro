@@ -52,7 +52,7 @@ import java.util.Map;
     }
 
     /**
-     * Retrieves the contract-address mappings.
+     * Retrieves the contract-address mappings as persisted in file {@code ${config.location}/contract-addresses.json}.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service
@@ -75,7 +75,7 @@ import java.util.Map;
     }
 
     /**
-     * Deploys the conytract to the distributed ledger.
+     * Deploys the contract to the distributed ledger and stores the contract-address mapping to file {@code ${config.location}/contract-addresses.json} if successful.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service

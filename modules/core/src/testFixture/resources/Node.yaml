@@ -1,5 +1,5 @@
 ---
-# Default node
+# Default node :: Do not edit the default environment, instead overload the default values by means of a named environment
 name: "default"
 host:
   ip: "127.0.0.1"
