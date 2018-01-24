@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public final class Contract {
     /**
-     * Calls the contract.
+     * Calls the contract. To be used by stateless EVM contracts.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service
@@ -37,7 +37,7 @@ public final class Contract {
     }
 
     /**
-     * Sends a transaction.
+     * Sends a transaction. To be used by stateful EVM contracts.
      *
      * @param pipeline The pipeline
      * @throws ServiceException If there is an error during execution of this service
