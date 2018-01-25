@@ -1,5 +1,10 @@
 # Ghiro
-A minimal viable product implementing a transaction oriented middleware approach.
+A minimal viable product implementing a Transaction Oriented Middleware approach.
+
+#### Sub-Systems
+* [Contract](./modules/contract/README.md)
+* [Protocol](./modules/protocol/README.md)
+* [IS Packages](./packages/README.md)
 
 #### Architecture
 A multi-layered architecture for distributed applications.
