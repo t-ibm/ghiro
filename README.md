@@ -2,9 +2,9 @@
 A minimal viable product implementing a Transaction Oriented Middleware approach.
 
 #### Sub-Systems
-* [Contract](./modules/contract/README.md)
-* [Protocol](./modules/protocol/README.md)
-* [IS Packages](./packages/README.md)
+* [Contract](./modules/contract)
+* [Protocol](./modules/protocol)
+* [IS Packages](./packages)
 
 #### Architecture
 A multi-layered architecture for distributed applications.
