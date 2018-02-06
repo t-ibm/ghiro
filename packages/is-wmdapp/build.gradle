@@ -20,7 +20,7 @@ pkg {
         'node' : 'production',
         'classloader' : 'package',
     )
-    into( 'resources') {
-        from new File(project(":modules:$project.rootProject.name-core").sourceSets.testFixture.output.resourcesDir as File, 'Node.yaml')
+    into('resources') {
+        from(project(":modules:$project.rootProject.name-core").sourceSets.testFixture.resources) { include 'Node.yaml' }
     }
 }
