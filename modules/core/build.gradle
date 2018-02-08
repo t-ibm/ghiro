@@ -34,10 +34,13 @@ dependencies {
     )
     runtime project.sag.module.slf4j.impl
     testFixtureCompile(
-        project.sag.module.spock,
+        project.sag.module.spock.compile,
         project.sag.module.slf4j.api,
     )
-    testFixtureRuntime project.sag.module.slf4j.impl
+    testFixtureRuntime(
+        project.sag.module.spock.runtime,
+        project.sag.module.slf4j.impl,
+    )
     testFixtureTestCompile sourceSets.testFixture.output
     testCompile sourceSets.testFixture.output
 }
