@@ -56,7 +56,7 @@ public class SolidityInterface extends ContractInterface {
 
         @SuppressWarnings("unused") public void setType(String type) { this.type = ValueEncoder.parse(type); }
 
-        @Override public String getName() { return name; }
+        @Override public String getName() { return name.isEmpty() ? "anonymous" : name; }
         @Override public ParameterType<T> getType() { return type; }
         @Override public boolean isIndexed() { return indexed; }
     }
