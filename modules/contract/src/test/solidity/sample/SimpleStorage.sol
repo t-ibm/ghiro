@@ -10,21 +10,20 @@ contract SimpleStorage is Console {
     /**
      * @notice A newly deployed contract of this type will result in contract storage being set to value 5.
      */
-    function SimpleStorage() {
+    function SimpleStorage() public {
         storedData = 5;
     }
     /**
      * @param p An arbitrary unsigned integer value to be persisted to the contract storage.
      */
-    function set(uint p) {
+    function set(uint p) public {
         storedData = p;
         log(storedData);
     }
     /**
      * @return r The unsigned integer value from the contract storage.
      */
-    function get() constant returns (uint r) {
-        log(storedData);
+    function get() public constant returns (uint r) {
         r = storedData;
     }
 }
