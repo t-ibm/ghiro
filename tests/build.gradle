@@ -75,8 +75,9 @@ subprojects {
     dependencies {
         integTestCompile(
             project(":modules:$project.rootProject.name-contract"),
-            sag.module.spock,
+            sag.module.spock.compile,
         )
+        integTestRuntime sag.module.spock.runtime
     }
     /*
      * Make Eclipe aware of the added configuration
