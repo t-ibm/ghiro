@@ -10,11 +10,11 @@ config:
   location: "packages/WmDAppContract/config"
 contract:
   registry:
-    location: "../../modules/contract/build/solc"
+    location: "../../modules/contract/build/solidity/test"
 # Named nodes extending from the default node
 environments:
   - name: "production"
     contract:
       registry:
-        location: "../../../../../../../../tom/ghiro/modules/contract/build/solc"
+        location: "../../../../../../../../tom/ghiro/modules/contract/build/solidity/test"
 ...

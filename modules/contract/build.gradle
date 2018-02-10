@@ -1,56 +1,8 @@
 description = "The $project.name module"
 
+apply plugin: 'com.softwareag.tom.plugin.solidity'
+
 dependencies {
     compile project(":modules:$project.rootProject.name-core")
     testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
-}
-
-task solc(type:SolidityCompile) {
-    description = 'Compiles Solidity contracts and generates the corresponding bin and abi files.'
-}
-project.tasks.processResources.dependsOn project.tasks.solc
-
-import org.ethereum.solidity.compiler.SolidityCompiler
-import org.ethereum.solidity.compiler.CompilationResult
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.*
-class SolidityCompile extends DefaultTask {
-    private File sourceDir = project.file('src/test/solidity')
-    private FileCollection sourceFiles = project.fileTree(sourceDir)
-    private File outputDir = project.file("$project.buildDir/solc")
-
-    public void setSourceFiles(FileCollection sourceFiles) { this.sourceFiles = sourceFiles }
-    public void setOutputDir(File outputDir) { this.outputDir = outputDir }
-
-    @InputDirectory public File getSourceDir() { this.sourceDir }
-    @InputFiles public FileCollection getSourceFiles() { this.sourceFiles }
-    @OutputDirectory public File getOutputDir() { this.outputDir }
-
-    @TaskAction public void compile() {
-        sourceFiles.each { file ->
-            SolidityCompiler.Result res = SolidityCompiler.compile( file, true, ABI, BIN, INTERFACE, METADATA)
-            if (res.errors != null && res.errors.length() > 0) {
-                throw new GradleException(res.errors)
-            } else {
-                project.logger.info("$path::result == $res.output")
-            }
-            CompilationResult result = CompilationResult.parse(res.output)
-            result.contracts.each { String contractKey, CompilationResult.ContractMetadata contractMetadata ->
-                File solFile = new File(contractKey.substring(0, contractKey.lastIndexOf(':')))
-                if (solFile.exists() && solFile.canonicalFile == file.canonicalFile) {
-                    File nsDir = new File("$outputDir/${sourceDir.toPath().relativize( solFile.toPath() ).toFile().parentFile}")
-                    nsDir.mkdirs()
-                    File abiFile = new File(nsDir, solFile.name.replace('.sol', '.abi'))
-                    abiFile.write contractMetadata.abi
-                    File binFile = new File(nsDir, solFile.name.replace('.sol', '.bin'))
-                    binFile.write contractMetadata.bin
-                    if (contractMetadata.solInterface != null) {
-                        File ifcFile = new File(nsDir, solFile.name.replace('.sol', '.ifc'))
-                        ifcFile.write contractMetadata.solInterface
-                    }
-                    File mdFile = new File(nsDir, solFile.name.replace('.sol', '.md'))
-                    mdFile.write contractMetadata.metadata
-                }
-            }
-        }
-    }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.16;
 
 import "./util/Console.sol";
 
@@ -23,7 +23,7 @@ contract SimpleStorage is Console {
     /**
      * @return r The unsigned integer value from the contract storage.
      */
-    function get() public constant returns (uint r) {
+    function get() public view returns (uint r) {
         r = storedData;
     }
 }

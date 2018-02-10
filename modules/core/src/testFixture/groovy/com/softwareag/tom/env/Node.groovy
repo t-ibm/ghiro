@@ -13,7 +13,7 @@ node {
     }
     contract {
         registry {
-            location = '../../modules/contract/build/solc'
+            location = '../../modules/contract/build/solidity/test'
         }
     }
 }

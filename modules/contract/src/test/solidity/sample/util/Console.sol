@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.16;
 
 /**
  * @title A contract providing convenient interfaces with the EVM logging facilities.
@@ -17,7 +17,7 @@ contract Console {
     function log(uint x) public {
         LogUint(uintToBytes(x));
     }
-    function uintToBytes(uint v) public constant returns (bytes32 ret) {
+    function uintToBytes(uint v) public pure returns (bytes32 ret) {
         if (v == 0) {
             ret = '0';
         }

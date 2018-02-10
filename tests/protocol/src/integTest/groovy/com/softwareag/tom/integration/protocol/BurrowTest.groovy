@@ -218,7 +218,7 @@ class BurrowTest extends RestClientSpecification {
         }
 
         then: 'a valid response is received'
-        resp.data.result.gas_used == 76
+        resp.data.result.gas_used == 84
         resp.data.result.return == ''
 
         when: println '(7) we poll for events again'
@@ -362,8 +362,8 @@ class BurrowTest extends RestClientSpecification {
         resp = send request
 
         then: 'an event for each call is received'
-        resp.data.result.events.size() == 3
-        resp.data.result.events.get(1).data.size() == 64
-        HexValueBase.decode(resp.data.result.events.get(1).data as String) == '7'
+        resp.data.result.events.size() == 1
+        resp.data.result.events.get(0).data.size() == 64
+        HexValueBase.decode(resp.data.result.events.get(0).data as String) == '7'
     }
 }
