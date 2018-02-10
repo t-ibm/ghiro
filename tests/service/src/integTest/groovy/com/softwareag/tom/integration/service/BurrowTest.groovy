@@ -268,10 +268,8 @@ class BurrowTest extends Specification {
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getLogCount() == 3
+        responseEthGetFilterChanges.getLogCount() == 1
         responseEthGetFilterChanges.getLog(0).address.size() == 32*2+2
-        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(0).data)) == '5'
-        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(1).data)) == '7'
-        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(2).data)) == '7'
+        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(0).data)) == '7'
     }
 }

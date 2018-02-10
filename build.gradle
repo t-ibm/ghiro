@@ -4,10 +4,6 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            name = 'ethereum'
-            url = 'https://dl.bintray.com/ethereum/maven/'
-        }
     }
     dependencies {
         classpath(
@@ -16,11 +12,6 @@ buildscript {
                 'com.google.guava:guava:18.0@jar',
                 'commons-lang:commons-lang:2.6@jar',
                 'kr.motd.maven:os-maven-plugin:1.5.0.Final@jar',
-                'org.ethereum:solcJ-all:0.4.10@jar',
-                'org.ethereum:ethereumj-core:1.5.0-RELEASE@jar',
-                'com.typesafe:config:1.2.1@jar',
-                'com.madgag.spongycastle:core:1.53.0.0@jar',
-                'com.fasterxml.jackson.core:jackson-databind:2.8.5',
         )
     }
 }
