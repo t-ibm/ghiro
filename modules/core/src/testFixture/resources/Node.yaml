@@ -16,5 +16,5 @@ environments:
   - name: "production"
     contract:
       registry:
-        location: "../../../../../../../../tom/ghiro/modules/contract/build/solidity/test"
+        location: "../../../../../../../../tom/ghiro/modules/contract/build/solidity/main"
 ...
