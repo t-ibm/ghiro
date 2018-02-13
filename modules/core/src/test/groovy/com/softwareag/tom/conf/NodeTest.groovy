@@ -8,6 +8,8 @@ package com.softwareag.tom.conf
 
 import spock.lang.Specification
 
+import java.nio.file.Paths
+
 /**
  * System under specification: {@link Node}.
  * @author tglaeser
@@ -22,7 +24,7 @@ class NodeTest extends Specification {
         node.name == 'default'
         node.host.ip == '127.0.0.1'
         node.key.private == '4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
-        node.contract.registry.location == URI.create('../../modules/contract/build/solidity/test')
+        node.contract.registry.locationAsUri == Paths.get('../../modules/contract/build/solidity/test').toUri().normalize()
         node.environments.size() == 1
 
         when: 'a non existing named node configuration instance is requested'
@@ -31,7 +33,7 @@ class NodeTest extends Specification {
         then: 'the default configuration values are retrieved'
         node.name == 'default'
         node.host.ip == '127.0.0.1'
-        node.contract.registry.location == URI.create('../../modules/contract/build/solidity/test')
+        node.contract.registry.locationAsUri == Paths.get('../../modules/contract/build/solidity/test').toUri().normalize()
 
         when: 'a named node configuration instance is requested'
         node = Node.instance('production')
@@ -39,6 +41,6 @@ class NodeTest extends Specification {
         then: 'non default configuration values are retrieved for the set values'
         node.name == 'production'
         node.host.ip == '127.0.0.1'
-        node.contract.registry.location == URI.create('../../../../../../../../tom/ghiro/modules/contract/build/solidity/test')
+        node.contract.registry.locationAsUri == Paths.get('../../../../../../../../tom/ghiro/modules/contract/build/solidity/test').toUri().normalize()
     }
 }

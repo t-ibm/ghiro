@@ -20,8 +20,6 @@ import com.softwareag.tom.protocol.util.HexValue
 import spock.lang.Shared
 import spock.lang.Specification
 
-import java.nio.file.Paths
-
 /**
  * System under specification: {@link Web3Service}.
  * @author tglaeser
@@ -73,7 +71,7 @@ class BurrowTest extends Specification {
 
     def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(Paths.get(config.node.contract.registry.location as String)), new ConfigLocationFileSystem(Paths.get(config.node.config.location as String))).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification logFunction = functions.get(0)
@@ -161,7 +159,7 @@ class BurrowTest extends Specification {
 
     def "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
-        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(Paths.get(config.node.contract.registry.location as String)), new ConfigLocationFileSystem(Paths.get(config.node.config.location as String))).load()
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
         ContractInterface.Specification setFunction = functions.get(1)

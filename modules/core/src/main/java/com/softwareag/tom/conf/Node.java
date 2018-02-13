@@ -12,7 +12,9 @@ import com.softwareag.tom.ObjectMapperFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Node configuration.
@@ -46,7 +48,8 @@ public class Node {
 
     public static class Config {
         @JsonProperty("location") String location;
-        public URI getLocation() { return URI.create(location).normalize(); }
+        public URI getLocationAsUri() { return convert(location -> Paths.get(location).toUri().normalize()); }
+        private <T> T convert(Function<String, T> func) { return func.apply(location); }
     }
 
     public static class Contract {
@@ -55,7 +58,8 @@ public class Node {
 
         public static class Registry {
             @JsonProperty("location") String location;
-            public URI getLocation() { return URI.create(location).normalize(); }
+            public URI getLocationAsUri() { return convert(location -> Paths.get(location).toUri().normalize()); }
+            private <T> T convert(Function<String, T> func) { return func.apply(location); }
         }
     }
 

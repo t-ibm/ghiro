@@ -36,8 +36,7 @@ import com.wm.util.JavaWrapperType;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,8 +59,8 @@ public enum Util {
         nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
-            Path contractRegistryLocation = Paths.get(Node.instance().getContract().getRegistry().getLocation().getPath());
-            Path configLocation = Paths.get(Node.instance().getConfig().getLocation().getPath());
+            URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
+            URI configLocation = Node.instance().getConfig().getLocationAsUri();
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
             web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() +':' + Node.instance().getHost().getPort() + "/rpc"));
         } catch (IOException e) {
