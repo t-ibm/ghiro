@@ -1,4 +1,7 @@
 package com.softwareag.tom.env
+
+import java.nio.file.Paths
+
 node {
     name = 'default'
     host {
@@ -9,11 +12,11 @@ node {
         }
     }
     config {
-        location = 'build/config'
+        location = Paths.get('build/config').toUri().normalize()
     }
     contract {
         registry {
-            location = '../../modules/contract/build/solidity/test'
+            location = Paths.get('../../modules/contract/build/solidity/test').toUri().normalize()
         }
     }
 }

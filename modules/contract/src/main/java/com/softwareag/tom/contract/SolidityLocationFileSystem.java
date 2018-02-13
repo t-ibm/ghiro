@@ -33,11 +33,11 @@ public class SolidityLocationFileSystem implements ContractLocation {
     private final ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper();
     private final URI rootUri;
 
-    public SolidityLocationFileSystem(Path rootDirectory) throws IOException {
-        this.rootUri = rootDirectory.toUri();
-        if (!Files.exists(rootDirectory)) {
+    public SolidityLocationFileSystem(URI rootUri) throws IOException {
+        this.rootUri = rootUri;
+        if (!Files.exists(Paths.get(rootUri))) {
             throw new NoSuchFileException(rootUri.getPath());
-        } else  if (!Files.isDirectory(rootDirectory)) {
+        } else  if (!Files.isDirectory(Paths.get(rootUri))) {
             throw new NotDirectoryException(rootUri.getPath());
         }
     }

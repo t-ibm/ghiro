@@ -30,12 +30,12 @@ public class ConfigLocationFileSystem implements ConfigLocation {
     private final ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper();
     private final URI configUri;
 
-    public ConfigLocationFileSystem(Path configDirectory) throws IOException {
-        this.configUri = configDirectory.toUri();
-        Files.createDirectories(configDirectory);
-        if (!Files.exists(configDirectory)) {
+    public ConfigLocationFileSystem(URI configUri) throws IOException {
+        this.configUri = configUri;
+        Files.createDirectories(Paths.get(configUri));
+        if (!Files.exists(Paths.get(configUri))) {
             logger.debug("File system location '{}' already exists or creation failed.", configUri);
-        } else  if (!Files.isDirectory(configDirectory)) {
+        } else  if (!Files.isDirectory(Paths.get(configUri))) {
             throw new NotDirectoryException(configUri.getPath());
         }
     }

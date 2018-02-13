@@ -11,8 +11,6 @@ import com.softwareag.tom.extension.Node
 import spock.lang.Shared
 import spock.lang.Specification
 
-import java.nio.file.Paths
-
 /**
  * System under specification: {@link ContractRegistryLocation}.
  * @author tglaeser
@@ -24,7 +22,7 @@ class ContractRegistryLocationTest extends Specification {
 
     def setup() {
         given: 'a fs contract registry'
-        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(Paths.get(config.node.contract.registry.location)), new ConfigLocationFileSystem(Paths.get(config.node.config.location)))
+        contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI))
     }
 
     def "test contract registry"() {
