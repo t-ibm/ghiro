@@ -41,6 +41,6 @@ class NodeTest extends Specification {
         then: 'non default configuration values are retrieved for the set values'
         node.name == 'production'
         node.host.ip == '127.0.0.1'
-        node.contract.registry.locationAsUri == Paths.get('../../../../../../../../tom/ghiro/modules/contract/build/solidity/test').toUri().normalize()
+        node.contract.registry.locationAsUri == Paths.get('../../../../../../../../tom/ghiro/modules/contract/build/solidity/main').toUri().normalize()
     }
 }
