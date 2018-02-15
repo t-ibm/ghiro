@@ -34,6 +34,7 @@ class SolidityPlugin implements Plugin<Project> {
             String sourceSetName = (String) sourceSet.name
             String taskName = "main" == sourceSetName ? "" : sourceSetName
             SolidityCompileTask task = createSolidityCompileTask(project, taskName, sourceSetName, [sourceSet])
+            task.description = "Compiles $sourceSetName Solidity source."
             ProcessResources processResources = (ProcessResources) project.tasks.getByName("process${taskName.capitalize()}Resources")
             processResources.dependsOn(task)
         }

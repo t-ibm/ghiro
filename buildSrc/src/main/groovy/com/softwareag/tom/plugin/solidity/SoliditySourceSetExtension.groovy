@@ -29,7 +29,7 @@ class SoliditySourceSetExtension implements Serializable {
     SoliditySourceSetExtension(Project project, String sourceSetName) {
         this.project = project
         srcDir("src/$sourceSetName/solidity")
-        enumOptions(*[ABI, BIN, INTERFACE, METADATA])
+        enumOptions(*[ABI, BIN, INTERFACE, METADATA, new SolidityCompiler.ListOption("allow-paths", Collections.singletonList(project.file("src/$sourceSetName/solidity")))])
     }
     /**
      * @return a map of {@code .sol} files found, keyed by the containing source folder
