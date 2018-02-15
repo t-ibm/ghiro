@@ -27,7 +27,7 @@ class SolidityCompileTask extends DefaultTask {
     @TaskAction void compile() {
         PatternSet patternSet = new PatternSet().include("**/*.sol")
         for (SoliditySourceSetExtension configuration : getConfigurations()) {
-            SolidityCompiler.Options[] enumOptions = configuration.getEnumOptions()
+            SolidityCompiler.Option[] enumOptions = configuration.getEnumOptions()
 
             for (Map.Entry<String, FileCollection> entry : configuration.getSolidity().entrySet()) {
                 File sourceDir = project.file(entry.key)
