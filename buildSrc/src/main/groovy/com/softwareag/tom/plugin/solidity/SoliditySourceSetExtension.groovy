@@ -20,7 +20,7 @@ import static org.ethereum.solidity.compiler.SolidityCompiler.Options.*
 class SoliditySourceSetExtension implements Serializable {
     private transient final Project project
     private List<String> directories = new ArrayList<>()
-    private List<SolidityCompiler.Options> enumOptions = new ArrayList<>()
+    private List<SolidityCompiler.Option> enumOptions = new ArrayList<>()
     /**
      * Declaring a new source directory set for {@code .sol} files matching the standard layout. Can always be overridden.
      * @param project The project
@@ -55,16 +55,16 @@ class SoliditySourceSetExtension implements Serializable {
     /**
      * @return the enum options
      */
-    SolidityCompiler.Options[] getEnumOptions() {
+    SolidityCompiler.Option[] getEnumOptions() {
         return enumOptions
     }
-    void enumOption(SolidityCompiler.Options option) {
+    void enumOption(SolidityCompiler.Option option) {
         enumOptions.add(option)
     }
-    void enumOptions(SolidityCompiler.Options... options) {
+    void enumOptions(SolidityCompiler.Option... options) {
         Collections.addAll(enumOptions, options)
     }
-    void setEnumOptions(Iterable<SolidityCompiler.Options> options) {
+    void setEnumOptions(Iterable<SolidityCompiler.Option> options) {
         enumOptions = new ArrayList<>()
         enumOptions.addAll(options)
     }
