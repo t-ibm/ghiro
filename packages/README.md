@@ -26,7 +26,7 @@ IS package `WmDAppContract` contains all generated smart contract services.
 
 ###### Libraries
 The following third-party Solidity libraries are currently included:
-- [OpenZeppelin](https://openzeppelin.org)
+- [OpenZeppelin](https://openzeppelin.org/api/)
 
 ###### Samples
 Additional samples can be found in this IS package under the `sample` IS namespace.
