@@ -29,4 +29,4 @@ The following third-party Solidity libraries are currently included:
 - [OpenZeppelin](https://openzeppelin.org/api/)
 
 ###### Samples
-Additional samples can be found in this IS package under the `sample` IS namespace.
+Additional samples can be found under the `sample` IS namespace.
