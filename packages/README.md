@@ -23,3 +23,10 @@ Declaring a named node is done via package property `node` as persisted in file 
 
 #### The actual Distributed Applications
 IS package `WmDAppContract` contains all generated smart contract services.
+
+###### Libraries
+The following third-party Solidity libraries are currently included:
+- [OpenZeppelin](https://openzeppelin.org)
+
+###### Samples
+Additional samples can be found in this IS package under the `sample` IS namespace.
