@@ -1,6 +1,10 @@
 project.label = 'WmDAppContract'
 project.description = "Contains the actual Distributed Applications"
 
+dependencies {
+    providedCompile (project(":modules:$project.rootProject.name-contract"))
+}
+
 pkg {
     manifest.values(
         'name': project.label,
