@@ -41,7 +41,8 @@ class SolidityCompileTask extends DefaultTask {
                         project.logger.info("$path::result == $res.output")
                     }
                     CompilationResult result = CompilationResult.parse(res.output)
-                    result.contracts.each { String contractKey, CompilationResult.ContractMetadata contractMetadata ->
+                    assert result.contractKeys.size() == result.contracts.size()
+                    [result.contractKeys,result.contracts].transpose().each { String contractKey, CompilationResult.ContractMetadata contractMetadata ->
                         File solFile = new File(contractKey.substring(0, contractKey.lastIndexOf(':')))
                         if (solFile.exists() && solFile.canonicalFile == file.canonicalFile) {
                             File nsDir = new File("$outputDir/${sourceDir.toPath().relativize(solFile.toPath()).toFile().parentFile}")
