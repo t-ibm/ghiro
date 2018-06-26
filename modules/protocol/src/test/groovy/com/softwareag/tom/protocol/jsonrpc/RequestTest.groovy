@@ -11,6 +11,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewBlockFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter
@@ -31,8 +32,8 @@ class RequestTest extends RequestSpecification {
 
     def "test request base"() {
         given: 'a valid request type'
-        Request defaultRequest = new RequestWeb3ClientVersion(serviceHttp, null)
-        Request request = new RequestWeb3ClientVersion(serviceHttp, null)
+        Request defaultRequest = new RequestWeb3ClientVersion(serviceHttp)
+        Request request = new RequestWeb3ClientVersion(serviceHttp)
 
         when: 'the base fields are accessible and set to their default values'
         request.jsonrpc = Request.JSONRPC_VERSION
@@ -50,7 +51,7 @@ class RequestTest extends RequestSpecification {
 
     def "test web3_clientVersion"() {
         given: 'a valid request type'
-        RequestWeb3ClientVersion request = new RequestWeb3ClientVersion(serviceHttp, Types.RequestWeb3ClientVersion.newBuilder().build()) {};
+        RequestWeb3ClientVersion request = new RequestWeb3ClientVersion(serviceHttp) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":{},"id":"1"}'
 
         when: 'the request is send'
@@ -62,7 +63,7 @@ class RequestTest extends RequestSpecification {
 
     def "test net_listening"() {
         given: 'a valid request type'
-        RequestNetListening request = new RequestNetListening(serviceHttp, Types.RequestNetListening.newBuilder().build()) {};
+        RequestNetListening request = new RequestNetListening(serviceHttp) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":{},"id":"1"}'
 
         when: 'the request is send'
@@ -74,7 +75,7 @@ class RequestTest extends RequestSpecification {
 
     def "test eth_getBalance"() {
         when: 'a valid request type is created'
-        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
+        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
 
         then: 'the expected request object is created'
@@ -89,7 +90,7 @@ class RequestTest extends RequestSpecification {
 
     def "test eth_getStorageAt"() {
         when: 'a valid request type is created'
-        RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {};
+        RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.getStorageAt","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
 
         then: 'the expected request object is created'
@@ -106,7 +107,7 @@ class RequestTest extends RequestSpecification {
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).setGas(HexValue.toByteString(223)).setGasPrice(HexValue.toByteString(12)).build()
-        ).build()) {};
+        ).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20","address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
 
         then: 'the expected request object is created'
@@ -127,7 +128,7 @@ class RequestTest extends RequestSpecification {
         when: 'a valid request type is created'
         RequestEthCall request = new RequestEthCall(serviceHttp, Types.RequestEthCall.newBuilder().setTx(
                 Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).build()
-        ).build()) {};
+        ).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.call","params":{"address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060"},"id":"1"}'
 
         then: 'the expected request object is created'
@@ -145,11 +146,26 @@ class RequestTest extends RequestSpecification {
         when: 'a valid request type is created'
         RequestEthNewFilter request = new RequestEthNewFilter(serviceHttp, Types.RequestEthNewFilter.newBuilder().setOptions(
                 Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).build()
-        ).build()) {};
+        ).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE"},"id":"1"}'
 
         then: 'the expected request object is created'
         request.params.eventId == 'Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
+    }
+
+    def "test eth_newBlockFilter"() {
+        when: 'a valid request type is created'
+        RequestEthNewBlockFilter request = new RequestEthNewBlockFilter(serviceHttp) {}
+        String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"NewBlock"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.eventId == 'NewBlock'
 
         when: 'the request is send'
         request.send()
@@ -179,7 +195,7 @@ class RequestTest extends RequestSpecification {
         when: 'a valid request type is created'
         RequestEthGetFilterChanges request = new RequestEthGetFilterChanges(serviceHttp, Types.RequestEthGetFilterChanges.newBuilder().setId(
                 HexValue.toByteString('11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164')
-        ).build()) {};
+        ).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.eventPoll","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
 
         then: 'the expected request object is created'

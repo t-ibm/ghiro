@@ -16,8 +16,7 @@ import java.io.IOException;
 public interface Web3 extends Net, Eth {
     /**
      * Method {@code web3_clientversion}.
-     * @param req An empty request
      * @return the current client version
      */
-    Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) throws IOException;
+    Types.ResponseWeb3ClientVersion web3ClientVersion() throws IOException;
 }

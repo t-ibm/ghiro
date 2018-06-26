@@ -134,6 +134,17 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.permissions.base.set == 16383
     }
 
+    def "test 'eventSubscribe' for new block via rpc"() {
+        given: 'a valid JSON-RPC request'
+        def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'burrow.eventSubscribe', 'params': ['event_id':'NewBlock']]
+
+        when: 'the request is send'
+        resp = send request
+
+        then: 'a valid response is received'
+        resp.data.result.sub_id.length() == 64
+    }
+
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()

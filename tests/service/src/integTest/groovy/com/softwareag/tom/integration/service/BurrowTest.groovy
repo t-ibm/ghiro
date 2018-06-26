@@ -37,7 +37,7 @@ class BurrowTest extends Specification {
     def "test 'web3ClientVersion' service"() {
         when: 'we make a get request'
         Types.RequestWeb3ClientVersion request = Types.RequestWeb3ClientVersion.newBuilder().build()
-        Message response = web3Service.web3ClientVersion(request)
+        Message response = web3Service.web3ClientVersion()
         println ">>> $request.descriptorForType.fullName....$request"
         println "<<< $response.descriptorForType.fullName...$response"
 
@@ -49,7 +49,7 @@ class BurrowTest extends Specification {
     def "test 'netListening' service"() {
         when: 'we make a get request'
         Types.RequestNetListening request = Types.RequestNetListening.newBuilder().build()
-        Message response = web3Service.netListening(request)
+        Message response = web3Service.netListening()
         println ">>> $request.descriptorForType.fullName....$request"
         println "<<< $response.descriptorForType.fullName...$response"
 
@@ -67,6 +67,18 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
         ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(200000000)
+    }
+
+    def "test 'ethNewBlockFilter' service"() {
+        when: 'we make a get request'
+        Types.RequestEthNewBlockFilter request = Types.RequestEthNewBlockFilter.newBuilder().build()
+        Message response = web3Service.ethNewBlockFilter()
+        println ">>> $request.descriptorForType.fullName....$request"
+        println "<<< $response.descriptorForType.fullName...$response"
+
+        then: 'a valid response is received'
+        response instanceof Types.ResponseEthNewFilter
+        ((Types.ResponseEthNewFilter) response).id.size() == 64 + 2
     }
 
     def "test create solidity contract and call event services"() {

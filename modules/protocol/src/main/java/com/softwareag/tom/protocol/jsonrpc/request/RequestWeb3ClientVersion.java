@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion;
@@ -18,7 +17,7 @@ import java.util.Map;
  * {@code web3_clientVersion}.
  */
 public class RequestWeb3ClientVersion extends Request<Map, ResponseWeb3ClientVersion> {
-    public RequestWeb3ClientVersion(Service jsonRpcService, Types.RequestWeb3ClientVersion msg) {
+    public RequestWeb3ClientVersion(Service jsonRpcService) {
         super(jsonRpcService, "burrow.getClientVersion", Collections.emptyMap());
     }
 }

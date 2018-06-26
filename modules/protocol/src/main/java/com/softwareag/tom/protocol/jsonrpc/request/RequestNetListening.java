@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening;
@@ -18,7 +17,7 @@ import java.util.Map;
  * {@code net_listening}.
  */
 public class RequestNetListening extends Request<Map, ResponseNetListening> {
-    public RequestNetListening(Service jsonRpcService, Types.RequestNetListening msg) {
+    public RequestNetListening(Service jsonRpcService) {
         super(jsonRpcService, "burrow.isListening", Collections.emptyMap());
     }
 }

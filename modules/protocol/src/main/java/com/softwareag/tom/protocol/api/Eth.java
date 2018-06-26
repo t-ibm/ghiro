@@ -50,6 +50,12 @@ interface Eth {
     Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) throws IOException;
 
     /**
+     * Method {@code eth_newBlockFilter}.
+     * @return the filter id
+     */
+    Types.ResponseEthNewFilter ethNewBlockFilter() throws IOException;
+
+    /**
      * Method {@code eth_uninstallFilter}.
      * @param req The filter id
      * @return {@code true} if the filter was successfully uninstalled, {@code false} otherwise
