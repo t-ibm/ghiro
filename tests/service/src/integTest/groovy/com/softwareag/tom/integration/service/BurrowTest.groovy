@@ -269,5 +269,13 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getLogCount() == 1
         responseEthGetFilterChanges.getLog(0).address.size() == 32*2+2
         HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(0).data)) == '7'
+
+        when: println '(11) we unsubscribe to events from the the new contract account'
+        Types.RequestEthUninstallFilter requestEthUninstallFilter = Types.RequestEthUninstallFilter.newBuilder().setId(filterId).build()
+        Types.ResponseEthUninstallFilter responseEthUninstallFilter = web3Service.ethUninstallFilter(requestEthUninstallFilter)
+        println ">>> $requestEthUninstallFilter.descriptorForType.fullName....$requestEthUninstallFilter<<< $responseEthUninstallFilter.descriptorForType.fullName...$responseEthUninstallFilter"
+
+        then: 'the filter was successfully removed'
+        responseEthUninstallFilter.removed
     }
 }

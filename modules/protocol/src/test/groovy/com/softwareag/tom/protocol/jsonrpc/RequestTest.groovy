@@ -13,6 +13,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion
 import com.softwareag.tom.protocol.util.HexValue
@@ -149,6 +150,23 @@ class RequestTest extends RequestSpecification {
 
         then: 'the expected request object is created'
         request.params.eventId == 'Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == expected
+    }
+
+    def "test eth_uninstallFilter"() {
+        when: 'a valid request type is created'
+        RequestEthUninstallFilter request = new RequestEthUninstallFilter(serviceHttp, Types.RequestEthUninstallFilter.newBuilder().setId(
+                HexValue.toByteString('11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164')
+        ).build()) {}
+        String expected = '{"jsonrpc":"2.0","method":"burrow.eventUnsubscribe","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
+
+        then: 'the expected request object is created'
+        request.params.filterId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
 
         when: 'the request is send'
         request.send()

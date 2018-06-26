@@ -7,6 +7,7 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
@@ -20,12 +21,16 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result, 
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
         } else {
-            return Types.ResponseEthNewFilter.newBuilder().setId(HexValue.toByteString(this.result.subId)).build();
+            return Types.ResponseEthNewFilter.newBuilder().setId(HexValue.toByteString(this.result.filterId)).build();
         }
     }
 
+    public ByteString getFilterId() {
+        return HexValue.toByteString(this.result.filterId);
+    }
+
     static class Result {
-        @JsonProperty("sub_id") public String subId;
+        @JsonProperty("sub_id") public String filterId;
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
@@ -33,11 +38,11 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result, 
 
             Result result = (Result) o;
 
-            return subId != null ? subId.equals(result.subId) : result.subId == null;
+            return filterId != null ? filterId.equals(result.filterId) : result.filterId == null;
         }
 
         @Override public int hashCode() {
-            return subId != null ? subId.hashCode() : 0;
+            return filterId != null ? filterId.hashCode() : 0;
         }
     }
 }

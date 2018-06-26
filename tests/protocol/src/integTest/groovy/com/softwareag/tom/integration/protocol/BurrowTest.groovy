@@ -303,10 +303,10 @@ class BurrowTest extends RestClientSpecification {
         resp = send request
 
         and: 'the event id is remembered'
-        def subId = resp.data.result.sub_id
+        def filterId = resp.data.result.sub_id
 
         and: println '(5) we poll for events'
-        request = ['id': '5', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]
+        request = ['id': '5', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':filterId]]
         resp = send request
 
         then: 'no events exist'
@@ -356,12 +356,19 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.storage_items.get(0).value == '0000000000000000000000000000000000000000000000000000000000000007'
 
         when: println '(10) we poll for events again'
-        request = ['id': '10', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]
+        request = ['id': '10', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':filterId]]
         resp = send request
 
         then: 'an event for each call is received'
         resp.data.result.events.size() == 1
         resp.data.result.events.get(0).data.size() == 64
         HexValueBase.decode(resp.data.result.events.get(0).data as String) == '7'
+
+        when: println '(11) we unsubscribe to events from the the new contract account'
+        request = ['id': '11', 'jsonrpc': '2.0', 'method': 'burrow.eventUnsubscribe', 'params': ['sub_id':filterId]]
+        resp = send request
+
+        then: 'the filter was successfully removed'
+        resp.data.result
     }
 }
