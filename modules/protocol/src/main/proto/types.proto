@@ -83,8 +83,9 @@ message Request {
         RequestEthSendTransaction ethSendTransaction = 5;
         RequestEthCall ethCall = 6;
         RequestEthNewFilter ethNewFilter = 7;
-        RequestEthGetFilterChanges ethGetFilterChanges = 8;
-        RequestEthGetTransactionReceipt ethGetTransactionReceipt = 9;
+        RequestEthUninstallFilter ethUninstallFilter = 8;
+        RequestEthGetFilterChanges ethGetFilterChanges = 9;
+        RequestEthGetTransactionReceipt ethGetTransactionReceipt = 10;
     }
 }
 message RequestWeb3ClientVersion {
@@ -110,6 +111,9 @@ message RequestEthCall {
 message RequestEthNewFilter {
     FilterOptionType options = 1;
 }
+message RequestEthUninstallFilter {
+    bytes id = 1;
+}
 message RequestEthGetFilterChanges {
     bytes id = 1;
 }
@@ -129,8 +133,9 @@ message Response {
         ResponseEthSendTransaction ethSendTransaction = 6;
         ResponseEthCall ethCall = 7;
         ResponseEthNewFilter ethNewFilter = 8;
-        ResponseEthGetFilterChanges ethGetFilterChanges = 9;
-        ResponseEthGetTransactionReceipt ethGetTransactionReceipt = 10;
+        ResponseEthUninstallFilter ethUninstallFilter = 9;
+        ResponseEthGetFilterChanges ethGetFilterChanges = 10;
+        ResponseEthGetTransactionReceipt ethGetTransactionReceipt = 11;
     }
 }
 message ResponseException {
@@ -159,6 +164,9 @@ message ResponseEthCall {
 message ResponseEthNewFilter {
     bytes id = 1;
 }
+message ResponseEthUninstallFilter {
+    bool removed = 1;
+}
 message ResponseEthGetFilterChanges {
     repeated FilterLogType log = 1;
 }
@@ -176,6 +184,7 @@ service AbiService {
     rpc ethSendTransaction(RequestEthSendTransaction) returns (ResponseEthSendTransaction);
     rpc ethCall(RequestEthCall) returns (ResponseEthCall);
     rpc ethNewFilter(RequestEthNewFilter) returns (ResponseEthNewFilter);
+    rpc ethUninstallFilter(RequestEthUninstallFilter) returns (ResponseEthUninstallFilter);
     rpc ethGetFilterChanges(RequestEthGetFilterChanges) returns (ResponseEthGetFilterChanges);
     rpc ethGetTransactionReceipt(RequestEthGetTransactionReceipt) returns (ResponseEthGetTransactionReceipt);
 }

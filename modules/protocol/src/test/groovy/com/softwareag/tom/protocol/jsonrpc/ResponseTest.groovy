@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetStorageAt
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthUninstallFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion
 import org.apache.http.HttpEntity
@@ -126,7 +127,19 @@ class ResponseTest extends ResponseSpecification {
 
         then: 'the response type values are set to the expected values'
         response.error == null
-        response.result.subId == 'E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F'
+        response.result.filterId == 'E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F'
+    }
+
+    def "test eth_uninstallFilter"() {
+        given: 'a valid JSON-RPC response'
+        content '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
+
+        when: 'the response is received'
+        ResponseEthUninstallFilter response = serviceHttp.getResponseHandler(ResponseEthUninstallFilter.class).handleResponse(closeableHttpResponse);
+
+        then: 'the response type values are set to the expected values'
+        response.error == null
+        response.result.isRemoved
     }
 
     def "test eth_getFilterChanges"() {
