@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewBlockFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter;
@@ -32,13 +33,13 @@ class Web3ServiceJsonRpc implements Web3Service {
         this.jsonRpcService = jsonRpcService;
     }
 
-    @Override public Types.ResponseWeb3ClientVersion web3ClientVersion(Types.RequestWeb3ClientVersion req) throws IOException {
-        RequestWeb3ClientVersion jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService, req) {};
+    @Override public Types.ResponseWeb3ClientVersion web3ClientVersion() throws IOException {
+        RequestWeb3ClientVersion jsonRpcRequest = new RequestWeb3ClientVersion(jsonRpcService) {};
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseNetListening netListening(Types.RequestNetListening req) throws IOException {
-        RequestNetListening jsonRpcRequest = new RequestNetListening(jsonRpcService, req) {};
+    @Override public Types.ResponseNetListening netListening() throws IOException {
+        RequestNetListening jsonRpcRequest = new RequestNetListening(jsonRpcService) {};
         return jsonRpcRequest.send().getResponse();
     }
 
@@ -64,6 +65,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) throws IOException {
         RequestEthNewFilter jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Types.ResponseEthNewFilter ethNewBlockFilter() throws IOException {
+        RequestEthNewBlockFilter jsonRpcRequest = new RequestEthNewBlockFilter(jsonRpcService) {};
         return jsonRpcRequest.send().getResponse();
     }
 

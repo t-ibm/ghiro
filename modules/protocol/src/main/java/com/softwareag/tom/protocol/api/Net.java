@@ -16,8 +16,7 @@ import java.io.IOException;
 interface Net {
     /**
      * Method {@code net_listening}.
-     * @param req An empty request
      * @return {@code true} when listening, otherwise {@code false}
      */
-    Types.ResponseNetListening netListening(Types.RequestNetListening req) throws IOException;
+    Types.ResponseNetListening netListening() throws IOException;
 }
