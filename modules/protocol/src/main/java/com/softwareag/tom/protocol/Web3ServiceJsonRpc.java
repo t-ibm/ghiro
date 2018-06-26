@@ -14,6 +14,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
 import com.softwareag.tom.protocol.tx.TransactionManager;
@@ -63,6 +64,11 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) throws IOException {
         RequestEthNewFilter jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
+    }
+
+    @Override public Types.ResponseEthUninstallFilter ethUninstallFilter(Types.RequestEthUninstallFilter req) throws IOException {
+        RequestEthUninstallFilter jsonRpcRequest = new RequestEthUninstallFilter(jsonRpcService, req) {};
         return jsonRpcRequest.send().getResponse();
     }
 
