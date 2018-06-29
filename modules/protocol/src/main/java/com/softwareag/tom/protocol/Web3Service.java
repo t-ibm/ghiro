@@ -7,6 +7,7 @@
 package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.Web3;
+import com.softwareag.tom.protocol.api.Web3jRx;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Web3 service API.
  */
-public interface Web3Service extends Web3 {
+public interface Web3Service extends Web3, Web3jRx {
     static Web3Service build(Service jsonRpcService) {
         return new Web3ServiceJsonRpc(jsonRpcService);
     }

@@ -19,9 +19,16 @@ public abstract class Response<T, M> {
     @JsonProperty("error") protected Error error;
     @JsonProperty("id") protected long id;
 
+    public boolean hasError() {
+        return error != null;
+    }
+    public Error getError() {
+        return error;
+    }
+
     public abstract M getResponse();
 
-    @SuppressWarnings("WeakerAccess") protected static class Error {
+    public static class Error {
         @JsonProperty("code") public int code;
         @JsonProperty("message") public String message;
         @JsonProperty("data") public String data;
