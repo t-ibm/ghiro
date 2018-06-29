@@ -46,13 +46,21 @@ public abstract class Request<P, R extends Response> {
     }
 
     private Class<R> getResponseType() {
-        @SuppressWarnings("unchecked") Class<R> classOfT = (Class<R>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
+        ParameterizedType t = getParameterizedType(getClass());
+        @SuppressWarnings("unchecked") Class<R> classOfT = (Class<R>) t.getActualTypeArguments()[1];
         try {
             classOfT.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             logger.warn("Unable to instantiate response type, got exception: " + e);
         }
         return classOfT;
+    }
+
+    private static ParameterizedType getParameterizedType(Class<?> c) {
+        if ("com.softwareag.tom.protocol.jsonrpc.Request".equals(c.getSuperclass().getName())) {
+            return (ParameterizedType) c.getGenericSuperclass();
+        }
+        return getParameterizedType(c.getSuperclass());
     }
 
     protected static String validate(ByteString immutableByteArray) {
