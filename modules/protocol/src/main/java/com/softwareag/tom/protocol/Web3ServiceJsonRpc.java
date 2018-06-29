@@ -7,6 +7,7 @@
 package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.abi.Types;
+import com.softwareag.tom.protocol.jsonrpc.JsonRpcRx;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
@@ -21,16 +22,27 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
 import com.softwareag.tom.protocol.tx.TransactionManager;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Web3 over JSON-RPC service implementation.
  */
 class Web3ServiceJsonRpc implements Web3Service {
+    private static final int BLOCK_TIME = 10 * 1000;
 
     private final Service jsonRpcService;
+    private final JsonRpcRx jsonRpcRx;
+    private final long blockTime;
 
     Web3ServiceJsonRpc(Service jsonRpcService) {
+        this(jsonRpcService, BLOCK_TIME, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()));
+    }
+
+    Web3ServiceJsonRpc(Service jsonRpcService, long pollingInterval, ScheduledExecutorService scheduledExecutorService) {
         this.jsonRpcService = jsonRpcService;
+        this.jsonRpcRx = new JsonRpcRx(jsonRpcService, scheduledExecutorService);
+        this.blockTime = pollingInterval;
     }
 
     @Override public Types.ResponseWeb3ClientVersion web3ClientVersion() throws IOException {
