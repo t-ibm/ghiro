@@ -7,11 +7,22 @@
 package com.softwareag.tom.protocol.jsonrpc.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.softwareag.tom.ObjectMapperFactory;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code eth_getFilterChanges}.
@@ -25,53 +36,77 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
             Types.ResponseEthGetFilterChanges.Builder builder = Types.ResponseEthGetFilterChanges.newBuilder();
             for (int i = 0; i < this.result.events.size(); i++) {
                 Event event = this.result.events.get(i);
-                builder.addLog(i, Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(event.address)).setData(HexValue.toByteString(event.data)).build()); //TODO :: height, topics
+                if (event instanceof Log) {
+                    Log logEvent = ((Log) event);
+                    builder.addLog(i, Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()); //TODO :: height, topics
+                }
             }
             return builder.build();
         }
     }
 
     static class Result {
-        @JsonProperty("events") public List<Event> events;
+        @JsonDeserialize(using = LogResultDeserialiser.class) @JsonProperty("events") public List<Event> events;
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Result result = (Result) o;
-
-            return events != null ? events.equals(result.events) : result.events == null;
+            return Objects.equals(events, result.events);
         }
 
         @Override public int hashCode() {
-            return events != null ? events.hashCode() : 0;
+            return Objects.hash(events);
         }
     }
 
-    private static class Event {
+    public static class LogResultDeserialiser extends JsonDeserializer<List<Event>> {
+
+        private ObjectReader objectReader = ObjectMapperFactory.getJsonMapper().reader();
+
+        @Override public List<Event> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+
+            List<Event> logResults = new ArrayList<>();
+            JsonToken nextToken = jsonParser.nextToken();
+
+            if (nextToken == JsonToken.START_OBJECT) {
+                Iterator<Log> logObjectIterator = objectReader.readValues(jsonParser, Log.class);
+                while (logObjectIterator.hasNext()) {
+                    logResults.add(logObjectIterator.next());
+                }
+            }
+            return logResults;
+        }
+    }
+
+    public List<Event> getEvents() {
+        return this.result.events;
+    }
+
+    public interface Event<T> {
+        T get();
+    }
+
+    public static class Log implements Event<Log> {
         @JsonProperty("address") public String address;
         @JsonProperty("data") public String data;
         @JsonProperty("height") public long height;
         @JsonProperty("topics") public List<String> topics;
 
+        @Override public Log get() {
+            return this;
+        }
+
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
-            Event event = (Event) o;
-
-            if (height != event.height) return false;
-            if (address != null ? !address.equals(event.address) : event.address != null) return false;
-            if (data != null ? !data.equals(event.data) : event.data != null) return false;
-            return topics != null ? topics.equals(event.topics) : event.topics == null;
+            Log log = (Log) o;
+            return height == log.height &&
+                    Objects.equals(address, log.address) &&
+                    Objects.equals(data, log.data) &&
+                    Objects.equals(topics, log.topics);
         }
 
-        @Override public int hashCode() {
-            int result = address != null ? address.hashCode() : 0;
-            result = 31 * result + (data != null ? data.hashCode() : 0);
-            result = 31 * result + (int) (height ^ (height >>> 32));
-            result = 31 * result + (topics != null ? topics.hashCode() : 0);
-            return result;
-        }
+        @Override public int hashCode() { return Objects.hash(address, data, height, topics); }
     }
 }
