@@ -25,15 +25,15 @@ public class RequestEthUninstallFilter extends Request<RequestEthUninstallFilter
         this(jsonRpcService, msg.getId());
     }
 
-    public RequestEthUninstallFilter(Service jsonRpcService, ByteString subId) {
-        super(jsonRpcService, "burrow.eventUnsubscribe", new Params(subId));
+    public RequestEthUninstallFilter(Service jsonRpcService, ByteString filterId) {
+        super(jsonRpcService, "burrow.eventUnsubscribe", new Params(filterId));
     }
 
     static class Params {
         @JsonProperty("sub_id") public String filterId;
 
-        Params(ByteString subId) {
-            this.filterId = HexValue.stripPrefix(subId);
+        Params(ByteString filterId) {
+            this.filterId = HexValue.stripPrefix(filterId);
         }
 
         @Override public boolean equals(Object o) {

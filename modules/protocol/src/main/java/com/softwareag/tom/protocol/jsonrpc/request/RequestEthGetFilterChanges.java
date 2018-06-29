@@ -15,31 +15,33 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
 import com.softwareag.tom.protocol.util.HexValue;
 
 /**
- * {@code eth_newFilter}.
+ * {@code eth_getFilterChanges}.
  */
 public class RequestEthGetFilterChanges extends Request<RequestEthGetFilterChanges.Params, ResponseEthGetFilterChanges> {
     public RequestEthGetFilterChanges(Service jsonRpcService, Types.RequestEthGetFilterChanges msg) {
-        super(jsonRpcService, "burrow.eventPoll", new Params(msg.getId()));
+        this(jsonRpcService, msg.getId());
+    }
+
+    public RequestEthGetFilterChanges(Service jsonRpcService, ByteString filterId) {
+        super(jsonRpcService, "burrow.eventPoll", new Params(filterId));
     }
 
     static class Params {
-        @JsonProperty("sub_id") public String subId;
+        @JsonProperty("sub_id") public String filterId;
 
         Params(ByteString filterId) {
-            this.subId = HexValue.stripPrefix(filterId);
+            this.filterId = HexValue.stripPrefix(filterId);
         }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Params params = (Params) o;
-
-            return subId != null ? subId.equals(params.subId) : params.subId == null;
+            return filterId != null ? filterId.equals(params.filterId) : params.filterId == null;
         }
 
         @Override public int hashCode() {
-            return subId != null ? subId.hashCode() : 0;
+            return filterId != null ? filterId.hashCode() : 0;
         }
     }
 }

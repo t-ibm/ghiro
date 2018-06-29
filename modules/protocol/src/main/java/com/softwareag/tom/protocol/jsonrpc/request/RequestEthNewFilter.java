@@ -7,6 +7,7 @@
 package com.softwareag.tom.protocol.jsonrpc.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
@@ -18,22 +19,24 @@ import com.softwareag.tom.protocol.util.HexValue;
  */
 public class RequestEthNewFilter extends Request<RequestEthNewFilter.Params, ResponseEthNewFilter> {
     public RequestEthNewFilter(Service jsonRpcService, Types.RequestEthNewFilter msg) {
-        super(jsonRpcService, "burrow.eventSubscribe", new Params(msg.getOptions()));
+        this(jsonRpcService, msg.getOptions().getAddress());
+    }
+
+    public RequestEthNewFilter(Service jsonRpcService, ByteString address) {
+        super(jsonRpcService, "burrow.eventSubscribe", new Params(address));
     }
 
     static class Params {
         @JsonProperty("event_id") public String eventId;
 
-        Params(Types.FilterOptionType options) {
-            this.eventId = "Log/" + HexValue.stripPrefix(options.getAddress());
+        Params(ByteString address) {
+            this.eventId = "Log/" + HexValue.stripPrefix(address);
         }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Params params = (Params) o;
-
             return eventId != null ? eventId.equals(params.eventId) : params.eventId == null;
         }
 
