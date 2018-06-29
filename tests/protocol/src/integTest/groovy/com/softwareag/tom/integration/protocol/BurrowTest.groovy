@@ -8,9 +8,9 @@ package com.softwareag.tom.integration.protocol
 
 import com.softwareag.tom.contract.ConfigLocationFileSystem
 import com.softwareag.tom.contract.Contract
-import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
 import com.softwareag.tom.contract.SolidityLocationFileSystem
+import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.util.HexValueBase
 import groovyx.net.http.RESTClient
 
@@ -141,8 +141,15 @@ class BurrowTest extends RestClientSpecification {
         when: 'the request is send'
         resp = send request
 
-        then: 'a valid response is received'
-        resp.data.result.sub_id.length() == 64
+        and: 'the event id is remembered'
+        def filterId = resp.data.result.sub_id
+
+        and: 'we poll for events'
+        request = ['id': '2', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':filterId]]
+        resp = send request
+
+        then: 'no events exist' //TODO :: This should actually return a list of <Block> objects
+        resp.data.result.events == []
     }
 
     def "test create solidity contract and call event via rpc"() {
