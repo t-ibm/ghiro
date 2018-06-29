@@ -199,7 +199,7 @@ class RequestTest extends RequestSpecification {
         String expected = '{"jsonrpc":"2.0","method":"burrow.eventPoll","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.subId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
+        request.params.filterId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
 
         when: 'the request is send'
         request.send()
