@@ -19,7 +19,9 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
 import com.softwareag.tom.protocol.tx.TransactionManager;
+import rx.Observable;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -97,5 +99,10 @@ class Web3ServiceJsonRpc implements Web3Service {
 
     @Override public Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) {
         return Types.ResponseEthGetTransactionReceipt.newBuilder().setTxReceipt(TransactionManager.instance.getTransactionReceipt(req.getHash())).build();
+    }
+
+    @Override public Observable<ResponseEthGetFilterChanges.Log> ethLogObservable(Types.RequestEthNewFilter ethFilter) {
+        RequestEthNewFilter jsonRpcRequest = new RequestEthNewFilter(jsonRpcService, ethFilter) {};
+        return jsonRpcRx.ethLogObservable(jsonRpcRequest, blockTime);
     }
 }
