@@ -16,7 +16,10 @@ import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.util.HexValue
+import rx.Observable
+import rx.observers.TestSubscriber
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -168,6 +171,84 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getLog(1).data.size() == 32*2+2
     }
 
+    def "test create solidity contract and listen events"() {
+        given: 'a valid Solidity contract'
+        Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
+        Contract contract = contracts['sample/util/Console']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification logFunction = functions.get(0)
+        assert logFunction.name == 'log'
+
+        String contractAddress
+
+        when: println '(1) contract "sample/util/Console" gets deployed'
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
+                Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
+        ).build()
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+        println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
+
+        and: 'the contract address is remembered'
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().contractAddress)
+        println ">>> $requestEthGetTransactionReceipt.descriptorForType.fullName....$requestEthGetTransactionReceipt<<< $responseEthGetTransactionReceipt.descriptorForType.fullName...$responseEthGetTransactionReceipt"
+
+        then: 'a valid response is received'
+        responseEthGetTransactionReceipt.getTxReceipt() != null
+
+        when: println '(2) we register for events with the new contract account'
+        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
+                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        ).build()
+        Observable<ResponseEthGetFilterChanges.Log> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter)
+        println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $ethLogObservable\n"
+
+        and: 'subscribe to events'
+        TestSubscriber<ResponseEthGetFilterChanges.Log> testSubscriber = new TestSubscriber<>()
+        ethLogObservable.subscribe(testSubscriber)
+
+        then: 'the ReactiveX system was properly setup'
+        ethLogObservable != null
+        testSubscriber != null
+
+        when: println '(3) we listen for events'
+        List<ResponseEthGetFilterChanges.Event> results = testSubscriber.getOnNextEvents()
+        println "results<<< $results\n"
+
+        then: 'a valid response is received'
+        results.size() == 0
+
+        when: println '(4) function "log" is executed 3 times'
+        Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
+        ).build()
+        Types.ResponseEthCall responseEthCall = null
+        3.times {
+            responseEthCall = web3Service.ethCall(requestEthCall)
+            println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
+        }
+
+        then: 'a valid response is received'
+        responseEthCall.return != null
+
+        when: println '(5) we wait a little while continuously listening for events'
+        sleep(15000)
+        testSubscriber.assertNoErrors()
+        testSubscriber.assertValueCount(3)
+        println "results<<< $results\n"
+
+        then: 'a valid response is received'
+        results.size() == 3
+        results.get(1).address.size()  == 32*2
+        results.get(1).data.size()  == 32*2
+
+        when: println '(6) the subscription is terminated'
+        testSubscriber.unsubscribe()
+
+        then: 'the subscriber has been removed'
+        testSubscriber.isUnsubscribed()
+    }
 
     def "test create solidity contract and store/update data"() {
         given: 'a valid Solidity contract'
