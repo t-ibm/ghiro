@@ -171,7 +171,7 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getLog(1).data.size() == 32*2+2
     }
 
-    def "test create solidity contract and listen events"() {
+    def "test create solidity contract and listen to events"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
@@ -208,7 +208,7 @@ class BurrowTest extends Specification {
         TestSubscriber<ResponseEthGetFilterChanges.Log> testSubscriber = new TestSubscriber<>()
         ethLogObservable.subscribe(testSubscriber)
 
-        then: 'the ReactiveX system was properly setup'
+        then: 'the ReactiveX system gets properly initialized'
         ethLogObservable != null
         testSubscriber != null
 
