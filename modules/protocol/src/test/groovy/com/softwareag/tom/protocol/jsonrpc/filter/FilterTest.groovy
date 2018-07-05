@@ -22,12 +22,15 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthUninstallFilter
 import com.softwareag.tom.protocol.util.HexValue
 import rx.Observable
-import rx.observers.TestSubscriber
+import rx.Observer
+import rx.Subscription
 import spock.lang.Shared
 import spock.lang.Specification
 
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 /**
  * System under specification: {@link Filter}.
@@ -38,26 +41,38 @@ class FilterTest extends FilterSpecification {
     def "test log filter observable"() {
         given: 'a subscriber and a list of valid JSON-RPC response'
         List<ResponseEthGetFilterChanges.Event> expected = responseEthGetFilterChanges.getEvents()
-        TestSubscriber<ResponseEthGetFilterChanges.Log> testSubscriber = new TestSubscriber<>()
-
-        when: 'the response are received'
+        List<ResponseEthGetFilterChanges.Event> results = []
         Observable<ResponseEthGetFilterChanges.Log> observable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
-        observable.subscribe(testSubscriber)
-        List<ResponseEthGetFilterChanges.Event> results = testSubscriber.getOnNextEvents()
+        CountDownLatch transactionLatch = new CountDownLatch(expected.size())
+        CountDownLatch completedLatch = new CountDownLatch(1)
+        Subscription subscription = observable.subscribe([
+                onCompleted: {
+                    completedLatch.countDown()
+                },
+                onError    : { Throwable e ->
+                    throw e
+                },
+                onNext     : { ResponseEthGetFilterChanges.Event result ->
+                    results.add(result)
+                    transactionLatch.countDown()
+                }
+        ] as Observer)
 
-        then: 'the responses match the expectation'
+        when: 'the events are received'
+        transactionLatch.await(1, TimeUnit.SECONDS)
+
+        then: 'the events match the expectation'
         println "expected :: $expected"
         println "received :: $results"
-        testSubscriber.assertNoErrors()
-        testSubscriber.assertValueCount(3)
-        testSubscriber.assertValues(expected as ResponseEthGetFilterChanges.Log[])
+        notThrown Throwable
         results == expected
 
         when: 'the subscription is terminated'
-        testSubscriber.unsubscribe()
+        subscription.unsubscribe()
+        completedLatch.await(1, TimeUnit.SECONDS)
 
         then: 'the subscriber has been removed'
-        testSubscriber.isUnsubscribed()
+        subscription.isUnsubscribed()
     }
 }
 

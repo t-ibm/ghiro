@@ -19,9 +19,13 @@ import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.util.HexValue
 import rx.Observable
-import rx.observers.TestSubscriber
+import rx.Observer
+import rx.Subscription
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * System under specification: {@link Web3Service}.
@@ -205,15 +209,27 @@ class BurrowTest extends Specification {
         println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $ethLogObservable\n"
 
         and: 'subscribe to events'
-        TestSubscriber<ResponseEthGetFilterChanges.Log> testSubscriber = new TestSubscriber<>()
-        ethLogObservable.subscribe(testSubscriber)
+        List<ResponseEthGetFilterChanges.Event> results = []
+        CountDownLatch transactionLatch = new CountDownLatch(3)
+        CountDownLatch completedLatch = new CountDownLatch(1)
+        Subscription ethLogSubscription = ethLogObservable.subscribe([
+                onCompleted: {
+                    completedLatch.countDown()
+                },
+                onError    : { Throwable e ->
+                    throw e
+                },
+                onNext     : { ResponseEthGetFilterChanges.Event result ->
+                    results.add(result)
+                    transactionLatch.countDown()
+                }
+        ] as Observer)
 
         then: 'the ReactiveX system gets properly initialized'
         ethLogObservable != null
-        testSubscriber != null
+        ethLogSubscription != null
 
         when: println '(3) we listen for events'
-        List<ResponseEthGetFilterChanges.Event> results = testSubscriber.getOnNextEvents()
         println "results<<< $results\n"
 
         then: 'a valid response is received'
@@ -233,21 +249,20 @@ class BurrowTest extends Specification {
         responseEthCall.return != null
 
         when: println '(5) we wait a little while continuously listening for events'
-        sleep(15000)
-        testSubscriber.assertNoErrors()
-        testSubscriber.assertValueCount(3)
+        transactionLatch.await(15, TimeUnit.SECONDS)
         println "results<<< $results\n"
 
         then: 'a valid response is received'
+        notThrown Throwable
         results.size() == 3
-        results.get(1).address.size()  == 32*2
-        results.get(1).data.size()  == 32*2
+        results[1].address.size() == 32*2
+        results[1].data.size() == 32*2
 
         when: println '(6) the subscription is terminated'
-        testSubscriber.unsubscribe()
+        ethLogSubscription.unsubscribe()
 
         then: 'the subscriber has been removed'
-        testSubscriber.isUnsubscribed()
+        ethLogSubscription.isUnsubscribed()
     }
 
     def "test create solidity contract and store/update data"() {
