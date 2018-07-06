@@ -9,14 +9,13 @@ package com.softwareag.tom.integration.service
 import com.google.protobuf.Message
 import com.softwareag.tom.contract.ConfigLocationFileSystem
 import com.softwareag.tom.contract.Contract
-import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.contract.ContractRegistry
 import com.softwareag.tom.contract.SolidityLocationFileSystem
+import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.util.HexValue
 import rx.Observable
 import rx.Observer
@@ -149,7 +148,7 @@ class BurrowTest extends Specification {
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getLogCount() == 0
+        responseEthGetFilterChanges.getEventCount() == 0
 
         when: println '(6) function "log" is executed 2 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
@@ -170,9 +169,9 @@ class BurrowTest extends Specification {
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getLogCount() == 2
-        responseEthGetFilterChanges.getLog(1).address.size() == 32*2+2
-        responseEthGetFilterChanges.getLog(1).data.size() == 32*2+2
+        responseEthGetFilterChanges.getEventCount() == 2
+        responseEthGetFilterChanges.getEvent(1).getLog().address.size() == 32*2+2
+        responseEthGetFilterChanges.getEvent(1).getLog().data.size() == 32*2+2
     }
 
     def "test create solidity contract and listen to events"() {
@@ -205,11 +204,11 @@ class BurrowTest extends Specification {
         Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
                 Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
         ).build()
-        Observable<ResponseEthGetFilterChanges.Log> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter)
+        Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter)
         println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $ethLogObservable\n"
 
         and: 'subscribe to events'
-        List<ResponseEthGetFilterChanges.Event> results = []
+        List<Types.FilterLogType> results = []
         CountDownLatch transactionLatch = new CountDownLatch(3)
         CountDownLatch completedLatch = new CountDownLatch(1)
         Subscription ethLogSubscription = ethLogObservable.subscribe([
@@ -219,7 +218,7 @@ class BurrowTest extends Specification {
                 onError    : { Throwable e ->
                     throw e
                 },
-                onNext     : { ResponseEthGetFilterChanges.Event result ->
+                onNext     : { Types.FilterLogType result ->
                     results.add(result)
                     transactionLatch.countDown()
                 }
@@ -255,8 +254,8 @@ class BurrowTest extends Specification {
         then: 'a valid response is received'
         notThrown Throwable
         results.size() == 3
-        results[1].address.size() == 32*2
-        results[1].data.size() == 32*2
+        results[1].address.size() == 32*2+2
+        results[1].data.size() == 32*2+2
 
         when: println '(6) the subscription is terminated'
         ethLogSubscription.unsubscribe()
@@ -328,7 +327,7 @@ class BurrowTest extends Specification {
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'no events exist'
-        responseEthGetFilterChanges.getLogCount() == 0
+        responseEthGetFilterChanges.getEventCount() == 0
 
         when: println '(6) function "get" is executed'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
@@ -374,9 +373,9 @@ class BurrowTest extends Specification {
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getLogCount() == 1
-        responseEthGetFilterChanges.getLog(0).address.size() == 32*2+2
-        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getLog(0).data)) == '7'
+        responseEthGetFilterChanges.getEventCount() == 1
+        responseEthGetFilterChanges.getEvent(0).getLog().address.size() == 32*2+2
+        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getEvent(0).getLog().data)) == '7'
 
         when: println '(11) we unsubscribe to events from the the new contract account'
         Types.RequestEthUninstallFilter requestEthUninstallFilter = Types.RequestEthUninstallFilter.newBuilder().setId(filterId).build()

@@ -7,10 +7,12 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.filter;
 
+import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter;
+import com.softwareag.tom.protocol.util.HexValue;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,11 +20,11 @@ import java.util.List;
 /**
  * Log filter handler.
  */
-public class LogFilter extends Filter<ResponseEthGetFilterChanges.Log> {
+public class LogFilter extends Filter<Types.FilterLogType> {
 
     private final RequestEthNewFilter ethFilter;
 
-    public LogFilter(Service jsonRpcService, Callback<ResponseEthGetFilterChanges.Log> callback, RequestEthNewFilter ethFilter) {
+    public LogFilter(Service jsonRpcService, Callback<Types.FilterLogType> callback, RequestEthNewFilter ethFilter) {
         super(jsonRpcService, callback);
         this.ethFilter = ethFilter;
     }
@@ -31,13 +33,13 @@ public class LogFilter extends Filter<ResponseEthGetFilterChanges.Log> {
         return ethFilter.send();
     }
 
-    @Override void process(List<ResponseEthGetFilterChanges.Event> logResults) {
-        for (ResponseEthGetFilterChanges.Event logResult : logResults) {
-            if (logResult instanceof ResponseEthGetFilterChanges.Log) {
-                ResponseEthGetFilterChanges.Log log = ((ResponseEthGetFilterChanges.Log) logResult).get();
-                callback.onEvent(log);
+    @Override void process(List<ResponseEthGetFilterChanges.Event> events) {
+        for (ResponseEthGetFilterChanges.Event event : events) {
+            if (event instanceof ResponseEthGetFilterChanges.Log) {
+                ResponseEthGetFilterChanges.Log logEvent = ((ResponseEthGetFilterChanges.Log) event).get();
+                callback.onEvent(Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build());
             } else {
-                throw new FilterException("Unexpected result type: " + logResult.get() + " required LogObject");
+                throw new FilterException("Unexpected result type: " + event.get() + " required LogObject");
             }
         }
     }

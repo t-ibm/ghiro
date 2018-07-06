@@ -7,10 +7,10 @@
  */
 package com.softwareag.tom.protocol.jsonrpc;
 
+import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.filter.Filter;
 import com.softwareag.tom.protocol.jsonrpc.filter.LogFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
@@ -30,8 +30,8 @@ public class JsonRpcRx {
         this.scheduledExecutorService = scheduledExecutorService;
     }
 
-    public Observable<ResponseEthGetFilterChanges.Log> ethLogObservable(RequestEthNewFilter requestEthNewFilter, long pollingInterval) {
-        return Observable.create((Subscriber<? super ResponseEthGetFilterChanges.Log> subscriber) -> {
+    public Observable<Types.FilterLogType> ethLogObservable(RequestEthNewFilter requestEthNewFilter, long pollingInterval) {
+        return Observable.create((Subscriber<? super Types.FilterLogType> subscriber) -> {
             LogFilter logFilter = new LogFilter(jsonRpcService, subscriber::onNext, requestEthNewFilter);
 
             run(logFilter, subscriber, pollingInterval);

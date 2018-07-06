@@ -38,7 +38,9 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
                 Event event = this.result.events.get(i);
                 if (event instanceof Log) {
                     Log logEvent = ((Log) event);
-                    builder.addLog(i, Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()); //TODO :: height, topics
+                    builder.addEvent(i, Types.FilterEventType.newBuilder().setLog(
+                            Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()) //TODO :: height, topics
+                    ).build();
                 }
             }
             return builder.build();
