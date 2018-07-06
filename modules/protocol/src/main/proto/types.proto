@@ -71,6 +71,11 @@ message FilterLogType {
     bytes data = 8;
     repeated bytes topic = 9;
 }
+message FilterEventType {
+    oneof event {
+        FilterLogType log = 1;
+    }
+}
 /*
  * Request Types.
  */
@@ -171,7 +176,7 @@ message ResponseEthUninstallFilter {
     bool removed = 1;
 }
 message ResponseEthGetFilterChanges {
-    repeated FilterLogType log = 1;
+    repeated FilterEventType event = 1;
 }
 message ResponseEthGetTransactionReceipt {
     TxReceiptType txReceipt = 1;

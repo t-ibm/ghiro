@@ -10,6 +10,7 @@ package com.softwareag.tom.protocol.jsonrpc.filter
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.ByteString
 import com.softwareag.tom.ObjectMapperFactory
+import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.JsonRpcRx
 import com.softwareag.tom.protocol.jsonrpc.Request
 import com.softwareag.tom.protocol.jsonrpc.Response
@@ -40,9 +41,9 @@ class FilterTest extends FilterSpecification {
 
     def "test log filter observable"() {
         given: 'a subscriber and a list of valid JSON-RPC response'
-        List<ResponseEthGetFilterChanges.Event> expected = responseEthGetFilterChanges.getEvents()
-        List<ResponseEthGetFilterChanges.Event> results = []
-        Observable<ResponseEthGetFilterChanges.Log> observable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
+        List<Types.FilterLogType> expected = getExpected()
+        List<Types.FilterLogType> results = []
+        Observable<Types.FilterLogType> observable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
         CountDownLatch transactionLatch = new CountDownLatch(expected.size())
         CountDownLatch completedLatch = new CountDownLatch(1)
         Subscription subscription = observable.subscribe([
@@ -52,7 +53,7 @@ class FilterTest extends FilterSpecification {
                 onError    : { Throwable e ->
                     throw e
                 },
-                onNext     : { ResponseEthGetFilterChanges.Event result ->
+                onNext     : { Types.FilterLogType result ->
                     results.add(result)
                     transactionLatch.countDown()
                 }
@@ -119,5 +120,16 @@ abstract class FilterSpecification extends Specification {
             println "<<< $response"
             response
         }
+    }
+
+    List<Types.FilterLogType> getExpected() {
+        List<Types.FilterLogType> expected = []
+        for (ResponseEthGetFilterChanges.Event event : responseEthGetFilterChanges.events) {
+            if (event instanceof ResponseEthGetFilterChanges.Log) {
+                ResponseEthGetFilterChanges.Log logEvent = ((ResponseEthGetFilterChanges.Log) event).get()
+                expected.add Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()
+            }
+        }
+        return expected
     }
 }

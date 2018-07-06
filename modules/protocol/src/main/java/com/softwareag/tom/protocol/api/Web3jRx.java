@@ -8,7 +8,6 @@
 package com.softwareag.tom.protocol.api;
 
 import com.softwareag.tom.protocol.abi.Types;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
 import rx.Observable;
 
 /**
@@ -21,5 +20,5 @@ public interface Web3jRx {
      * @param ethFilter The filter criteria
      * @return an observable that emits all Log events matching the filter
      */
-    Observable<ResponseEthGetFilterChanges.Log> ethLogObservable(Types.RequestEthNewFilter ethFilter);
+    Observable<Types.FilterLogType> ethLogObservable(Types.RequestEthNewFilter ethFilter);
 }
