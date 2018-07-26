@@ -10,6 +10,7 @@ dependencies {
         project.sag.module.rx,
     )
     runtime project.sag.module.crypto
+    testCompile project(path:":modules:$project.rootProject.name-protocol", configuration:'testFixtureRuntime')
     testRuntime(
         project(":modules:$project.rootProject.name-contract"),
         project(":modules:$project.rootProject.name-protocol"),
