@@ -112,6 +112,13 @@ public class Util {
 
     /**
      * @param nsName The contract's function ns name
+     */
+    public void call(NSName nsName) throws IOException {
+        call(nsName, IDataFactory.create());
+    }
+
+    /**
+     * @param nsName The contract's function ns name
      * @param pipeline The input pipeline
      */
     public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
