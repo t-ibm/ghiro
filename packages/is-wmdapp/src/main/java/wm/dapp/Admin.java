@@ -91,7 +91,7 @@ import java.util.Map;
         String message;
         try {
             String contractAddress = Util.instance.deployContract(uri);
-            Util.instance.storeContractAddresse(uri, contractAddress);
+            Util.instance.storeContractAddress(uri, contractAddress);
             message = "Successfully deployed contract '" + uri + "'.";
             pipe.put("message", message);
         } catch (Exception e) {

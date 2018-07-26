@@ -15,6 +15,7 @@ import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
 import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
+import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
 import com.softwareag.util.IDataMap;
@@ -33,6 +34,7 @@ import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
+import rx.Observable;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -45,8 +47,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public enum Util {
-    instance;
+public class Util {
+    public static Util instance = new Util();
 
     private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
     private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
@@ -55,21 +57,43 @@ public enum Util {
     private Map<NSName,FlowSvcImpl> nsNodes;
     private Web3Service web3Service;
 
-    Util() throws ExceptionInInitializerError {
-        nsNodes = new HashMap<>();
-        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
+    /**
+     * The default constructor.
+     * @throws ExceptionInInitializerError if the node configuration is missing
+     */
+    private Util() throws ExceptionInInitializerError {
+        init();
         try {
-            URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
-            URI configLocation = Node.instance().getConfig().getLocationAsUri();
-            contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-            web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() +':' + Node.instance().getHost().getPort() + "/rpc"));
+            web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() + ':' + Node.instance().getHost().getPort() + "/rpc"));
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
     /**
-     * @param nsName The contract functions ns name
+     * Constructor for unit testing usage only.
+     * @param service The JSON-RPC service
+     * @throws ExceptionInInitializerError if the node configuration is missing
+     */
+    Util(Service service) throws ExceptionInInitializerError {
+        init();
+        web3Service = Web3Service.build(service);
+    }
+
+    private void init() {
+        nsNodes = new HashMap<>();
+        System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
+        try {
+            URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
+            URI configLocation = Node.instance().getConfig().getLocationAsUri();
+            contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    /**
+     * @param nsName The contract's function ns name
      * @param pipeline The input pipeline
      */
     public void call(NSName nsName, IData pipeline) throws IOException {
@@ -79,7 +103,7 @@ public enum Util {
         ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
         assert function != null;
         Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
+            Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
         ).build();
         Types.ResponseEthCall response = web3Service.ethCall(request);
         decodeOutput(function, pipeline, HexValue.toString(response.getReturn()));
@@ -87,7 +111,7 @@ public enum Util {
     }
 
     /**
-     * @param nsName The contract functions ns name
+     * @param nsName The contract's function ns name
      * @param pipeline The input pipeline
      */
     public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
@@ -100,7 +124,39 @@ public enum Util {
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
     }
 
+    /**
+     * @param nsName The contract's filter ns name
+     * @return the corresponding log observable
+     */
+    public Observable<Types.FilterLogType> getLogObservable(NSName nsName) throws IOException {
+        String uri = getContractUri(nsName);
+        Contract contract = validate(contracts.get(uri));
+        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
+            Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build()
+        ).build();
+        Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
+        return ethLogObservable;
+    }
+
+    /**
+     * @param uri The contract's local location
+     * @return {@code true} if the contract was already deployed, {@code false} otherwise
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public boolean isContractDeployed(String uri) throws IOException {
+        contracts = contractRegistry.load();
+        Contract contract = contracts.get(uri);
+        return contract.getContractAddress() != null;
+    }
+
+    /**
+     * @param uri The contract's local location
+     * @return the contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
     public String deployContract(String uri) throws IOException {
+        contracts = contractRegistry.load();
         Contract contract = contracts.get(uri);
         if (contract.getContractAddress() != null) {
             throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
@@ -111,14 +167,23 @@ public enum Util {
     }
 
     /**
+     * @param nsName The contract's function/filter ns name
+     * @return the contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public String deployContract(NSName nsName) throws IOException {
+        return deployContract(getContractUri(nsName));
+    }
+
+    /**
      * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
     public IData[] getContractAddresses() throws IOException {
         contracts = contractRegistry.load();
         IData[] contractArray = new IData[contracts.size()];
         List<IData> contractList = contracts.entrySet().stream().map(entry -> IDataFactory.create(new Object[][]{
-                {"uri", entry.getKey()},
-                {"address", entry.getValue().getContractAddress()},
+            {"uri", entry.getKey()},
+            {"address", entry.getValue().getContractAddress()},
         })).collect(Collectors.toList());
         return contractList.toArray(contractArray);
     }
@@ -128,11 +193,20 @@ public enum Util {
      * @param contractAddress The contract's address in the distributed ledger
      * @throws IOException if loading/storing of the contract-address mapping fails
      */
-    public void storeContractAddresse(String uri, String contractAddress) throws IOException {
+    public void storeContractAddress(String uri, String contractAddress) throws IOException {
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, new Object[]{uri, contractAddress});
         contracts = contractRegistry.load();
         contracts.put(uri, contracts.get(uri).setContractAddress(contractAddress));
         contracts = contractRegistry.storeContractAddresses(contracts);
+    }
+
+    /**
+     * @param nsName The contract's function/filter ns name
+     * @param contractAddress The contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public void storeContractAddress(NSName nsName, String contractAddress) throws IOException {
+        storeContractAddress(getContractUri(nsName), contractAddress);
     }
 
     /**
@@ -144,7 +218,7 @@ public enum Util {
         FlowInvoke flowInvoke;
         FlowSvcImpl flowSvcImpl;
         contracts = contractRegistry.load();
-        for (Map.Entry<String, Contract> entry : contracts.entrySet()) {
+        for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
             ContractInterface contractInterface = entry.getValue().getAbi();
@@ -176,7 +250,7 @@ public enum Util {
         for (ContractInterface.Parameter<T> parameter : inputParameters) {
             ParameterType<T> parameterType = parameter.getType();
             T value = parameterType.asType(pipe.get(parameter.getName()));
-            values.add( value);
+            values.add(value);
         }
         return function.encode(values);
     }
@@ -221,7 +295,7 @@ public enum Util {
         contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
         if (contract.getContractAddress() == null && contractAddress != null) {
             contract.setContractAddress(contractAddress);
-        } else if (!Objects.equals(contract.getContractAddress(), contractAddress)){
+        } else if (!Objects.equals(contract.getContractAddress(), contractAddress)) {
             throw new IllegalStateException("Returned contract address is different from known contract address!");
         }
         return contract;
@@ -246,10 +320,10 @@ public enum Util {
 
         FlowSvcImpl flowSvcImpl;
         NSNode node = Namespace.current().getNode(nsName);
-        if (node != null && node instanceof FlowSvcImpl) {
+        if (node instanceof FlowSvcImpl) {
             flowSvcImpl = (FlowSvcImpl) node;
         } else {
-            flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName,null);
+            flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName, null);
             flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
             flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
             flowSvcImpl.getServiceType().setSubtype("dapp"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
@@ -313,6 +387,6 @@ public enum Util {
         } else if (javaClass.equals(byte[].class)) {
             javaWrapperType = JavaWrapperType.JAVA_TYPE_byte_ARRAY;
         }
-        return  javaWrapperType;
+        return javaWrapperType;
     }
 }
