@@ -52,8 +52,9 @@ subprojects {
     }
     dependencies {
         nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.is.version, configuration:'nodeutil'
-        providedCompile project.sag.module.is
+        providedCompile project.sag.module.is.compile
         testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
+        testRuntime project.sag.module.is.runtime
     }
     sourceSets {
         main {
