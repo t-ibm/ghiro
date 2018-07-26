@@ -7,20 +7,14 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.filter
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.protobuf.ByteString
-import com.softwareag.tom.ObjectMapperFactory
+
 import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.jsonrpc.JsonRpcRx
 import com.softwareag.tom.protocol.jsonrpc.Request
 import com.softwareag.tom.protocol.jsonrpc.Response
 import com.softwareag.tom.protocol.jsonrpc.Service
-import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
-import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthUninstallFilter
 import com.softwareag.tom.protocol.util.HexValue
 import rx.Observable
 import rx.Observer
@@ -30,7 +24,6 @@ import spock.lang.Specification
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 /**
@@ -39,24 +32,27 @@ import java.util.concurrent.TimeUnit
  */
 class FilterTest extends FilterSpecification {
 
-    def "test log filter observable"() {
+    def "test log observable"() {
         given: 'a subscriber and a list of valid JSON-RPC response'
-        List<Types.FilterLogType> expected = getExpected()
-        List<Types.FilterLogType> results = []
-        Observable<Types.FilterLogType> observable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
+        JsonRpcRx jsonRpcRx = new JsonRpcRx(service, Executors.newSingleThreadScheduledExecutor())
+        RequestEthNewFilter requestEthNewFilter = new RequestEthNewFilter(service, HexValue.toByteString(responseMock.contractAddress))
+        Observable<Types.FilterLogType> logObservable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
+
+        List<Types.FilterLogType> expected = responseMock.getExpectedFilterChanges()
+        List<Types.FilterLogType> actual = []
         CountDownLatch transactionLatch = new CountDownLatch(expected.size())
         CountDownLatch completedLatch = new CountDownLatch(1)
-        Subscription subscription = observable.subscribe([
-                onCompleted: {
-                    completedLatch.countDown()
-                },
-                onError    : { Throwable e ->
-                    throw e
-                },
-                onNext     : { Types.FilterLogType result ->
-                    results.add(result)
-                    transactionLatch.countDown()
-                }
+        Subscription subscription = logObservable.subscribe([
+            onCompleted: {
+                completedLatch.countDown()
+            },
+            onError    : { Throwable e ->
+                throw e
+            },
+            onNext     : { Types.FilterLogType result ->
+                actual.add(result)
+                transactionLatch.countDown()
+            }
         ] as Observer)
 
         when: 'the events are received'
@@ -64,9 +60,9 @@ class FilterTest extends FilterSpecification {
 
         then: 'the events match the expectation'
         println "expected :: $expected"
-        println "received :: $results"
+        println "received :: $actual"
         notThrown Throwable
-        results == expected
+        actual == expected
 
         when: 'the subscription is terminated'
         subscription.unsubscribe()
@@ -79,57 +75,16 @@ class FilterTest extends FilterSpecification {
 
 abstract class FilterSpecification extends Specification {
     @Shared Service service
-    @Shared JsonRpcRx jsonRpcRx
-    @Shared ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-
-    @Shared RequestEthNewFilter requestEthNewFilter
-    @Shared ResponseEthGetFilterChanges responseEthGetFilterChanges
+    @Shared ResponseMock responseMock
 
     def setup() {
         service = Mock(Service)
-        jsonRpcRx = new JsonRpcRx(service, scheduledExecutorService)
-
-        ByteString contractAddress = HexValue.toByteString('00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE')
-        ByteString filterId = HexValue.toByteString('F3449755BA20C7BB6DB1B3433C2172096AA0033DABF7FD43388A3110BC8BEA5D')
-
-        requestEthNewFilter = new RequestEthNewFilter(service, contractAddress)
-
-        ObjectMapper objectMapper = ObjectMapperFactory.getJsonMapper()
-        String responseEthNewFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"' + filterId + '"}}'
-        String responseEthGetFilterChangesContent = '{"id":42, "jsonrpc":"2.0", "result":{events:[{"address":"' + contractAddress + '", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
-                                                                                                 '{"address":"' + contractAddress + '", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
-                                                                                                 '{"address":"' + contractAddress + '", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]}]}}'
-        String responseEthUninstallFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
-
-        ResponseEthNewFilter responseEthNewFilter = objectMapper.readValue(responseEthNewFilterContent, ResponseEthNewFilter.class)
-        responseEthGetFilterChanges = objectMapper.readValue(responseEthGetFilterChangesContent, ResponseEthGetFilterChanges.class)
-        ResponseEthUninstallFilter responseEthUninstallFilter = objectMapper.readValue(responseEthUninstallFilterContent, ResponseEthUninstallFilter.class)
-
-        service.send(_ as Request, _ as Class) >> { Request r, Class c ->
-            println ">>> $r"
-            Response response
-            if (r instanceof RequestEthNewFilter) {
-                response = responseEthNewFilter
-            } else if (r instanceof RequestEthGetFilterChanges) {
-                response = responseEthGetFilterChanges
-            } else if (r instanceof RequestEthUninstallFilter) {
-                response = responseEthUninstallFilter
-            } else {
-                response = null
-            }
+        responseMock = new ResponseMock()
+        service.send(_ as Request, _ as Class) >> { Request request, Class c ->
+            println ">>> $request"
+            Response response = responseMock.getResponse(request)
             println "<<< $response"
             response
         }
-    }
-
-    List<Types.FilterLogType> getExpected() {
-        List<Types.FilterLogType> expected = []
-        for (ResponseEthGetFilterChanges.Event event : responseEthGetFilterChanges.events) {
-            if (event instanceof ResponseEthGetFilterChanges.Log) {
-                ResponseEthGetFilterChanges.Log logEvent = ((ResponseEthGetFilterChanges.Log) event).get()
-                expected.add Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()
-            }
-        }
-        return expected
     }
 }
