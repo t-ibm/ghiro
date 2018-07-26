@@ -15,27 +15,30 @@ public final class DAppLogger {
 
     // Debug
     public static void logDebug(int messageId) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC); }
+    public static void logDebug(int messageId, Object param) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC, param); }
     public static void logDebug(int messageId, Object[] params) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC, params); }
 
     // Info
     public static void logInfo(int messageId) {
         JournalLogger.logInfo(messageId, DAppMsgBundle.FAC);
     }
+    public static void logInfo(int messageId, Object param) { JournalLogger.logInfo(messageId, DAppMsgBundle.FAC, param); }
     public static void logInfo(int messageId, Object[] params) { JournalLogger.logInfo(messageId, DAppMsgBundle.FAC, params); }
 
     // Warning
     public static void logWarning(int messageId) {
         JournalLogger.logWarning(messageId, DAppMsgBundle.FAC);
     }
+    public static void logWarning(int messageId, Object param) { JournalLogger.logWarning(messageId, DAppMsgBundle.FAC, param); }
     public static void logWarning(int messageId, Object[] params) { JournalLogger.logWarning(messageId, DAppMsgBundle.FAC, params); }
 
     // Error
-    public static void logError(int messageId, Exception e) {
-        JournalLogger.logError(messageId, DAppMsgBundle.FAC);
+    public static void logError(int messageId, Throwable e) {
+        JournalLogger.logError(messageId, DAppMsgBundle.FAC, e);
         Server.logError(e);
     }
-    public static void logError(int messageId, Object[] params, Exception e) {
-        JournalLogger.logError(messageId, DAppMsgBundle.FAC, params);
+    public static void logError(int messageId, Object[] params, Throwable e) {
+        JournalLogger.logError(messageId, DAppMsgBundle.FAC, params, e);
         Server.logError(e);
     }
 }
