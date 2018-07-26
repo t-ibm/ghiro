@@ -6,11 +6,17 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
+import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.Request
+import com.softwareag.tom.protocol.jsonrpc.Response
+import com.softwareag.tom.protocol.jsonrpc.Service
+import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.data.IData
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSSignature
+import rx.Observable
 import spock.lang.Specification
 
 /**
@@ -62,5 +68,28 @@ class UtilTest extends Specification {
         then: 'the values are as expected'
         contract.get('uri') == 'sample/util/Console'
         contract.get('address') == null
+    }
+
+    def "test get log observable"() {
+        given: 'the needed instances and handling of service layer communications'
+        NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
+        ResponseMock responseMock = new ResponseMock()
+        Service service = Mock(Service)
+        service.send(_ as Request, _ as Class) >> { Request request, Class c ->
+            println ">>> $request"
+            Response response = responseMock.getResponse(request)
+            println "<<< $response"
+            response
+        }
+        Util util = new Util(service)
+
+        when: 'the contract address is remembered; implying the contract was deployed'
+        util.storeContractAddress(nsName, responseMock.contractAddress)
+
+        and: 'we attempt to get the log observable'
+        Observable<Types.FilterLogType> logObservable = util.getLogObservable(nsName)
+
+        then: 'a valid instance is retrieved'
+        logObservable != null
     }
 }
