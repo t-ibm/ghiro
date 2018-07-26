@@ -11,7 +11,7 @@ ext {
             version : '4.0.0+',
         ],
         is : [
-            version : '10.2.0-v0121',
+            version : '10.3.0+',
             rootDir : isRootDir,
         ]
     ]
@@ -25,9 +25,20 @@ sag.module += [
     rx : 'io.reactivex:rxjava:1.2.4@jar',
 ]
 sag.module.is = [
+    compile : [
+        'com.softwareag.mom.broker:broker-java-client:9.6.0+', //TODO :: Remove IS compile time dependency on this module
         "com.softwareag.mom.is:is-client:$project.sag.is.version",
         "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
         "com.softwareag.g11n:g11n-utils:10.2+",
+    ],
+    runtime : [
+        'com.entrust:entrust-toolkit:8.0.+',
+        'com.softwareag.ext.org.apache.axis2:axis2-kernel:1.6.2+',
+        "com.softwareag.sc:sc-audit:$project.sag.is.version",
+        "com.softwareag.sc:sc-core:$project.sag.is.version",
+        "com.softwareag.tps:tps-gf-javax-mail:$project.sag.is.version",
+        "com.softwareag.wsstack:deployer-api:$project.sag.is.version",
+    ]
 ]
 sag.module.jackson = [
         'com.fasterxml.jackson.core:jackson-databind:2.9.2',
