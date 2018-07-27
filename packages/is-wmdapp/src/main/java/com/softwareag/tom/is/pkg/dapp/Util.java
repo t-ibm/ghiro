@@ -15,7 +15,6 @@ import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
 import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
-import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
 import com.softwareag.util.IDataMap;
@@ -27,24 +26,14 @@ import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.flow.FlowRoot;
-import com.wm.lang.ns.NSField;
-import com.wm.lang.ns.NSName;
-import com.wm.lang.ns.NSNode;
-import com.wm.lang.ns.NSRecord;
-import com.wm.lang.ns.NSService;
-import com.wm.lang.ns.NSSignature;
+import com.wm.lang.ns.*;
 import com.wm.util.JavaWrapperType;
 import rx.Observable;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Util {
@@ -55,38 +44,21 @@ public class Util {
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
-    private Web3Service web3Service;
+
+    Web3Service web3Service;
 
     /**
      * The default constructor.
      * @throws ExceptionInInitializerError if the node configuration is missing
      */
     private Util() throws ExceptionInInitializerError {
-        init();
-        try {
-            web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() + ':' + Node.instance().getHost().getPort() + "/rpc"));
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
-    /**
-     * Constructor for unit testing usage only.
-     * @param service The JSON-RPC service
-     * @throws ExceptionInInitializerError if the node configuration is missing
-     */
-    Util(Service service) throws ExceptionInInitializerError {
-        init();
-        web3Service = Web3Service.build(service);
-    }
-
-    private void init() {
         nsNodes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
             URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
             URI configLocation = Node.instance().getConfig().getLocationAsUri();
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
+            web3Service = Web3Service.build(new ServiceHttp("http://" + Node.instance().getHost().getIp() + ':' + Node.instance().getHost().getPort() + "/rpc"));
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }

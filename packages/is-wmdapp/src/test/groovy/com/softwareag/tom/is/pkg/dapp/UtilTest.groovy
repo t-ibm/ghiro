@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
+import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.Request
 import com.softwareag.tom.protocol.jsonrpc.Response
@@ -81,13 +82,13 @@ class UtilTest extends Specification {
             println "<<< $response"
             response
         }
-        Util util = new Util(service)
+        Util.instance.web3Service = Web3Service.build(service)
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        util.storeContractAddress(nsName, responseMock.contractAddress)
+        Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
 
         and: 'we attempt to get the log observable'
-        Observable<Types.FilterLogType> logObservable = util.getLogObservable(nsName)
+        Observable<Types.FilterLogType> logObservable = Util.instance.getLogObservable(nsName)
 
         then: 'a valid instance is retrieved'
         logObservable != null
