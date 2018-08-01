@@ -10,7 +10,7 @@ contract Console {
     function log() public {
         LogAddress(address(this));
     }
-    event LogAddress(address);
+    event LogAddress(address contractAddress);
     /**
      * @notice Triggering logging of an arbitrary unsigned integer value.
      */
@@ -30,5 +30,5 @@ contract Console {
         }
         return ret;
     }
-    event LogUint(bytes32);
+    event LogUint(bytes32 ret);
 }
