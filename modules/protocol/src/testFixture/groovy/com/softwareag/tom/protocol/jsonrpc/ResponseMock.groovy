@@ -9,10 +9,12 @@ package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.ObjectMapperFactory
 import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
@@ -53,10 +55,12 @@ class ResponseMock {
         String responseEthNewFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"' + filterId + '"}}'
         String responseEthUninstallFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
         String responseEthGetBalanceContent = '{"id":42, "jsonrpc":"2.0", "result":{"address":"' + contractAddress + '", "balance":200000000, "code":"", "pub_key":null, "sequence":0, "storage_root":""}}'
+        String responseEthCallContent = '{"id":42, "jsonrpc":"2.0", "result":{"return":"", "gas_used":84}}'
 
         ResponseEthNewFilter responseEthNewFilter = ObjectMapperFactory.getJsonMapper().readValue(responseEthNewFilterContent, ResponseEthNewFilter.class)
         ResponseEthUninstallFilter responseEthUninstallFilter = ObjectMapperFactory.getJsonMapper().readValue(responseEthUninstallFilterContent, ResponseEthUninstallFilter.class)
         ResponseEthGetBalance responseEthGetBalance = ObjectMapperFactory.getJsonMapper().readValue(responseEthGetBalanceContent, ResponseEthGetBalance.class)
+        ResponseEthCall responseEthCall = ObjectMapperFactory.getJsonMapper().readValue(responseEthCallContent, ResponseEthCall.class)
 
         Response response
         if (request instanceof RequestEthNewFilter) {
@@ -67,6 +71,8 @@ class ResponseMock {
             response = responseEthUninstallFilter
         } else if (request instanceof RequestEthGetBalance) {
             response = responseEthGetBalance
+        } else if (request instanceof RequestEthCall) {
+            response = responseEthCall
         } else {
             response = null
         }

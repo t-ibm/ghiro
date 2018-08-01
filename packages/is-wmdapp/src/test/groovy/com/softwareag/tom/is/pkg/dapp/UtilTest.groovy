@@ -15,6 +15,7 @@ import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.data.IData
+import com.wm.data.IDataFactory
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSSignature
 import rx.Observable
@@ -69,6 +70,30 @@ class UtilTest extends Specification {
         then: 'the values are as expected'
         contract.get('uri') == 'sample/util/Console'
         contract.get('address') == null
+    }
+
+    def "test call log"() {
+        given: 'the needed instances and handling of service layer communications'
+        NSName nsName = NSName.create('sample.SimpleStorage:log')
+        ResponseMock responseMock = new ResponseMock()
+        Service service = Mock(Service)
+        service.send(_ as Request, _ as Class) >> { Request request, Class c ->
+            println ">>> $request"
+            Response response = responseMock.getResponse(request)
+            println "<<< $response"
+            response
+        }
+        Util.instance.web3Service = Web3Service.build(service)
+
+        when: 'the contract address is remembered; implying the contract was deployed'
+        Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+
+        and: 'we attempt to get the log observable'
+        IData pipeline = IDataFactory.create()
+        Util.instance.call(nsName, pipeline)
+
+        then: 'a valid instance is retrieved'
+        pipeline == IDataFactory.create()
     }
 
     def "test get log observable"() {
