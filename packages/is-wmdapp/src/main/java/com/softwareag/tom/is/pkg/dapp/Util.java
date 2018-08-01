@@ -26,7 +26,12 @@ import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.flow.FlowRoot;
-import com.wm.lang.ns.*;
+import com.wm.lang.ns.NSField;
+import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSNode;
+import com.wm.lang.ns.NSRecord;
+import com.wm.lang.ns.NSService;
+import com.wm.lang.ns.NSSignature;
 import com.wm.util.JavaWrapperType;
 import rx.Observable;
 
@@ -80,13 +85,6 @@ public class Util {
         Types.ResponseEthCall response = web3Service.ethCall(request);
         decodeOutput(function, pipeline, HexValue.toString(response.getReturn()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
-    }
-
-    /**
-     * @param nsName The contract's function ns name
-     */
-    public void call(NSName nsName) throws IOException {
-        call(nsName, IDataFactory.create());
     }
 
     /**
