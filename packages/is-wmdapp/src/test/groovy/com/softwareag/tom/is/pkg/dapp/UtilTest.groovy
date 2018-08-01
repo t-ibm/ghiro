@@ -12,6 +12,7 @@ import com.softwareag.tom.protocol.jsonrpc.Request
 import com.softwareag.tom.protocol.jsonrpc.Response
 import com.softwareag.tom.protocol.jsonrpc.Service
 import com.softwareag.tom.protocol.jsonrpc.ResponseMock
+import com.softwareag.tom.protocol.util.HexValue
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.data.IData
@@ -86,7 +87,9 @@ class UtilTest extends Specification {
         Util.instance.web3Service = Web3Service.build(service)
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        if (!Util.instance.isContractDeployed(nsName)) {
+            Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        }
 
         and: 'we attempt to get the log observable'
         IData pipeline = IDataFactory.create()
@@ -96,7 +99,7 @@ class UtilTest extends Specification {
         pipeline == IDataFactory.create()
     }
 
-    def "test get log observable"() {
+    def "test log event"() {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
         ResponseMock responseMock = new ResponseMock()
@@ -110,12 +113,23 @@ class UtilTest extends Specification {
         Util.instance.web3Service = Web3Service.build(service)
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        if (!Util.instance.isContractDeployed(nsName)) {
+            Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        }
 
         and: 'we attempt to get the log observable'
         Observable<Types.FilterLogType> logObservable = Util.instance.getLogObservable(nsName)
 
         then: 'a valid instance is retrieved'
         logObservable != null
+
+        when: 'log events are received'
+        List<Types.FilterLogType> filterChanges = responseMock.getExpectedFilterChanges()
+
+        and: 'the first log event is being decoded'
+        IData pipeline = Util.instance.decodeLogEvent(nsName, filterChanges[0])
+
+        then: 'the resulting pipeline has the expected values'
+        pipeline == IDataFactory.create((Object[][])[['contractAddress', HexValue.toBigInteger('1')]])
     }
 }

@@ -38,7 +38,12 @@ import rx.Observable;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Util {
@@ -117,11 +122,35 @@ public class Util {
     }
 
     /**
-     * @param uri The contract's local location
+     * @param nsName The contract's event ns name
+     * @return the output pipeline
+     */
+    public IData decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) throws IOException {
+        String uri = getContractUri(nsName);
+        String eventName = getContractFunction(nsName);
+        Contract contract = validate(contracts.get(uri));
+        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
+        assert event != null;
+        IData pipeline = IDataFactory.create();
+        decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
+        return pipeline;
+    }
+
+    /**
+     * @param name The contract's local location, ns name, or ns node
      * @return {@code true} if the contract was already deployed, {@code false} otherwise
      * @throws IOException if loading/storing of the contract-address mapping fails
      */
-    public boolean isContractDeployed(String uri) throws IOException {
+    public boolean isContractDeployed(Object name) throws IOException {
+        String uri;
+        if (name instanceof NSName) {
+            uri = getContractUri((NSName)name);
+        } else if (name instanceof NSNode) {
+            uri = getContractUri(((NSNode)name).getNSName());
+        } else {
+            uri = (String)name;
+        }
         contracts = contractRegistry.load();
         Contract contract = contracts.get(uri);
         return contract.getContractAddress() != null;
@@ -232,11 +261,11 @@ public class Util {
         return function.encode(values);
     }
 
-    private <T> void decodeOutput(ContractInterface.Specification<T> function, IData pipeline, String response) {
-        List<T> values = function.decode(response);
-        List<? extends ContractInterface.Parameter<T>> outputParameters = function.getOutputParameters();
-        assert values.size() == outputParameters.size();
-        Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = outputParameters.iterator();
+    private <T> void decodeOutput(ContractInterface.Specification<T> specification, IData pipeline, String response) {
+        List<T> values = specification.decode(response);
+        List<? extends ContractInterface.Parameter<T>> parameters = "event".equals(specification.getType()) ? specification.getInputParameters() : specification.getOutputParameters();
+        assert values.size() == parameters.size();
+        Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = parameters.iterator();
         Iterator<T> valuesIterator = values.iterator();
         while (outputParametersIterator.hasNext() && valuesIterator.hasNext()) {
             new IDataMap(pipeline).put(outputParametersIterator.next().getName(), valuesIterator.next());

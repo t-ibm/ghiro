@@ -46,7 +46,7 @@ public abstract class ContractInterface {
          * @return a list of Java values
          */
         default List<T> decode(String value) {
-            return ReturnDecoder.decode(getOutputParameters(), value);
+            return ReturnDecoder.decode("event".equals(getType()) ? getInputParameters() : getOutputParameters(), value);
         }
         /**
          * @return the input parameter size. Note, that this value will only be equal to the input parameter count if all input parameters are simple types
