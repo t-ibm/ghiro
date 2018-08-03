@@ -25,6 +25,7 @@ public class DAppMsgBundle extends B2BListResourceBundle {
     public static final int DAPP_ERROR_INIT = 9001;
     public static final int DAPP_ERROR_NOTIFICATION = 9002;
     public static final int DAPP_ERROR_PUT = 9003;
+    public static final int DAPP_ERROR_TRIGGEREXECUTION = 9004;
 
     // Values
     private static final Object[][] contents = new Object[][]{
@@ -40,6 +41,7 @@ public class DAppMsgBundle extends B2BListResourceBundle {
         {FAC + "." + DAPP_ERROR_INIT, "Error during initialization: {0}"},
         {FAC + "." + DAPP_ERROR_NOTIFICATION, "Received error notification from observable: {0}"},
         {FAC + "." + DAPP_ERROR_PUT, "Unable to add received result to message queue: {0}"},
+        {FAC + "." + DAPP_ERROR_TRIGGEREXECUTION, "Trigger {0} was unable to process message: Unable to start execution task: {1}" },
     };
 
     @Override protected Object[][] getContents() {
