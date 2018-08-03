@@ -1,0 +1,22 @@
+description = 'Service-level integration tests'
+
+repositories {
+    ivy {
+        name = 'sag-central'
+        layout 'maven'
+        url = 'http://bas.eur.ad.sag:8081/artifactory/build-snapshot'
+    }
+}
+
+dependencies {
+    integTestCompile(
+        project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
+        project(":packages:is-$project.rootProject.name-wmdapp"),
+        project.sag.module.is.compile,
+    )
+    integTestRuntime(
+        project(":modules:$project.rootProject.name-protocol"),
+        project.sag.module.slf4j.impl,
+        project.sag.module.is.runtime,
+    )
+}
