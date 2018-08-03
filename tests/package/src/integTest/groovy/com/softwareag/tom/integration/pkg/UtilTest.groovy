@@ -69,7 +69,7 @@ class UtilTest extends Specification {
         when: println '(2) we register for events with the new contract account'
         // Run the listener
         ControlledTriggerSvcThreadPool threadPool = ControlledTriggerSvcThreadPool.getInstance()
-        DAppListener listener = new DAppListener(trigger, threadPool)
+        DAppListener listener = new DAppListenerMock(trigger, threadPool)
         threadPool.runTarget(listener)
         sleep(1000)
 
@@ -91,5 +91,15 @@ class UtilTest extends Specification {
 
         then: 'the subscriber has been removed'
         listener.stopped
+    }
+}
+
+class DAppListenerMock extends DAppListener {
+    DAppListenerMock(Trigger trigger, ControlledTriggerSvcThreadPool threadPool) {
+        super(trigger, threadPool)
+    }
+
+    @Override protected void init() throws Exception {
+        // Do not wait until IS is started
     }
 }
