@@ -26,7 +26,6 @@ sag.module += [
 ]
 sag.module.is = [
     compile : [
-        'com.softwareag.mom.broker:broker-java-client:9.6.0+', //TODO :: Remove IS compile time dependency on this module
         "com.softwareag.mom.is:is-client:$project.sag.is.version",
         "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
         "com.softwareag.g11n:g11n-utils:10.2+",
