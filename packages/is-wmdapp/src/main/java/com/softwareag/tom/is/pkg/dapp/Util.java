@@ -21,6 +21,7 @@ import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.data.IData;
 import com.wm.data.IDataFactory;
@@ -32,7 +33,9 @@ import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
+import com.wm.msg.Header;
 import com.wm.util.JavaWrapperType;
+import com.wm.util.Values;
 import rx.Observable;
 
 import java.io.IOException;
@@ -123,9 +126,9 @@ public class Util {
 
     /**
      * @param nsName The contract's event ns name
-     * @return the output pipeline
+     * @return the data pipeline wrapped as a {@link Message}
      */
-    public IData decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) throws IOException {
+    public Message<Types.FilterLogType> decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) throws IOException {
         String uri = getContractUri(nsName);
         String eventName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
@@ -134,7 +137,20 @@ public class Util {
         IData pipeline = IDataFactory.create();
         decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
-        return pipeline;
+        return new Message<Types.FilterLogType>() {
+            {
+                _event = logEvent;
+                _msgID = HexValue.toString(logEvent.getTransactionIndex());
+                _type = nsName.getFullName();
+                _data = pipeline;
+
+            }
+
+            @Override public Header getHeader(String name) { return null; }
+            @Override public Header[] getHeaders() { return new Header[0]; }
+            @Override public void setData(Object o) { _data = (IData)o; }
+            @Override public Values getValues() { return Values.use(_data); }
+        };
     }
 
     /**
