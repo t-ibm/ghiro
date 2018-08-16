@@ -15,6 +15,7 @@ import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.util.HexValue
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
 import com.wm.data.IData
 import com.wm.data.IDataFactory
 import com.wm.lang.ns.NSName
@@ -127,9 +128,9 @@ class UtilTest extends Specification {
         List<Types.FilterLogType> filterChanges = responseMock.getExpectedFilterChanges()
 
         and: 'the first log event is being decoded'
-        IData pipeline = Util.instance.decodeLogEvent(nsName, filterChanges[0])
+        Message<Types.FilterLogType> msg = Util.instance.decodeLogEvent(nsName, filterChanges[0])
 
         then: 'the resulting pipeline has the expected values'
-        pipeline == IDataFactory.create((Object[][])[['contractAddress', HexValue.toBigInteger('1')]])
+        msg.getIData() == IDataFactory.create((Object[][])[['contractAddress', HexValue.toBigInteger('1')]])
     }
 }
