@@ -99,7 +99,7 @@ abstract class ListenerSpecification extends Specification {
         // Remember the contract address; implies the contract was deployed
         Util.instance.storeContractAddress(pdt.getNSName(), filterResponseMock.contractAddress)
         // Create trigger
-        IData messageTypeFilterPair = IDataFactory.create((Object[][]) [['messageType', pdt.getNSName().toString()], ['filter', 'MyFilter'], ['umFilter', 'MyUmFilter']])
+        IData messageTypeFilterPair = IDataFactory.create((Object[][]) [['messageType', pdt.getNSName().toString()], ['filter', 'contractAddress != null']])
         IData data = IDataFactory.create((Object[][]) [['messageTypeFilterPair', messageTypeFilterPair]])
         ICondition condition = ConditionFactory.getInstance(ConditionFactory.SIMPLE).create(data)
         ICondition[] conditions = [condition]
