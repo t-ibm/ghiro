@@ -32,7 +32,7 @@ public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.Filte
 
             DAppExecutionTask task;
             try {
-                task = new DAppExecutionTask(_alias, consumerEvent, _pdtName, _trigger, _toc, _threadPool, false);
+                task = new DAppExecutionTask(consumerEvent, _pdtName, _listener);
                 _toc.prepareToExecuteUMTrigger(); // This will block until a trigger thread is available
 
                 if (_isSerial && _listener.isRetrievalSuspended()) {
