@@ -131,6 +131,9 @@ class UtilTest extends Specification {
         Message<Types.FilterLogType> msg = Util.instance.decodeLogEvent(nsName, filterChanges[0])
 
         then: 'the resulting pipeline has the expected values'
-        msg.getIData() == IDataFactory.create((Object[][])[['contractAddress', HexValue.toBigInteger('1')]])
+        msg.getIData() == IDataFactory.create((Object[][])[
+            ['_env', IDataFactory.create((Object[][])[['uuid', '']])],
+            ['contractAddress', HexValue.toBigInteger('1')]
+        ])
     }
 }

@@ -21,6 +21,7 @@ import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
+import com.wm.app.b2b.server.dispatcher.Dispatcher;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.data.IData;
@@ -58,7 +59,7 @@ public class Util {
     private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> nsNodes;
 
-    Web3Service web3Service;
+    public Web3Service web3Service;
 
     /**
      * The default constructor.
@@ -135,12 +136,16 @@ public class Util {
         ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
         assert event != null;
         IData pipeline = IDataFactory.create();
+        IData envelope = IDataFactory.create();
+        String uuid = HexValue.toString(logEvent.getTransactionIndex());
+        new IDataMap(envelope).put("uuid", uuid);
+        new IDataMap(pipeline).put(Dispatcher.ENVELOPE_KEY, envelope);
         decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;
-                _msgID = HexValue.toString(logEvent.getTransactionIndex());
+                _msgID = uuid;
                 _type = nsName.getFullName();
                 _data = pipeline;
 
