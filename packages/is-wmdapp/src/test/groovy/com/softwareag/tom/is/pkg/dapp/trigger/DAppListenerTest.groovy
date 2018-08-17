@@ -16,7 +16,6 @@ import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.jsonrpc.Service
 import com.wm.app.b2b.server.PackageManager
 import com.wm.app.b2b.server.ThreadManager
-import com.wm.app.b2b.server.TriggerFactory
 import com.wm.app.b2b.server.dispatcher.AbstractListener
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException
 import com.wm.app.b2b.server.dispatcher.frameworks.DispatcherManager
@@ -26,6 +25,7 @@ import com.wm.app.b2b.server.dispatcher.trigger.control.ControlledTriggerSvcThre
 import com.wm.app.b2b.server.dispatcher.trigger.control.TriggerDispatcherStrategy
 import com.wm.app.b2b.server.dispatcher.trigger.control.TriggerOutputControl
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
+import com.wm.app.b2b.server.dispatcher.wmmessaging.TriggerStatTracker
 import com.wm.app.b2b.server.ns.Namespace
 import com.wm.data.IData
 import com.wm.data.IDataFactory
@@ -35,6 +35,7 @@ import com.wm.lang.ns.NSRecord
 import com.wm.lang.ns.NSType
 import com.wm.msg.ConditionFactory
 import com.wm.msg.ICondition
+import com.wm.msg.IMessage
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -103,7 +104,17 @@ abstract class ListenerSpecification extends Specification {
         IData data = IDataFactory.create((Object[][]) [['messageTypeFilterPair', messageTypeFilterPair]])
         ICondition condition = ConditionFactory.getInstance(ConditionFactory.SIMPLE).create(data)
         ICondition[] conditions = [condition]
-        Trigger trigger = TriggerFactory.createTrigger(pkg, NSName.create(pdtName), conditions)
+        TriggerStatTracker triggerStats = new TriggerStatTracker()
+        Trigger trigger = Mock(Trigger)
+        trigger.getTriggerStats() >> triggerStats
+        trigger.setPackage(_ as NSPackage) >> { callRealMethod() }; trigger.getPackage() >> { callRealMethod() }; trigger.setPackage(pkg)
+        trigger.setNSName(_ as NSName) >> { callRealMethod() }; trigger.getNSName() >> { callRealMethod() }; trigger.setNSName(pdt.getNSName())
+        trigger.setConditions(_ as ICondition[]) >> { callRealMethod() }; trigger.getConditions() >> { callRealMethod() }; trigger.setConditions(conditions)
+        trigger.getName() >> { callRealMethod() }
+        trigger.findUMChannelFilterPairs() >> { callRealMethod() }
+        trigger.processMessage(_ as IMessage) >> {
+            // We stop calling the real method now as we are unable to obtain a reference to the invoke manager
+        }
         ThreadManager.init()
         TriggerDispatcherStrategy triggerDispatcherStrategy = TriggerDispatcherStrategy.getInstance()
         TriggerOutputControl triggerOutputControl = new TriggerOutputControl(trigger, 1, DispatcherManager.create(DispatcherManagerHelper.CODE_PATH_DEFAULT_NAME))
