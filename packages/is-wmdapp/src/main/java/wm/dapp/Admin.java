@@ -21,6 +21,7 @@ import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSRecord;
 
 import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
@@ -43,6 +44,14 @@ import java.util.Map;
                     NSFacade.saveNewNSNode(functions.get(nsName));
                 } else {
                     NSFacade.updateNSNode(functions.get(nsName));
+                }
+            }
+            Map<NSName,NSRecord> events = Util.instance.getEvents();
+            for (NSName nsName : events.keySet()) {
+                if (NSFacade.getNSNode(nsName.getFullName()) == null) {
+                    NSFacade.saveNewNSNode(events.get(nsName));
+                } else {
+                    NSFacade.updateNSNode(events.get(nsName));
                 }
             }
         } catch (Exception e) {
