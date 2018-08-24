@@ -19,6 +19,7 @@ import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
 import com.wm.data.IData
 import com.wm.data.IDataFactory
 import com.wm.lang.ns.NSName
+import com.wm.lang.ns.NSRecord
 import com.wm.lang.ns.NSSignature
 import rx.Observable
 import spock.lang.Specification
@@ -29,7 +30,7 @@ import spock.lang.Specification
  */
 class UtilTest extends Specification {
 
-    def "test contract to ns node conversion"() {
+    def "test contract function to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions()
 
@@ -57,6 +58,34 @@ class UtilTest extends Specification {
         nsSignature.input.fields.length == 1
         nsSignature.input.fields[0].name == 'x'
         nsSignature.output.fields.length == 0
+    }
+
+    def "test contract event to ns node conversion"() {
+        given: 'the contracts can be retrieved from the contract registry'
+        Map<NSName, NSRecord> events = Util.instance.getEvents()
+
+        expect: 'to retrieve a populated map of ns nodes'
+        events.size() == 4
+
+        when: 'a particular ns node is retrieved'
+        NSName nsName = NSName.create('sample.util.Console:LogAddress')
+        NSRecord nsRecord = events[nsName]
+
+        then: 'the document type of this ns node is as expected'
+        nsName.fullName == 'sample.util.Console:LogAddress'
+        nsName.interfaceName as String == 'sample.util.Console'
+        nsName.nodeName as String == 'LogAddress'
+        nsRecord.fields.length == 1
+        nsRecord.fields[0].name == 'contractAddress'
+        nsRecord.isPublishable()
+
+        when: 'a particular ns node is retrieved'
+        nsRecord = events[NSName.create('sample.util.Console:LogUint')]
+
+        then: 'the document type of this ns node is as expected'
+        nsRecord.fields.length == 1
+        nsRecord.fields[0].name == 'ret'
+        nsRecord.isPublishable()
     }
 
     def "test contract address mapping"() {

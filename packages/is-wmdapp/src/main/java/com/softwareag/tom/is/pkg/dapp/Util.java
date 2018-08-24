@@ -28,14 +28,17 @@ import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.flow.FlowRoot;
+import com.wm.lang.ns.EventDescription;
 import com.wm.lang.ns.NSField;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
+import com.wm.lang.ns.NSRecordUtil;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.msg.Header;
 import com.wm.util.JavaWrapperType;
+import com.wm.util.Name;
 import com.wm.util.Values;
 import rx.Observable;
 
@@ -57,7 +60,8 @@ public class Util {
     private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
-    private Map<NSName,FlowSvcImpl> nsNodes;
+    private Map<NSName,FlowSvcImpl> services;
+    private Map<NSName,NSRecord> documentTypes;
 
     public Web3Service web3Service;
 
@@ -66,7 +70,8 @@ public class Util {
      * @throws ExceptionInInitializerError if the node configuration is missing
      */
     private Util() throws ExceptionInInitializerError {
-        nsNodes = new HashMap<>();
+        services = new HashMap<>();
+        documentTypes = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
             URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
@@ -264,10 +269,32 @@ public class Util {
                     flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
                     flowSvcImpl.setStateless(false);
                 }
-                nsNodes.put(nsName, flowSvcImpl);
+                services.put(nsName, flowSvcImpl);
             }
         }
-        return nsNodes;
+        return services;
+    }
+
+    /**
+     * @return the contract events as a {@link NSName}/{@link NSRecord} map
+     */
+    public Map<NSName,NSRecord> getEvents() throws IOException {
+        NSName nsName;
+        NSRecord nsRecord;
+        contracts = contractRegistry.load();
+        for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
+            // Add the functions as defined in the ABI
+            String interfaceName = getInterfaceName(entry.getKey());
+            ContractInterface contractInterface = entry.getValue().getAbi();
+            List<ContractInterface.Specification> events = contractInterface.getEvents();
+            for (ContractInterface.Specification<?> event : events) {
+                String eventName = event.getName();
+                nsName = NSName.create(interfaceName, eventName);
+                nsRecord = getRecord(nsName, event);
+                documentTypes.put(nsName, nsRecord);
+            }
+        }
+        return documentTypes;
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
@@ -341,9 +368,7 @@ public class Util {
     }
 
     private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
-        if (pkgWmDAppContract != null && !pkgWmDAppContract.getStore().getNodePath(nsName).mkdirs()) {
-            DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
-        }
+        mkdirs(nsName);
 
         FlowSvcImpl flowSvcImpl;
         NSNode node = Namespace.current().getNode(nsName);
@@ -369,9 +394,9 @@ public class Util {
 
     private <T> NSSignature getSignature(NSName nsName, ContractInterface.Specification<T> function) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
-        NSSignature nsSignature = nsNodes.containsKey(nsName) ? nsNodes.get(nsName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
+        NSSignature nsSignature = services.containsKey(nsName) ? services.get(nsName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
-        boolean optional = nsNodes.containsKey(nsName);
+        boolean optional = services.containsKey(nsName);
 
         // Input
         NSRecord inputRecord = getNsRecord(function.getInputParameters(), optional);
@@ -382,6 +407,32 @@ public class Util {
         nsSignature.setOutput(outputRecord);
 
         return nsSignature;
+    }
+
+    private <T> NSRecord getRecord(NSName nsName, ContractInterface.Specification<T> event) {
+        mkdirs(nsName);
+
+        EventDescription eventDescription = EventDescription.create(Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
+        NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
+        nsRecord.setNSName(nsName);
+        nsRecord.setPackage(pkgWmDAppContract);
+        NSRecordUtil.transform(nsRecord, eventDescription);
+        // If the same ns node with a different signature already exists we simply add to the existing signature ...
+        nsRecord = documentTypes.getOrDefault(nsName, nsRecord);
+        // ... but make the parameters optional
+        boolean optional = documentTypes.containsKey(nsName);
+
+        // Input
+        NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
+        nsRecord.mergeRecord(inputRecord);
+
+        return nsRecord;
+    }
+
+    private void mkdirs(NSName nsName) {
+        if (pkgWmDAppContract != null && !pkgWmDAppContract.getStore().getNodePath(nsName).mkdirs()) {
+            DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
+        }
     }
 
     private <T> NSRecord getNsRecord(List<? extends ContractInterface.Parameter<T>> parameters, boolean optional) {
