@@ -24,6 +24,9 @@ import com.wm.lang.ns.NSSignature
 import rx.Observable
 import spock.lang.Specification
 
+import static Util.SUFFIX_REQ
+import static Util.SUFFIX_DOC
+
 /**
  * System under specification: {@link Util}.
  * @author tglaeser
@@ -38,20 +41,20 @@ class UtilTest extends Specification {
         functions.size() == 6
 
         when: 'a particular ns node is retrieved'
-        NSName nsName = NSName.create('sample.util.Console:uintToBytes')
+        NSName nsName = NSName.create("sample.util.Console:uintToBytes$SUFFIX_REQ")
         NSSignature nsSignature = functions[nsName].signature
 
         then: 'the signature of this ns node is as expected'
-        nsName.fullName == 'sample.util.Console:uintToBytes'
+        nsName.fullName == "sample.util.Console:uintToBytes$SUFFIX_REQ"
         nsName.interfaceName as String == 'sample.util.Console'
-        nsName.nodeName as String == 'uintToBytes'
+        nsName.nodeName as String == "uintToBytes$SUFFIX_REQ"
         nsSignature.input.fields.length == 1
         nsSignature.input.fields[0].name == 'v'
         nsSignature.output.fields.length == 1
         nsSignature.output.fields[0].name == 'ret'
 
         when: 'a particular ns node is retrieved'
-        nsSignature = functions[NSName.create('sample.util.Console:log')].signature
+        nsSignature = functions[NSName.create("sample.util.Console:log$SUFFIX_REQ")].signature
         nsSignature.input = nsSignature.getInput()
 
         then: 'the signature of this ns node is as expected'
@@ -68,19 +71,19 @@ class UtilTest extends Specification {
         events.size() == 4
 
         when: 'a particular ns node is retrieved'
-        NSName nsName = NSName.create('sample.util.Console:LogAddress')
+        NSName nsName = NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")
         NSRecord nsRecord = events[nsName]
 
         then: 'the document type of this ns node is as expected'
-        nsName.fullName == 'sample.util.Console:LogAddress'
+        nsName.fullName == "sample.util.Console:LogAddress$SUFFIX_DOC"
         nsName.interfaceName as String == 'sample.util.Console'
-        nsName.nodeName as String == 'LogAddress'
+        nsName.nodeName as String == "LogAddress$SUFFIX_DOC"
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
 
         when: 'a particular ns node is retrieved'
-        nsRecord = events[NSName.create('sample.util.Console:LogUint')]
+        nsRecord = events[NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")]
 
         then: 'the document type of this ns node is as expected'
         nsRecord.fields.length == 1

@@ -30,7 +30,7 @@ import com.wm.data.IDataUtil;
                 { "amount", HexValueBase.toBigInteger(amount) },
         };
         try {
-            IData output = Service.doInvoke("zeppelin.examples.SimpleSavingsWallet", "sendTo", IDataFactory.create(input));
+            IData output = Service.doInvoke("zeppelin.examples.SimpleSavingsWallet", "sendToReq", IDataFactory.create(input));
             IDataUtil.merge(pipeline, output);
         } catch (Exception e) {
             if (e instanceof ServiceException) {
