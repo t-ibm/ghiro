@@ -54,6 +54,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Util {
+    static final String SUFFIX_REQ = "Req";
+    static final String SUFFIX_DOC = "Doc";
+
     public static Util instance = new Util();
 
     private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
@@ -256,7 +259,7 @@ public class Util {
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
-                String functionName = function.getName();
+                String functionName = function.getName() + SUFFIX_REQ;
                 nsName = NSName.create(interfaceName, functionName);
                 nsSignature = getSignature(nsName, function);
                 flowInvoke = new FlowInvoke(IDataFactory.create());
@@ -288,7 +291,7 @@ public class Util {
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
             for (ContractInterface.Specification<?> event : events) {
-                String eventName = event.getName();
+                String eventName = event.getName() + SUFFIX_DOC;
                 nsName = NSName.create(interfaceName, eventName);
                 nsRecord = getRecord(nsName, event);
                 documentTypes.put(nsName, nsRecord);
