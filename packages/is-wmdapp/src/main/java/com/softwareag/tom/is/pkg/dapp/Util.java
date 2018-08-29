@@ -13,6 +13,7 @@ import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
+import com.softwareag.tom.is.pkg.dapp.trigger.Condition;
 import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
@@ -21,7 +22,9 @@ import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
+import com.wm.app.b2b.server.TriggerFactory;
 import com.wm.app.b2b.server.dispatcher.Dispatcher;
+import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.data.IData;
@@ -37,6 +40,7 @@ import com.wm.lang.ns.NSRecordUtil;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
 import com.wm.msg.Header;
+import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Name;
 import com.wm.util.Values;
@@ -286,7 +290,7 @@ public class Util {
         NSRecord nsRecord;
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
-            // Add the functions as defined in the ABI
+            // Add the events as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
@@ -298,6 +302,24 @@ public class Util {
             }
         }
         return documentTypes;
+    }
+
+    public NSRecord getPublishableDocumentType(NSName nsName) {
+        EventDescription eventDescription = EventDescription.create(Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
+        NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
+        nsRecord.setNSName(nsName);
+        nsRecord.setPackage(pkgWmDAppContract);
+        NSRecordUtil.transform(nsRecord, eventDescription);
+        return nsRecord;
+    }
+
+    public FlowSvcImpl getResponseService(NSName nsName) {
+        return new FlowSvcImpl(pkgWmDAppContract, nsName, null);
+    }
+
+    public Trigger getTrigger(NSName nsName, List<Condition> triggerConditions) {
+        ICondition[] conditions = triggerConditions.stream().map(Condition::asSimpleCondition).toArray(ICondition[]::new);
+        return TriggerFactory.createTrigger(pkgWmDAppContract, nsName, conditions);
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
@@ -415,11 +437,7 @@ public class Util {
     private <T> NSRecord getRecord(NSName nsName, ContractInterface.Specification<T> event) {
         mkdirs(nsName);
 
-        EventDescription eventDescription = EventDescription.create(Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
-        NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
-        nsRecord.setNSName(nsName);
-        nsRecord.setPackage(pkgWmDAppContract);
-        NSRecordUtil.transform(nsRecord, eventDescription);
+        NSRecord nsRecord = getPublishableDocumentType(nsName);
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
         nsRecord = documentTypes.getOrDefault(nsName, nsRecord);
         // ... but make the parameters optional

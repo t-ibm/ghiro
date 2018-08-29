@@ -15,9 +15,7 @@ import com.softwareag.tom.protocol.jsonrpc.Response
 import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.jsonrpc.Service
 import com.wm.app.b2b.server.FlowSvcImpl
-import com.wm.app.b2b.server.PackageManager
 import com.wm.app.b2b.server.ThreadManager
-import com.wm.app.b2b.server.TriggerFactory
 import com.wm.app.b2b.server.dispatcher.AbstractListener
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException
 import com.wm.app.b2b.server.dispatcher.frameworks.DispatcherManager
@@ -29,16 +27,8 @@ import com.wm.app.b2b.server.dispatcher.trigger.control.TriggerOutputControl
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
 import com.wm.app.b2b.server.invoke.InvokeManager
 import com.wm.app.b2b.server.ns.Namespace
-import com.wm.data.IData
-import com.wm.data.IDataFactory
-import com.wm.lang.ns.EventDescription
 import com.wm.lang.ns.NSName
-import com.wm.lang.ns.NSPackage
 import com.wm.lang.ns.NSRecord
-import com.wm.lang.ns.NSRecordUtil
-import com.wm.msg.ConditionFactory
-import com.wm.msg.ICondition
-import com.wm.util.Name
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -79,28 +69,18 @@ abstract class ListenerSpecification extends Specification {
 
     def setup() {
         // Test fixture
-        NSPackage pkg = PackageManager.getPackage("WmDAppContract")
         pdtName = 'sample.SimpleStorage:LogAddress'
         String triggerName = 'sample.SimpleStorage:trigger'
         String serviceName = 'pub.flow:debugLog'
         // Create publishable document type
-        EventDescription eventDescription = EventDescription.create(Name.create(pdtName), 0, EventDescription.VOLATILE)
-        NSRecord pdt = new NSRecord(Namespace.current(), pdtName, NSRecord.DIM_SCALAR)
-        pdt.setNSName(NSName.create(pdtName))
-        pdt.setPackage(pkg)
-        NSRecordUtil.transform(pdt, eventDescription)
+        NSRecord pdt = Util.instance.getPublishableDocumentType(NSName.create(pdtName))
         assert pdt.isPublishable()
         Namespace.current().putNode(pdt)
         // Create service to invoke
-        FlowSvcImpl service = new FlowSvcImpl(pkg, NSName.create(serviceName), null)
+        FlowSvcImpl service = Util.instance.getResponseService(NSName.create(serviceName))
         Namespace.current().putNode(service)
         // Create trigger
-        IData messageTypeFilterPair = IDataFactory.create((Object[][]) [['messageType', pdt.getNSName().toString()], ['filter', 'contractAddress != null']])
-        IData data = IDataFactory.create((Object[][]) [['messageTypeFilterPair', messageTypeFilterPair]])
-        ICondition condition = ConditionFactory.getInstance(ConditionFactory.SIMPLE).create(data)
-        condition.serviceName = serviceName
-        ICondition[] conditions = [condition]
-        Trigger trigger = TriggerFactory.createTrigger(pkg, NSName.create(triggerName), conditions)
+        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [new Condition(pdtName, serviceName,'contractAddress != null')])
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager
