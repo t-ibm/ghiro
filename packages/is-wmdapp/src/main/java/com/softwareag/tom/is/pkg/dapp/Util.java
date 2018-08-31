@@ -51,11 +51,13 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Util {
@@ -69,7 +71,7 @@ public class Util {
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
     private Map<NSName,FlowSvcImpl> services;
-    private Map<NSName,NSRecord> documentTypes;
+    private Map<Trigger,Set<NSRecord>> triggers;
 
     public Web3Service web3Service;
 
@@ -79,7 +81,7 @@ public class Util {
      */
     private Util() throws ExceptionInInitializerError {
         services = new HashMap<>();
-        documentTypes = new HashMap<>();
+        triggers = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
             URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
@@ -281,23 +283,21 @@ public class Util {
     }
 
     /**
-     * @return the contract events as a {@link NSName}/{@link NSRecord} map
+     * @return the contract events as a {@link Trigger}/{@link Set<NSRecord>} map
      */
-    public Map<NSName,NSRecord> getEvents() throws IOException {
+    public Map<Trigger,Set<NSRecord>> getEvents() throws IOException {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the events as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
             ContractInterface contractInterface = entry.getValue().getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
-            for (ContractInterface.Specification<?> event : events) {
-                String eventName = event.getName() + SUFFIX_DOC;
-                NSName nsName = NSName.create(interfaceName, eventName);
-                NSRecord nsRecord = getRecord(nsName, event);
-                documentTypes.put(nsName, nsRecord);
-            }
+            NSName triggerNsName = NSName.create(interfaceName, "trigger");
+            Map<NSRecord,Condition> eventConditions = getEventConditions(interfaceName, events);
+            Trigger trigger = getTrigger(triggerNsName, eventConditions.values());
+            triggers.put(trigger, eventConditions.keySet());
         }
-        return documentTypes;
+        return triggers;
     }
 
     public NSRecord getPublishableDocumentType(NSName nsName) {
@@ -313,7 +313,7 @@ public class Util {
         return new FlowSvcImpl(pkgWmDAppContract, nsName, null);
     }
 
-    public Trigger getTrigger(NSName nsName, List<Condition> triggerConditions) {
+    public Trigger getTrigger(NSName nsName, Collection<Condition> triggerConditions) {
         IData[] conditions = triggerConditions.stream().map(Condition::asIData).toArray(IData[]::new);
         NodeFactory nf = NodeMaster.getFactory(NSTrigger.TYPE.getType());
         IData nodeDef = IDataFactory.create(new Object[][]{
@@ -437,20 +437,33 @@ public class Util {
         return nsSignature;
     }
 
-    private <T> NSRecord getRecord(NSName nsName, ContractInterface.Specification<T> event) {
-        mkdirs(nsName);
-
-        NSRecord nsRecord = getPublishableDocumentType(nsName);
-        // If the same ns node with a different signature already exists we simply add to the existing signature ...
-        nsRecord = documentTypes.getOrDefault(nsName, nsRecord);
-        // ... but make the parameters optional
-        boolean optional = documentTypes.containsKey(nsName);
-
-        // Input
-        NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
-        nsRecord.mergeRecord(inputRecord);
-
-        return nsRecord;
+    private Map<NSRecord,Condition> getEventConditions(String interfaceName, List<ContractInterface.Specification> events) {
+        Map<NSRecord,Condition> eventConditions = new HashMap<>();
+        // Response service
+        String serviceName = "pub.flow:debugLog";
+        // Remember all record ns nodes for this contract
+        Map<NSName,NSRecord> nsRecords = new HashMap<>();
+        for (ContractInterface.Specification<?> event : events) {
+            // The record name
+            String name = event.getName() + SUFFIX_DOC;
+            NSName nsName = NSName.create(interfaceName, name);
+            // Ensure a folder for the ns node exists
+            mkdirs(nsName);
+            // Get the record ns node
+            NSRecord nsRecord = getPublishableDocumentType(nsName);
+            // If the same ns node with a different signature already exists we simply add to the existing signature ...
+            nsRecord = nsRecords.getOrDefault(nsName, nsRecord);
+            // ... but make the parameters optional
+            boolean optional = nsRecords.containsKey(nsName);
+            // Set the record fields as defined by the event input parameters
+            NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
+            nsRecord.mergeRecord(inputRecord);
+            // Remember this record ns node
+            nsRecords.put(nsName, nsRecord);
+            // Add to the event condition map
+            eventConditions.put(nsRecord, Condition.create(name, serviceName));
+        }
+        return eventConditions;
     }
 
     private void mkdirs(NSName nsName) {
