@@ -15,7 +15,9 @@ import com.softwareag.tom.protocol.jsonrpc.Response
 import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.jsonrpc.Service
 import com.wm.app.b2b.server.FlowSvcImpl
+import com.wm.app.b2b.server.NodeMaster
 import com.wm.app.b2b.server.ThreadManager
+import com.wm.app.b2b.server.TriggerFactory
 import com.wm.app.b2b.server.dispatcher.AbstractListener
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException
 import com.wm.app.b2b.server.dispatcher.frameworks.DispatcherManager
@@ -29,6 +31,7 @@ import com.wm.app.b2b.server.invoke.InvokeManager
 import com.wm.app.b2b.server.ns.Namespace
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
+import com.wm.lang.ns.NSTrigger
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -80,7 +83,8 @@ abstract class ListenerSpecification extends Specification {
         FlowSvcImpl service = Util.instance.getResponseService(NSName.create(serviceName))
         Namespace.current().putNode(service)
         // Create trigger
-        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [new Condition(pdtName, serviceName,'contractAddress != null')])
+        NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
+        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [Condition.create(pdtName, serviceName,'contractAddress != null')])
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager

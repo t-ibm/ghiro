@@ -15,12 +15,15 @@ import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.util.HexValue
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
+import com.wm.app.b2b.server.NodeMaster
+import com.wm.app.b2b.server.TriggerFactory
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
 import com.wm.data.IData
 import com.wm.data.IDataFactory
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
 import com.wm.lang.ns.NSSignature
+import com.wm.lang.ns.NSTrigger
 import rx.Observable
 import spock.lang.Specification
 
@@ -65,6 +68,7 @@ class UtilTest extends Specification {
 
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
+        NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
         Map<NSName, NSRecord> events = Util.instance.getEvents()
 
         expect: 'to retrieve a populated map of ns nodes'
