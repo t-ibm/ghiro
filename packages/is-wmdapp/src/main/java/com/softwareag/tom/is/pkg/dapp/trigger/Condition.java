@@ -13,27 +13,48 @@ import com.wm.msg.ConditionFactory;
 import com.wm.msg.ICondition;
 
 public class Condition {
+    private String type;
+    private String name;
     private String pdtName;
     private String svcName;
     private String filter;
 
-    public Condition(String pdtName, String svcName, String filter) {
-        this.pdtName = pdtName;
+    private Condition(String type, String pdtName, String svcName, String filter) {
+        this.type = type;
+        this.name = "Condition " + pdtName;
         this.svcName = svcName;
+        this.pdtName = pdtName;
         this.filter = filter;
     }
 
-    public ICondition asSimpleCondition() {
+    public static Condition create(String pdtName, String svcName, String filter) {
+        return new Condition(ConditionFactory.SIMPLE, pdtName, svcName, filter);
+    }
+
+    public static Condition create(String pdtName, String svcName) {
+        return create(pdtName, svcName, null);
+    }
+
+    public ICondition asCondition() {
+        return ConditionFactory.getInstance(type).create(getData());
+    }
+
+    public IData asIData() {
+        return IDataFactory.create(new Object[][]{
+            {"type", type},
+            {"data", getData()},
+        });
+    }
+
+    private IData getData() {
         IData messageTypeFilterPair = IDataFactory.create(new Object[][]{
             {"messageType", pdtName},
             {"filter", filter},
         });
-        IData data = IDataFactory.create(new Object[][]{
+        return IDataFactory.create(new Object[][]{
+            {"conditionName", name},
+            {"serviceName", svcName},
             {"messageTypeFilterPair", messageTypeFilterPair},
-            {"filter", filter},
         });
-        ICondition condition = ConditionFactory.getInstance(ConditionFactory.SIMPLE).create(data);
-        condition.setServiceName(svcName);
-        return condition;
     }
 }
