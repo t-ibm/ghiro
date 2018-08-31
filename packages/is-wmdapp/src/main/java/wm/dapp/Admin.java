@@ -41,11 +41,11 @@ import java.util.Set;
         // @sigtype java 3.5
         try {
             Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions();
-            for (Map.Entry<NSName,FlowSvcImpl> function : functions.entrySet()) {
-                if (NSFacade.getNSNode(function.getKey().getFullName()) == null) {
-                    NSFacade.saveNewNSNode(function.getValue());
+            for (FlowSvcImpl function : functions.values()) {
+                if (NSFacade.getNSNode(function.getNSName().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(function);
                 } else {
-                    NSFacade.updateNSNode(function.getValue());
+                    NSFacade.updateNSNode(function);
                 }
             }
             Map<Trigger,Set<NSRecord>> events = Util.instance.getEvents();
