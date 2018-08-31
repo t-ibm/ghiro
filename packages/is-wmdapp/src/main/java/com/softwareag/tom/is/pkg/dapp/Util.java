@@ -20,9 +20,10 @@ import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
 import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
+import com.wm.app.b2b.server.NodeFactory;
+import com.wm.app.b2b.server.NodeMaster;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
-import com.wm.app.b2b.server.TriggerFactory;
 import com.wm.app.b2b.server.dispatcher.Dispatcher;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
@@ -39,8 +40,8 @@ import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSRecordUtil;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSSignature;
+import com.wm.lang.ns.NSTrigger;
 import com.wm.msg.Header;
-import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Name;
 import com.wm.util.Values;
@@ -252,10 +253,6 @@ public class Util {
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
     public Map<NSName,FlowSvcImpl> getFunctions() throws IOException {
-        NSName nsName;
-        NSSignature nsSignature;
-        FlowInvoke flowInvoke;
-        FlowSvcImpl flowSvcImpl;
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
@@ -264,9 +261,10 @@ public class Util {
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName() + SUFFIX_REQ;
-                nsName = NSName.create(interfaceName, functionName);
-                nsSignature = getSignature(nsName, function);
-                flowInvoke = new FlowInvoke(IDataFactory.create());
+                NSName nsName = NSName.create(interfaceName, functionName);
+                NSSignature nsSignature = getSignature(nsName, function);
+                FlowInvoke flowInvoke = new FlowInvoke(IDataFactory.create());
+                FlowSvcImpl flowSvcImpl;
                 if (function.isConstant()) {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
                     flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
@@ -286,8 +284,6 @@ public class Util {
      * @return the contract events as a {@link NSName}/{@link NSRecord} map
      */
     public Map<NSName,NSRecord> getEvents() throws IOException {
-        NSName nsName;
-        NSRecord nsRecord;
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the events as defined in the ABI
@@ -296,8 +292,8 @@ public class Util {
             List<ContractInterface.Specification> events = contractInterface.getEvents();
             for (ContractInterface.Specification<?> event : events) {
                 String eventName = event.getName() + SUFFIX_DOC;
-                nsName = NSName.create(interfaceName, eventName);
-                nsRecord = getRecord(nsName, event);
+                NSName nsName = NSName.create(interfaceName, eventName);
+                NSRecord nsRecord = getRecord(nsName, event);
                 documentTypes.put(nsName, nsRecord);
             }
         }
@@ -318,8 +314,15 @@ public class Util {
     }
 
     public Trigger getTrigger(NSName nsName, List<Condition> triggerConditions) {
-        ICondition[] conditions = triggerConditions.stream().map(Condition::asSimpleCondition).toArray(ICondition[]::new);
-        return TriggerFactory.createTrigger(pkgWmDAppContract, nsName, conditions);
+        IData[] conditions = triggerConditions.stream().map(Condition::asIData).toArray(IData[]::new);
+        NodeFactory nf = NodeMaster.getFactory(NSTrigger.TYPE.getType());
+        IData nodeDef = IDataFactory.create(new Object[][]{
+            {"node_nsName", nsName.getFullName()},
+            {NSTrigger.KEY_TRIGGER, IDataFactory.create(new Object[][]{
+                {"conditions", conditions},
+            })},
+        });
+        return (Trigger)nf.createFromNodeDef(pkgWmDAppContract, nsName, Values.use(nodeDef));
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
