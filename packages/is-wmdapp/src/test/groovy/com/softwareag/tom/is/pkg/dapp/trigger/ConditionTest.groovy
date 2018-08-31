@@ -28,6 +28,7 @@ class ConditionTest extends Specification {
         condition.type == 'simple'
         condition.name == "Condition $pdtName"
         condition.serviceName == NSName.create(serviceName)
+        condition.subscriptionEntries[0] == pdtName
         condition.subscriptionEntryFilterPairs[0].messageType == pdtName
         condition.subscriptionEntryFilterPairs[0].filter.source == filter
     }
