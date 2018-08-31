@@ -17,6 +17,7 @@ import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.app.b2b.server.NodeMaster
 import com.wm.app.b2b.server.TriggerFactory
+import com.wm.app.b2b.server.dispatcher.trigger.Trigger
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message
 import com.wm.data.IData
 import com.wm.data.IDataFactory
@@ -69,25 +70,27 @@ class UtilTest extends Specification {
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Map<NSName, NSRecord> events = Util.instance.getEvents()
+        Map<Trigger,Set<NSRecord>> triggers = Util.instance.getEvents()
 
         expect: 'to retrieve a populated map of ns nodes'
-        events.size() == 4
+        triggers.size() == 2
+
+        when:
+        Map.Entry<Trigger,Set<NSRecord>> trigger = triggers.find { Trigger trigger, Set<NSRecord> nsRecords -> trigger.getNSName() == NSName.create("sample.util.Console", "trigger")}
+
+        then:
+        trigger.getValue().size() == 2
 
         when: 'a particular ns node is retrieved'
-        NSName nsName = NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")
-        NSRecord nsRecord = events[nsName]
+        NSRecord nsRecord = trigger.getValue().find { it.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")}
 
         then: 'the document type of this ns node is as expected'
-        nsName.fullName == "sample.util.Console:LogAddress$SUFFIX_DOC"
-        nsName.interfaceName as String == 'sample.util.Console'
-        nsName.nodeName as String == "LogAddress$SUFFIX_DOC"
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
 
         when: 'a particular ns node is retrieved'
-        nsRecord = events[NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")]
+        nsRecord = trigger.getValue().find { it.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")}
 
         then: 'the document type of this ns node is as expected'
         nsRecord.fields.length == 1

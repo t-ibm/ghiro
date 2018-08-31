@@ -18,12 +18,14 @@ import com.softwareag.tom.is.pkg.dapp.Util;
 import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
+import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSRecord;
 
 import java.util.Map;
+import java.util.Set;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
@@ -39,19 +41,21 @@ import java.util.Map;
         // @sigtype java 3.5
         try {
             Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions();
-            for (NSName nsName : functions.keySet()) {
-                if (NSFacade.getNSNode(nsName.getFullName()) == null) {
-                    NSFacade.saveNewNSNode(functions.get(nsName));
+            for (Map.Entry<NSName,FlowSvcImpl> function : functions.entrySet()) {
+                if (NSFacade.getNSNode(function.getKey().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(function.getValue());
                 } else {
-                    NSFacade.updateNSNode(functions.get(nsName));
+                    NSFacade.updateNSNode(function.getValue());
                 }
             }
-            Map<NSName,NSRecord> events = Util.instance.getEvents();
-            for (NSName nsName : events.keySet()) {
-                if (NSFacade.getNSNode(nsName.getFullName()) == null) {
-                    NSFacade.saveNewNSNode(events.get(nsName));
-                } else {
-                    NSFacade.updateNSNode(events.get(nsName));
+            Map<Trigger,Set<NSRecord>> events = Util.instance.getEvents();
+            for (Map.Entry<Trigger,Set<NSRecord>> event : events.entrySet()) {
+                for (NSRecord nsRecord : event.getValue()) {
+                    if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
+                        NSFacade.saveNewNSNode(nsRecord);
+                    } else {
+                        NSFacade.updateNSNode(nsRecord);
+                    }
                 }
             }
         } catch (Exception e) {
