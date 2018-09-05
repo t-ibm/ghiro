@@ -76,15 +76,17 @@ abstract class ListenerSpecification extends Specification {
         String triggerName = 'sample.SimpleStorage:trigger'
         String serviceName = 'pub.flow:debugLog'
         // Create publishable document type
-        NSRecord pdt = Util.instance.getPublishableDocumentType(NSName.create(pdtName))
+        NSName pdtNsName = NSName.create(pdtName)
+        NSRecord pdt = Util.instance.getPublishableDocumentType(pdtNsName)
         assert pdt.isPublishable()
         Namespace.current().putNode(pdt)
         // Create service to invoke
-        FlowSvcImpl service = Util.instance.getResponseService(NSName.create(serviceName))
-        Namespace.current().putNode(service)
+        NSName svcNsName = NSName.create(serviceName)
+        FlowSvcImpl svc = Util.instance.getResponseService(svcNsName)
+        Namespace.current().putNode(svc)
         // Create trigger
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [Condition.create(pdtName, serviceName,'contractAddress != null')])
+        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [Condition.create(pdtNsName, svcNsName,'contractAddress != null')])
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager

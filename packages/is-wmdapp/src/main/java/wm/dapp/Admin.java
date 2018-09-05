@@ -57,6 +57,12 @@ import java.util.Set;
                         NSFacade.updateNSNode(nsRecord);
                     }
                 }
+                Trigger trigger = event.getKey();
+                if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(trigger);
+                } else {
+                    NSFacade.updateNSNode(trigger);
+                }
             }
         } catch (Exception e) {
             throw new ServiceException(e);
