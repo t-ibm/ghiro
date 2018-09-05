@@ -9,30 +9,31 @@ package com.softwareag.tom.is.pkg.dapp.trigger;
 
 import com.wm.data.IData;
 import com.wm.data.IDataFactory;
+import com.wm.lang.ns.NSName;
 import com.wm.msg.ConditionFactory;
 import com.wm.msg.ICondition;
 
 public class Condition {
     private String type;
     private String name;
-    private String pdtName;
-    private String svcName;
+    private NSName pdt;
+    private NSName svc;
     private String filter;
 
-    private Condition(String type, String pdtName, String svcName, String filter) {
+    private Condition(String type, NSName pdt, NSName svc, String filter) {
         this.type = type;
-        this.name = "Condition " + pdtName;
-        this.svcName = svcName;
-        this.pdtName = pdtName;
+        this.name = "Condition " + pdt.getNodeName().toString();
+        this.svc = svc;
+        this.pdt = pdt;
         this.filter = filter;
     }
 
-    public static Condition create(String pdtName, String svcName, String filter) {
-        return new Condition(ConditionFactory.SIMPLE, pdtName, svcName, filter);
+    public static Condition create(NSName pdt, NSName svc, String filter) {
+        return new Condition(ConditionFactory.SIMPLE, pdt, svc, filter);
     }
 
-    public static Condition create(String pdtName, String svcName) {
-        return create(pdtName, svcName, null);
+    public static Condition create(NSName pdt, NSName svc) {
+        return create(pdt, svc, null);
     }
 
     public ICondition asCondition() {
@@ -48,12 +49,12 @@ public class Condition {
 
     private IData getData() {
         IData messageTypeFilterPair = IDataFactory.create(new Object[][]{
-            {"messageType", pdtName},
+            {"messageType", pdt.getFullName()},
             {"filter", filter},
         });
         return IDataFactory.create(new Object[][]{
             {"conditionName", name},
-            {"serviceName", svcName},
+            {"serviceName", svc.getFullName()},
             {"messageTypeFilterPair", messageTypeFilterPair},
         });
     }

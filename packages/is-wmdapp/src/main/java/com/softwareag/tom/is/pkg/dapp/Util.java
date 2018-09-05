@@ -294,8 +294,10 @@ public class Util {
             List<ContractInterface.Specification> events = contractInterface.getEvents();
             NSName triggerNsName = NSName.create(interfaceName, "trigger");
             Map<NSRecord,Condition> eventConditions = getEventConditions(interfaceName, events);
-            Trigger trigger = getTrigger(triggerNsName, eventConditions.values());
-            triggers.put(trigger, eventConditions.keySet());
+            if (eventConditions.size() > 0) {
+                Trigger trigger = getTrigger(triggerNsName, eventConditions.values());
+                triggers.put(trigger, eventConditions.keySet());
+            }
         }
         return triggers;
     }
@@ -317,12 +319,15 @@ public class Util {
         IData[] conditions = triggerConditions.stream().map(Condition::asIData).toArray(IData[]::new);
         NodeFactory nf = NodeMaster.getFactory(NSTrigger.TYPE.getType());
         IData nodeDef = IDataFactory.create(new Object[][]{
-            {"node_nsName", nsName.getFullName()},
+            {NSNode.KEY_NSN_NSNAME, nsName.getFullName()},
+            {NSNode.KEY_NSN_TYPE, NSTrigger.TYPE_KEY},
             {NSTrigger.KEY_TRIGGER, IDataFactory.create(new Object[][]{
                 {"conditions", conditions},
             })},
         });
-        return (Trigger)nf.createFromNodeDef(pkgWmDAppContract, nsName, Values.use(nodeDef));
+        Trigger trigger = (Trigger)nf.createFromNodeDef(pkgWmDAppContract, nsName, Values.use(nodeDef));
+        trigger.setPackage(pkgWmDAppContract);
+        return trigger;
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
@@ -441,27 +446,27 @@ public class Util {
         Map<NSRecord,Condition> eventConditions = new HashMap<>();
         // Response service
         String serviceName = "pub.flow:debugLog";
+        NSName svcNsName = NSName.create(serviceName);
         // Remember all record ns nodes for this contract
         Map<NSName,NSRecord> nsRecords = new HashMap<>();
         for (ContractInterface.Specification<?> event : events) {
             // The record name
-            String name = event.getName() + SUFFIX_DOC;
-            NSName nsName = NSName.create(interfaceName, name);
+            NSName pdtNsName = NSName.create(interfaceName, event.getName() + SUFFIX_DOC);
             // Ensure a folder for the ns node exists
-            mkdirs(nsName);
+            mkdirs(pdtNsName);
             // Get the record ns node
-            NSRecord nsRecord = getPublishableDocumentType(nsName);
+            NSRecord pdt = getPublishableDocumentType(pdtNsName);
             // If the same ns node with a different signature already exists we simply add to the existing signature ...
-            nsRecord = nsRecords.getOrDefault(nsName, nsRecord);
+            pdt = nsRecords.getOrDefault(pdtNsName, pdt);
             // ... but make the parameters optional
-            boolean optional = nsRecords.containsKey(nsName);
+            boolean optional = nsRecords.containsKey(pdtNsName);
             // Set the record fields as defined by the event input parameters
             NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
-            nsRecord.mergeRecord(inputRecord);
+            pdt.mergeRecord(inputRecord);
             // Remember this record ns node
-            nsRecords.put(nsName, nsRecord);
+            nsRecords.put(pdtNsName, pdt);
             // Add to the event condition map
-            eventConditions.put(nsRecord, Condition.create(name, serviceName));
+            eventConditions.put(pdt, Condition.create(pdtNsName, svcNsName));
         }
         return eventConditions;
     }

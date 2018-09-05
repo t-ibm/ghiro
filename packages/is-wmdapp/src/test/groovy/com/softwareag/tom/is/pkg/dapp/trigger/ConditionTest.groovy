@@ -19,17 +19,17 @@ class ConditionTest extends Specification {
 
     def "test simple condition"() {
         given: 'a simple condition definition'
-        String pdtName = 'sample.SimpleStorage:LogAddress'
-        String serviceName = 'pub.flow:debugLog'
+        NSName pdt = NSName.create('sample.SimpleStorage:LogAddress')
+        NSName svc = NSName.create('pub.flow:debugLog')
         String filter = 'contractAddress != null'
-        ICondition condition = Condition.create(pdtName, serviceName, filter).asCondition()
+        ICondition condition = Condition.create(pdt, svc, filter).asCondition()
 
         expect: 'to find the object reflecting the definition'
         condition.type == 'simple'
-        condition.name == "Condition $pdtName"
-        condition.serviceName == NSName.create(serviceName)
-        condition.subscriptionEntries[0] == pdtName
-        condition.subscriptionEntryFilterPairs[0].messageType == pdtName
+        condition.name == "Condition LogAddress"
+        condition.serviceName == svc
+        condition.subscriptionEntries[0] == pdt.getFullName()
+        condition.subscriptionEntryFilterPairs[0].messageType == pdt.getFullName()
         condition.subscriptionEntryFilterPairs[0].filter.source == filter
     }
 }
