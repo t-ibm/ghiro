@@ -19,13 +19,13 @@ Declaring a named node is done via package property `node` as persisted in file 
 ###### Runtime Services
 |Service|Description|
 |-------|-----------|
-|`wm.dapp.Contract:call`|Calls the contract. To be used by stateless EVM functions.|
-|`wm.dapp.Contract:sendTransaction`|Sends a transaction. To be used by stateful EVM functions.|
+|`wm.dapp.Contract:call`|Interact with a contract. To be used with stateless EVM functions.|
+|`wm.dapp.Contract:sendTransaction`|Interact with a contract. To be used with stateful EVM functions.|
 
 #### The actual Distributed Applications
-IS package `WmDAppContract` contains all generated distributed application namespace nodes; the contract's functions are
-represented as services while the contract's events are represented as publishable document types. If a contract has at
-least one event defined than a trigger namespace node is created with the publishable document types listed as conditions.
+IS package `WmDAppContract` contains all generated contract namespace nodes; the contract's functions are represented as
+services while the contract's events are represented as publishable document types. If a contract has at least one event
+defined than a trigger namespace node is created with the publishable document types listed as conditions.
 
 ###### Libraries
 The following third-party Solidity libraries are currently included:
