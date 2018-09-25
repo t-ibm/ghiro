@@ -7,5 +7,5 @@ specification, resp. [Web3](https://github.com/ethereum/wiki/wiki/JavaScript-API
 however we need of course be in compliance with what ever Burrow exposes; see the [Burrow JSON-RPC](https://github.com/monax/burrow/blob/master/docs/specs/api.md)
 specification for details.
 
-Regardless of the implementation, a good way of specifying the contract is by the means of Protocol Buffers. See file
-[types.proto](./src/main/proto/types.proto) for the current implementation status.
+Regardless of the implementation, a clean approach for specifying the interface between the EVM and IS is by means of Protocol
+Buffers. See file [types.proto](./src/main/proto/types.proto) for the current implementation status.

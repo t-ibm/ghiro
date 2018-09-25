@@ -11,8 +11,8 @@ The Solidity compiler allows to produce different output formats for a given sou
 * Application Binary Interface (ABI) specification of the contracts.
 * Natural Specification (Natspec) documentation of all contracts.
 
-We are mostly interested in the binary representation and the ABI specification in order to deploy the contract and call
-its functions.
+We are mostly interested in the binary representation and the ABI specification in order to deploy a contract, call its
+functions, and listen to its events.
 
 ###### Build-Time Approach
 With this approach the Solidity sources are compiled during build-time and then the `*.bin` and `*.abi` results are picked up by
@@ -27,7 +27,7 @@ are created on the fly.
 #### Contract ABI
 Providing a type-system for smart contracts.
 
-A contract interface essentially declares a set of specifications that allow to interact with the contract. Those
+A contract interface essentially declares a set of specifications that allows to interact with the contract. Those
 specifications are of type `constructor`, `function`, or `event`. Beyond other properties, a function specification is composed
 of `inputParameters` and `outputParameters` whereas constructor and event specifications are composed of `inputParameters` only.
 For the complete set of declared properties see the [Ethereum Contract ABI specification](https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI).
