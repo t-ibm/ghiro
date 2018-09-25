@@ -2,7 +2,8 @@
 User interaction with the DLT layer is through two IS packages.
 
 #### Support for Distributed Applications
-IS package `WmDApp` contains administrative services as well as the runtime services mapping the contract to the DLT layer.
+IS package `WmDApp` contains administrative services as well as the runtime services allowing to communicate with the distributed
+applications hosted by the distributed ledger.
 
 ###### Configuration
 There is exactly one configuration file [`packages/WmDApp/resources/Node.yaml`](../modules/core/src/testFixture/resources/Node.yaml) controlling all aspects of a DLT node.
@@ -18,8 +19,8 @@ Declaring a named node is done via package property `node` as persisted in file 
 ###### Runtime Services
 |Service|Description|
 |-------|-----------|
-|`wm.dapp.Contract:call`|Calls the contract. To be used by stateless EVM contracts.|
-|`wm.dapp.Contract:sendTransaction`|Sends a transaction. To be used by stateful EVM contracts.|
+|`wm.dapp.Contract:call`|Calls the contract. To be used by stateless EVM functions.|
+|`wm.dapp.Contract:sendTransaction`|Sends a transaction. To be used by stateful EVM functions.|
 
 #### The actual Distributed Applications
 IS package `WmDAppContract` contains all generated distributed application namespace nodes; the contract's functions are
