@@ -25,7 +25,7 @@ pkg {
         'node' : 'production',
         'classloader' : 'package',
     )
-    into('resources') {
+    into('code/classes') {
         from(project(":modules:$project.rootProject.name-core").sourceSets.testFixture.resources) { include 'Node.yaml' }
     }
 }
