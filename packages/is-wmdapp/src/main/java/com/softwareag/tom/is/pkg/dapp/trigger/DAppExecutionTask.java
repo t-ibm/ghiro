@@ -20,6 +20,8 @@ import com.wm.msg.IMessage;
 
 import java.io.IOException;
 
+import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
+
 public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType> {
 
     /**
@@ -44,7 +46,8 @@ public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType
     }
 
     @Override protected ProtocolInfoIf getProtocolInfoIf(Message<Types.FilterLogType> message) {
-        return new WmMessagingProtocolInfoImpl(WmMessagingProtocolInfoImpl.SubProtocol.DES, "tbd", _trigger.getName(), _pdtName, message.getDeliveryCount(), null);
+        //TODO :: Change DES to DApp
+        return new WmMessagingProtocolInfoImpl(WmMessagingProtocolInfoImpl.SubProtocol.DES, IS_DAPP_CONNECTION, _trigger.getName(), _pdtName, message.getDeliveryCount(), null);
     }
 
     @Override protected void postprocess(IMessage msg, boolean processOk, boolean shouldAck) throws Exception {

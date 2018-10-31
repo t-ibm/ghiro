@@ -60,6 +60,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
+
 public class Util {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
@@ -325,10 +327,12 @@ public class Util {
     }
 
     public NSRecord getPublishableDocumentType(NSName nsName) {
-        EventDescription eventDescription = EventDescription.create(Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
+        EventDescription eventDescription = EventDescription.create(IS_DAPP_CONNECTION, Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
         NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
         nsRecord.setNSName(nsName);
         nsRecord.setPackage(pkgWmDAppContract);
+//        IData result = Transformer.transform(Namespace.current(), nsRecord.getNSName().getFullName(), 0, EventDescription.VOLATILE, false, IS_DAPP_CONNECTION, false, false);
+//        assert result.equals(IDataFactory.create(new Object[][]{{"isSuccessful","true"}}));
         NSRecordUtil.transform(nsRecord, eventDescription);
         return nsRecord;
     }

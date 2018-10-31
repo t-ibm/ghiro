@@ -25,6 +25,9 @@ import rx.Subscription;
 import java.io.IOException;
 
 public class DAppListener extends AbstractListener<Types.FilterLogType> {
+
+    public static final String IS_DAPP_CONNECTION = "IS_DAPP_CONNECTION";
+
     private Observable<Types.FilterLogType> logObservable;
     private Subscription subscription;
 
@@ -113,9 +116,11 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
     }
 
     @Override protected void stopListener(boolean deleteSubscription) throws Exception {
+        if (subscription != null) {
             subscription.unsubscribe();
-            logObservable = null;
-            super.stopListener();
+        }
+        logObservable = null;
+        super.stopListener();
     }
 
     @Override public void unsubscribe() {
