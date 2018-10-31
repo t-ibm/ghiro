@@ -29,7 +29,7 @@ import rx.Observable
 import spock.lang.Specification
 
 import static Util.SUFFIX_REQ
-import static Util.SUFFIX_DOC
+import static Util.SUFFIX_TRG
 
 /**
  * System under specification: {@link Util}.
@@ -70,27 +70,33 @@ class UtilTest extends Specification {
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Map<Trigger,Set<NSRecord>> triggers = Util.instance.getEvents()
+        Map<Trigger,NSRecord> triggers = Util.instance.getEvents()
 
         expect: 'to retrieve a populated map of ns nodes'
-        triggers.size() == 2
+        triggers.size() == 4
 
-        when:
-        Map.Entry<Trigger,Set<NSRecord>> trigger = triggers.find { Trigger trigger, Set<NSRecord> nsRecords -> trigger.getNSName() == NSName.create("sample.util.Console", "trigger")}
+        when: 'a particular entry is retrieved'
+        Map.Entry<Trigger,NSRecord> entry = triggers.find { Trigger trg, NSRecord doc -> trg.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_TRG")}
 
-        then:
-        trigger.getValue().size() == 2
+        then: 'its value is non null'
+        entry != null
 
-        when: 'a particular ns node is retrieved'
-        NSRecord nsRecord = trigger.getValue().find { it.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")}
+        when: 'the entry value is retrieved'
+        NSRecord nsRecord = entry.getValue()
 
         then: 'the document type of this ns node is as expected'
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
 
-        when: 'a particular ns node is retrieved'
-        nsRecord = trigger.getValue().find { it.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")}
+        when: 'a particular entry is retrieved'
+        entry = triggers.find { Trigger trg, NSRecord doc -> trg.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_TRG")}
+
+        then: 'its value is non null'
+        entry != null
+
+        when: 'the entry value is retrieved'
+        nsRecord = entry.getValue()
 
         then: 'the document type of this ns node is as expected'
         nsRecord.fields.length == 1

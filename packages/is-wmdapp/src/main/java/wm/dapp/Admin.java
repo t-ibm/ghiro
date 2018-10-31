@@ -25,7 +25,6 @@ import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSRecord;
 
 import java.util.Map;
-import java.util.Set;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
@@ -48,14 +47,13 @@ import java.util.Set;
                     NSFacade.updateNSNode(function);
                 }
             }
-            Map<Trigger,Set<NSRecord>> events = Util.instance.getEvents();
-            for (Map.Entry<Trigger,Set<NSRecord>> event : events.entrySet()) {
-                for (NSRecord nsRecord : event.getValue()) {
-                    if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
-                        NSFacade.saveNewNSNode(nsRecord);
-                    } else {
-                        NSFacade.updateNSNode(nsRecord);
-                    }
+            Map<Trigger,NSRecord> events = Util.instance.getEvents();
+            for (Map.Entry<Trigger,NSRecord> event : events.entrySet()) {
+                NSRecord nsRecord = event.getValue();
+                if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(nsRecord);
+                } else {
+                    NSFacade.updateNSNode(nsRecord);
                 }
                 Trigger trigger = event.getKey();
                 if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
