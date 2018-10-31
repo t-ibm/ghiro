@@ -18,6 +18,7 @@ dependencies {
 }
 
 pkg {
+    provideClasspath project.sourceSets.main.runtimeClasspath - project.configurations.providedRuntime + project.tasks.jar
     manifest.values(
         'name': project.label,
         'description': project.description,
