@@ -88,7 +88,6 @@ class IntegrationServerPackagePlugin implements Plugin<Project> {
             duplicatesStrategy org.gradle.api.file.DuplicatesStrategy.FAIL
             from extension.pkgDir
             docFiles extension.docDir
-            classpath project.sourceSets.main.runtimeClasspath
         }
         project.tasks.assemble.dependsOn project.tasks.pkg
     }
