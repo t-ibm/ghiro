@@ -18,16 +18,52 @@ import com.softwareag.tom.is.pkg.dapp.Util;
 import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
+import com.wm.app.b2b.server.dispatcher.DispatchFacade;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.RuntimeConfiguration;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
+import com.wm.data.IDataCursor;
+import com.wm.data.IDataFactory;
+import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSRecord;
 
 import java.util.Map;
+
+import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
+    /**
+     * Creates new DApp connection alias if not already existing.
+     *
+     * @param pipeline The pipeline
+     * @throws ServiceException If there is an error during execution of this service
+     */
+    public static void createConnectionAlias(IData pipeline) throws ServiceException {
+        // --- <<IS-START(createConnectionAlias)>> ---
+        // @subtype unknown
+        // @sigtype java 3.5
+        try {
+            RuntimeConfiguration rt = DispatchFacade.getRuntimeConfiguration();
+            if (rt.getConnectionAliasOrNull(IS_DAPP_CONNECTION) == null) {
+                IData input = IDataFactory.create();
+                IDataCursor ic = input.getCursor();
+                IDataUtil.put(ic, "aliasName", IS_DAPP_CONNECTION);
+                IDataUtil.put(ic, "description", "system generated Decentralised Application connection alias");
+                IDataUtil.put(ic, "enabled", true);
+                IDataUtil.put(ic, "systemGenerated", true);
+                ic.destroy();
+
+                rt.createDAppConnectionAliasReference(input);
+            }
+        } catch (Exception e) {
+            throw new ServiceException(e);
+        }
+        // --- <<IS-END>> ---
+    }
+
     /**
      * Synchronizes the contracts to the IS namespace.
      *
