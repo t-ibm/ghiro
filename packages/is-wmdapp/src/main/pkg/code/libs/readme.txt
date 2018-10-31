@@ -1,0 +1,1 @@
+The whole purpose of this directory is adding packages/WmDApp/code/classes/Node.yaml to the IS classpath.
