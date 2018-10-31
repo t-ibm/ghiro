@@ -146,7 +146,7 @@ public class Util {
      */
     public Message<Types.FilterLogType> decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) throws IOException {
         String uri = getContractUri(nsName);
-        String eventName = getContractFunction(nsName);
+        String eventName = getContractEvent(nsName);
         Contract contract = validate(contracts.get(uri));
         ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
         assert event != null;
@@ -397,7 +397,13 @@ public class Util {
     }
 
     private String getContractFunction(NSName nsName) {
-        return nsName.getNodeName().toString();
+        String name = nsName.getNodeName().toString();
+        return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
+    }
+
+    private String getContractEvent(NSName nsName) {
+        String name = nsName.getNodeName().toString();
+        return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
     }
 
     private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
