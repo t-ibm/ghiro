@@ -18,6 +18,15 @@
             return false;
         }
     }
+    function confirmSync() {
+        var msg = "OK to synchronize all contracts to the IS namespace?\n\nSome contracts might be intended to be imported by other\ntop-level contracts only and might not work by itself.\n\nBe patient; deploying all contracts will take a couple seconds!";
+        if (confirm (msg)) {
+            document.htmlform_dapp_sync.submit();
+            return false;
+        } else {
+            return false;
+        }
+    }
     </script>
 </head>
 <body>
@@ -25,6 +34,12 @@
 <form name="htmlform_dapp_deploy" action="/WmDApp/contract.dsp" method="post">
     <input type="hidden" name="uri">
     <input type="hidden" name="mode" value="deploy">
+</form>
+<form name="htmlform_dapp_sync" action="/WmDApp/contract.dsp" method="post">
+    <input type="hidden" name="mode" value="sync">
+</form>
+<form name="htmlform_dapp_alias" action="/WmDApp/contract.dsp" method="post">
+    <input type="hidden" name="mode" value="alias">
 </form>
 </body>
 </html>
