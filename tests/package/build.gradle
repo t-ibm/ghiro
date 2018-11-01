@@ -13,6 +13,7 @@ dependencies {
         project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
         project(":packages:is-$project.rootProject.name-wmdapp"),
         project.sag.module.is.compile,
+        project.sag.module.protobuf,
     )
     integTestRuntime(
         project(":modules:$project.rootProject.name-protocol"),
