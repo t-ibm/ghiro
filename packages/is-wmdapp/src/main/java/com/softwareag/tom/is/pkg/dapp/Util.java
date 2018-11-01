@@ -18,7 +18,6 @@ import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
-import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.NodeFactory;
 import com.wm.app.b2b.server.NodeMaster;
@@ -29,7 +28,9 @@ import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.data.IData;
+import com.wm.data.IDataCursor;
 import com.wm.data.IDataFactory;
+import com.wm.data.IDataUtil;
 import com.wm.lang.flow.FlowInvoke;
 import com.wm.lang.flow.FlowRoot;
 import com.wm.lang.ns.EventDescription;
@@ -156,8 +157,8 @@ public class Util {
         IData pipeline = IDataFactory.create();
         IData envelope = IDataFactory.create();
         String uuid = HexValue.toString(logEvent.getTransactionIndex());
-        new IDataMap(envelope).put("uuid", uuid);
-        new IDataMap(pipeline).put(Dispatcher.ENVELOPE_KEY, envelope);
+        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
+        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
         return new Message<Types.FilterLogType>() {
@@ -357,25 +358,26 @@ public class Util {
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
-        IDataMap pipe = new IDataMap(pipeline);
+        IDataCursor pc = pipeline.getCursor();
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
         for (ContractInterface.Parameter<T> parameter : inputParameters) {
             ParameterType<T> parameterType = parameter.getType();
-            T value = parameterType.asType(pipe.get(parameter.getName()));
+            T value = parameterType.asType(IDataUtil.get(pc, parameter.getName()));
             values.add(value);
         }
         return function.encode(values);
     }
 
     private <T> void decodeOutput(ContractInterface.Specification<T> specification, IData pipeline, String response) {
+        IDataCursor pc = pipeline.getCursor();
         List<T> values = specification.decode(response);
         List<? extends ContractInterface.Parameter<T>> parameters = "event".equals(specification.getType()) ? specification.getInputParameters() : specification.getOutputParameters();
         assert values.size() == parameters.size();
         Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = parameters.iterator();
         Iterator<T> valuesIterator = values.iterator();
         while (outputParametersIterator.hasNext() && valuesIterator.hasNext()) {
-            new IDataMap(pipeline).put(outputParametersIterator.next().getName(), valuesIterator.next());
+            IDataUtil.put(pc, outputParametersIterator.next().getName(), valuesIterator.next());
         }
     }
 
