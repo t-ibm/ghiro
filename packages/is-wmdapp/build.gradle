@@ -5,10 +5,8 @@ dependencies {
     compile (project(":modules:$project.rootProject.name-contract")) { transitive = false }
     compile (project(":modules:$project.rootProject.name-core")) { transitive = false }
     compile (project(":modules:$project.rootProject.name-protocol")) { transitive = false }
-    compile(
-        project.sag.module.protobuf,
-        project.sag.module.rx,
-    )
+    compile project.sag.module.rx
+    providedCompile project.sag.module.protobuf
     runtime project.sag.module.crypto
     testCompile project(path:":modules:$project.rootProject.name-protocol", configuration:'testFixtureRuntime')
     testRuntime(
