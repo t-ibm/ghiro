@@ -3,15 +3,34 @@
         <td class='menusection-Settings' colspan='2'>Distributed Application &gt; Contracts</td>
     </tr>
     <tr>
-        <td colspan='2'>&nbsp;</td>
+        <td colspan="2">
+            <ul class="listitems">
+                <li class="listitem">
+                    <a href='contract.dsp?action=alias' onclick='document.htmlform_dapp_alias.submit(); return false;'>Create DApp connection alias</a>
+                </li>
+                <li class="listitem">
+                    <a href='contract.dsp?action=sync' onclick='return confirmSync();'>Sync All</a>
+                </li>
+            </ul>
+        </td>
     </tr>
 
     %switch mode%
+    %case 'alias'%
+    %invoke wm.dapp.Admin:createConnectionAlias%
+    %ifvar message%<tr><td colspan='2' class='message'>%value message%</td></tr>%endif%
+    %onerror%
+    <tr><td colspan='2' class='message'>error: %value errorMessage%</td></tr>
+    %endinvoke%
+    %case 'sync'%
+    %invoke wm.dapp.Admin:syncContracts%
+    %ifvar message%<tr><td colspan='2' class='message'>%value message%</td></tr>%endif%
+    %onerror%
+    <tr><td colspan='2' class='message'>error: %value errorMessage%</td></tr>
+    %endinvoke%
     %case 'deploy'%
     %invoke wm.dapp.Admin:deployContract%
-    %ifvar message%
-    <tr><td colspan='2' class='message'>%value message%</td></tr>
-    %endif%
+    %ifvar message%<tr><td colspan='2' class='message'>%value message%</td></tr>%endif%
     %onerror%
     <tr><td colspan='2' class='message'>error: %value errorMessage%</td></tr>
     %endinvoke%

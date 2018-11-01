@@ -15,7 +15,6 @@ package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
 import com.softwareag.tom.is.pkg.dapp.Util;
-import com.softwareag.util.IDataMap;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
 import com.wm.app.b2b.server.dispatcher.DispatchFacade;
@@ -45,9 +44,14 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         // --- <<IS-START(createConnectionAlias)>> ---
         // @subtype unknown
         // @sigtype java 3.5
+        // [o] field:0:required message
+        IDataCursor pc = pipeline.getCursor();
+        String message;
         try {
             RuntimeConfiguration rt = DispatchFacade.getRuntimeConfiguration();
-            if (rt.getConnectionAliasOrNull(IS_DAPP_CONNECTION) == null) {
+            if (rt.getConnectionAliasOrNull(IS_DAPP_CONNECTION) != null) {
+                message = "Connection alias '" + IS_DAPP_CONNECTION + "' already exists.";
+            } else {
                 IData input = IDataFactory.create();
                 IDataCursor ic = input.getCursor();
                 IDataUtil.put(ic, "aliasName", IS_DAPP_CONNECTION);
@@ -57,8 +61,12 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                 ic.destroy();
 
                 rt.createDAppConnectionAliasReference(input);
+                message = "Successfully created connection alias '" + IS_DAPP_CONNECTION + "'.";
             }
+            IDataUtil.put(pc,"message", message);
         } catch (Exception e) {
+            message = "Failed to create DApp connection alias!";
+            IDataUtil.put(pc,"message", message);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
@@ -74,6 +82,9 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         // --- <<IS-START(syncContracts)>> ---
         // @subtype unknown
         // @sigtype java 3.5
+        // [o] field:0:required message
+        IDataCursor pc = pipeline.getCursor();
+        String message;
         try {
             Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions();
             for (FlowSvcImpl function : functions.values()) {
@@ -98,7 +109,11 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                     NSFacade.updateNSNode(trigger);
                 }
             }
+            message = "Successfully synchronized all contracts to the IS namespace.";
+            IDataUtil.put(pc,"message", message);
         } catch (Exception e) {
+            message = "Failed to synchronize contracts!";
+            IDataUtil.put(pc,"message", message);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
@@ -117,13 +132,14 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         // [o] record:1:optional contracts
         // [o] - field:0:optional uri
         // [o] - field:0:optional address
+        IDataCursor pc = pipeline.getCursor();
         IData[]  contracts;
         try {
             contracts = Util.instance.getContractAddresses();
         } catch (Exception e) {
             throw new ServiceException(e);
         }
-        new IDataMap(pipeline).put("contracts", contracts);
+        IDataUtil.put(pc,"contracts", contracts);
         // --- <<IS-END>> ---
     }
 
@@ -139,17 +155,17 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         // @sigtype java 3.5
         // [i] field:0:required uri
         // [o] field:0:required message
-        IDataMap pipe = new IDataMap(pipeline);
-        String uri = pipe.getAsString("uri");
+        IDataCursor pc = pipeline.getCursor();
+        String uri = IDataUtil.getString(pc,"uri");
         String message;
         try {
             String contractAddress = Util.instance.deployContract(uri);
             Util.instance.storeContractAddress(uri, contractAddress);
             message = "Successfully deployed contract '" + uri + "'.";
-            pipe.put("message", message);
+            IDataUtil.put(pc,"message", message);
         } catch (Exception e) {
-            message = "Failed to deploy contract '" + uri + "'.";
-            pipe.put("message", message);
+            message = "Failed to deploy contract '" + uri + "'!";
+            IDataUtil.put(pc,"message", message);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
