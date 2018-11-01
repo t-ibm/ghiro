@@ -256,14 +256,19 @@ public class Util {
     }
 
     /**
+     * @param deployedOnly If set to {@code true} returns only functions from deployed contracts, otherwise returns all defined
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
-    public Map<NSName,FlowSvcImpl> getFunctions() throws IOException {
+    public Map<NSName,FlowSvcImpl> getFunctions(boolean deployedOnly) throws IOException {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
-            ContractInterface contractInterface = entry.getValue().getAbi();
+            Contract contract = entry.getValue();
+            if (deployedOnly && contract.getContractAddress() == null) {
+                continue;
+            }
+            ContractInterface contractInterface = contract.getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = function.getName() + SUFFIX_REQ;
@@ -287,14 +292,19 @@ public class Util {
     }
 
     /**
+     * @param deployedOnly If set to {@code true} returns only events from deployed contracts, otherwise returns all defined
      * @return the contract events as a {@link Trigger}/{@link NSRecord} map
      */
-    public Map<Trigger,NSRecord> getEvents() throws IOException {
+    public Map<Trigger,NSRecord> getEvents(boolean deployedOnly) throws IOException {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the events as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
-            ContractInterface contractInterface = entry.getValue().getAbi();
+            Contract contract = entry.getValue();
+            if (deployedOnly && contract.getContractAddress() == null) {
+                continue;
+            }
+            ContractInterface contractInterface = contract.getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
             // Response service
             String serviceName = "pub.flow:debugLog";

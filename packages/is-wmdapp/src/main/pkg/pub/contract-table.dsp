@@ -6,10 +6,13 @@
         <td colspan="2">
             <ul class="listitems">
                 <li class="listitem">
-                    <a href='contract.dsp?action=alias' onclick='document.htmlform_dapp_alias.submit(); return false;'>Create DApp connection alias</a>
+                    <a href='contract.dsp?action=alias' onclick='document.htmlform_dapp_alias.submit(); return false;'>Create connection alias</a>
                 </li>
                 <li class="listitem">
-                    <a href='contract.dsp?action=sync' onclick='return confirmSync();'>Sync All</a>
+                    <a href='contract.dsp?action=sync&deployedOnly=true' onclick='return confirmSync(true);'>Sync deployed contracts only</a>
+                </li>
+                <li class="listitem">
+                    <a href='contract.dsp?action=sync&deployedOnly=false' onclick='return confirmSync(false);'>Sync all contracts</a>
                 </li>
             </ul>
         </td>

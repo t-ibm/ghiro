@@ -39,7 +39,7 @@ class UtilTest extends Specification {
 
     def "test contract function to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions()
+        Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions(false)
 
         expect: 'to retrieve a populated map of ns nodes'
         functions.size() == 6
@@ -70,7 +70,7 @@ class UtilTest extends Specification {
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Map<Trigger,NSRecord> triggers = Util.instance.getEvents()
+        Map<Trigger,NSRecord> triggers = Util.instance.getEvents(false)
 
         expect: 'to retrieve a populated map of ns nodes'
         triggers.size() == 4

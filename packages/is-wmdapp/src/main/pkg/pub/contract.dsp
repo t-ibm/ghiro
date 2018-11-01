@@ -18,13 +18,19 @@
             return false;
         }
     }
-    function confirmSync() {
-        var msg = "OK to synchronize all contracts to the IS namespace?\n\nSome contracts might be intended to be imported by other\ntop-level contracts only and might not work by itself.\n\nBe patient; deploying all contracts will take a couple seconds!";
-        if (confirm (msg)) {
+    function confirmSync(deployedOnly) {
+        document.htmlform_dapp_sync.deployedOnly.value = deployedOnly;
+        if(deployedOnly) {
             document.htmlform_dapp_sync.submit();
             return false;
         } else {
-            return false;
+            var msg = "OK to synchronize all contracts to the IS namespace?\n\nSome contracts might be intended to be imported by other\ntop-level contracts only and might not work by itself.\n\nBe patient; deploying all contracts will take a couple seconds!";
+            if (confirm (msg)) {
+                document.htmlform_dapp_sync.submit();
+                return false;
+            } else {
+                return false;
+            }
         }
     }
     </script>
@@ -36,6 +42,7 @@
     <input type="hidden" name="mode" value="deploy">
 </form>
 <form name="htmlform_dapp_sync" action="/WmDApp/contract.dsp" method="post">
+    <input type="hidden" name="deployedOnly">
     <input type="hidden" name="mode" value="sync">
 </form>
 <form name="htmlform_dapp_alias" action="/WmDApp/contract.dsp" method="post">

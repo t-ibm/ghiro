@@ -82,11 +82,13 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         // --- <<IS-START(syncContracts)>> ---
         // @subtype unknown
         // @sigtype java 3.5
+        // [i] field:0:optional deployedOnly {"false","true"}
         // [o] field:0:required message
         IDataCursor pc = pipeline.getCursor();
+        boolean deployedOnly = IDataUtil.getBoolean(pc,"deployedOnly", false);
         String message;
         try {
-            Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions();
+            Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions(deployedOnly);
             for (FlowSvcImpl function : functions.values()) {
                 if (NSFacade.getNSNode(function.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(function);
@@ -94,7 +96,7 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                     NSFacade.updateNSNode(function);
                 }
             }
-            Map<Trigger,NSRecord> events = Util.instance.getEvents();
+            Map<Trigger,NSRecord> events = Util.instance.getEvents(deployedOnly);
             for (Map.Entry<Trigger,NSRecord> event : events.entrySet()) {
                 NSRecord nsRecord = event.getValue();
                 if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
