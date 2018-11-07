@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * ABI types implementation.
  */
-public final class ParameterTypeJava {
+final class ParameterTypeJava {
 
     static final UnknownType UNKNOWN = UnknownType.UNKNOWN;
     static final BoolType BOOL = BoolType.BOOL;
