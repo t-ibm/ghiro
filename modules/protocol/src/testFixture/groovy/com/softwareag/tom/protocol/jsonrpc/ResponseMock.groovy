@@ -45,7 +45,12 @@ class ResponseMock {
         for (ResponseEthGetFilterChanges.Event event : responseEthGetFilterChanges.events) {
             if (event instanceof ResponseEthGetFilterChanges.Log) {
                 ResponseEthGetFilterChanges.Log logEvent = ((ResponseEthGetFilterChanges.Log) event).get()
-                expected.add Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()
+                expected.add Types.FilterLogType.newBuilder()
+                    .setAddress(HexValue.toByteString(logEvent.address))
+                    .setData(HexValue.toByteString(logEvent.data))
+                    .setBlockNumber(HexValue.toByteString(logEvent.height))
+                    .addAllTopic(logEvent.topics.collect {t -> HexValue.toByteString(t)})
+                    .build()
             }
         }
         return expected

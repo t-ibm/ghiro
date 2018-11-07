@@ -11,6 +11,7 @@ import com.softwareag.tom.util.Hash;
 import com.softwareag.tom.util.HexValueBase;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,10 +26,12 @@ public class SpecificationEncoder {
     private SpecificationEncoder() {}
 
     public static <T> String encode(ContractInterface.Specification<T> specification, List<T> values) {
-        String specificationSignature = getSpecificationSignature(specification);
-        String specificationId = getSpecificationId(specificationSignature);
-
-        return encodeParameters(specification, specificationId, values);
+        if ("event".equals(specification.getType())) {
+            return getEventId(specification);
+        } else {
+            String specificationId = getFunctionId(specification);
+            return encodeParameters(specification, specificationId, values);
+        }
     }
 
     static <T> String encodeParameters(ContractInterface.Specification<T> specification, String specificationId, List<T> values) {
@@ -58,12 +61,32 @@ public class SpecificationEncoder {
         return result.toString();
     }
 
-    static <T> String getSpecificationSignature(ContractInterface.Specification<T> specification) {
-        String params = specification.getInputParameters().stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
+    static <T> String getFunctionSignature(ContractInterface.Specification<T> specification) {
+        return getSpecificationSignatue(specification, specification.getInputParameters());
+    }
+
+    static <T> String getEventSignature(ContractInterface.Specification<T> specification) {
+        List<ContractInterface.Parameter<T>> inputParameters = new ArrayList<>(specification.getInputParameters(true));
+        inputParameters.addAll(specification.getInputParameters(false));
+        return getSpecificationSignatue(specification, inputParameters);
+    }
+
+    private static <T> String getSpecificationSignatue(ContractInterface.Specification<T> specification, List<? extends ContractInterface.Parameter<T>> inputParameters) {
+        String params = inputParameters.stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
         return specification.getName() + "(" + params + ")";
     }
 
-    static String getSpecificationId(String methodSignature) {
-        return HexValueBase.stripPrefix(Hash.sha3(HexValueBase.encode(methodSignature)).substring(0, 10));
+    static <T> String getEventId(ContractInterface.Specification<T> specification) {
+        String specificationSignature = getEventSignature(specification);
+        return HexValueBase.stripPrefix(getSpecificationId(specificationSignature));
+    }
+
+    static <T> String getFunctionId(ContractInterface.Specification<T> specification) {
+        String specificationSignature = getFunctionSignature(specification);
+        return HexValueBase.stripPrefix(getSpecificationId(specificationSignature).substring(0, 10));
+    }
+
+    private static String getSpecificationId(String methodSignature) {
+        return Hash.sha3(HexValueBase.encode(methodSignature));
     }
 }

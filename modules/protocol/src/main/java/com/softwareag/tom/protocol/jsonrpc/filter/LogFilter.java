@@ -16,6 +16,7 @@ import com.softwareag.tom.protocol.util.HexValue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Log filter handler.
@@ -37,7 +38,13 @@ public class LogFilter extends Filter<Types.FilterLogType> {
         for (ResponseEthGetFilterChanges.Event event : events) {
             if (event instanceof ResponseEthGetFilterChanges.Log) {
                 ResponseEthGetFilterChanges.Log logEvent = ((ResponseEthGetFilterChanges.Log) event).get();
-                callback.onEvent(Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build());
+                callback.onEvent(Types.FilterLogType.newBuilder()
+                    .setAddress(HexValue.toByteString(logEvent.address))
+                    .setData(HexValue.toByteString(logEvent.data))
+                    .setBlockNumber(HexValue.toByteString(logEvent.height))
+                    .addAllTopic(logEvent.topics.stream().map(HexValue::toByteString).collect(Collectors.toList()))
+                    .build()
+                );
             } else {
                 throw new FilterException("Unexpected result type: " + event.get() + " required LogObject");
             }
