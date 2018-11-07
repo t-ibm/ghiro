@@ -11,7 +11,9 @@ import com.softwareag.tom.contract.abi.util.SpecificationEncoder;
 import com.softwareag.tom.contract.abi.util.ValueDecoder;
 import com.softwareag.tom.contract.abi.util.ValueEncoder;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Contract interface API.
@@ -42,6 +44,12 @@ public abstract class ContractInterface {
             return SpecificationEncoder.encode(this, values);
         }
         /**
+         * @return the encoded specification as a hex string
+         */
+        default String encode() {
+            return encode(Collections.emptyList());
+        }
+        /**
          * @param value The returned hex string
          * @return a list of Java values
          */
@@ -57,6 +65,17 @@ public abstract class ContractInterface {
                 count += parameter.getType().size();
             }
             return count;
+        }
+        /**
+         * @param indexed If set to {@code true} the return value will only contain indexed parameters; if set to {@code false} the return value will only contain non-indexed parameters
+         * @return a subset from the list of input parameters
+         */
+        default List<? extends ContractInterface.Parameter<T>> getInputParameters(boolean indexed) {
+            if (indexed) {
+                return getInputParameters().stream().filter(Parameter::isIndexed).collect(Collectors.toList());
+            } else {
+                return getInputParameters().stream().filter(p -> !p.isIndexed()).collect(Collectors.toList());
+            }
         }
     }
 

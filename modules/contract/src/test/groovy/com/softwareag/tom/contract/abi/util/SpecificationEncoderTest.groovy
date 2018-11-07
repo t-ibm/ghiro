@@ -23,7 +23,7 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(src.bytes, SolidityInterface.SoliditySpecification.class)
 
         when: 'the function signature is retrieved'
-        String signature = SpecificationEncoder.getSpecificationSignature(specification)
+        String signature = SpecificationEncoder.getFunctionSignature(specification)
 
         then: 'the signature is as expected'
         signature == 'foo(uint32,bool,uint8[2],uint16[])'
@@ -35,7 +35,7 @@ class SpecificationEncoderTest extends Specification {
         length == 5
 
         when: 'the function id is retrieved'
-        String id = SpecificationEncoder.getSpecificationId(signature)
+        String id = SpecificationEncoder.getFunctionId(specification)
 
         then: 'the id is as expected'
         id == '82fc43b3'
@@ -62,13 +62,36 @@ class SpecificationEncoderTest extends Specification {
         result == specification.encode(values)
     }
 
+    @Unroll def "test an arbitrary contract event #signature"() {
+        given: 'a valid contract specification'
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+
+        expect: 'a valid function signature and id'
+        SpecificationEncoder.getEventSignature(specification) == signature
+        SpecificationEncoder.getEventId(specification) == id
+
+        where: 'the specification items are from the Console contract'
+        source << [
+            '{"constant":false,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"Notify","outputs":[],"payable":false,"type":"event"}',
+            '{"constant":false,"inputs":[{"name":"a","type":"address"},{"name":"b","type":"uint256"},{"name":"c","type":"uint256"}],"name":"Deposit","outputs":[],"payable":false,"type":"event"}'
+        ]
+        signature << [
+            'Notify(uint256,uint256)',
+            'Deposit(uint160,uint256,uint256)', //TODO :: Should be 'Deposit(address,uint256,uint256)'
+        ]
+        id << [
+            '71e71a8458267085d5ab16980fd5f114d2d37f232479c245d523ce8d23ca40ed',
+            '019af80c8ede176a6c7a2386598573f3de9c95006daf5403a6fbde3d4bfb9372',
+        ]
+    }
+
     @Unroll def "test contract Console.#signature"() {
         given: 'a valid contract specification'
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getSpecificationSignature(specification) == signature
-        SpecificationEncoder.getSpecificationId(signature) == id
+        SpecificationEncoder.getFunctionSignature(specification) == signature
+        SpecificationEncoder.getFunctionId(specification) == id
 
         where: 'the specification items are from the Console contract'
         source << [
@@ -94,8 +117,8 @@ class SpecificationEncoderTest extends Specification {
         SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
 
         expect: 'a valid function signature and id'
-        SpecificationEncoder.getSpecificationSignature(specification) == signature
-        SpecificationEncoder.getSpecificationId(signature) == id
+        SpecificationEncoder.getFunctionSignature(specification) == signature
+        SpecificationEncoder.getFunctionId(specification) == id
 
         where: 'the specification items are from the SimpleStorage contract'
         source << [

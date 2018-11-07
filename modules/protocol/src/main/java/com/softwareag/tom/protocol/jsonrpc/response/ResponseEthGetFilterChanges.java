@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * {@code eth_getFilterChanges}.
@@ -37,9 +38,15 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
             for (int i = 0; i < this.result.events.size(); i++) {
                 Event event = this.result.events.get(i);
                 if (event instanceof Log) {
-                    Log logEvent = ((Log) event);
+                    Log logEvent = ((Log)event);
                     builder.addEvent(i, Types.FilterEventType.newBuilder().setLog(
-                            Types.FilterLogType.newBuilder().setAddress(HexValue.toByteString(logEvent.address)).setData(HexValue.toByteString(logEvent.data)).build()) //TODO :: height, topics
+                        Types.FilterLogType.newBuilder()
+                            .setAddress(HexValue.toByteString(logEvent.address))
+                            .setData(HexValue.toByteString(logEvent.data))
+                            .setBlockNumber(HexValue.toByteString(logEvent.height))
+                            .addAllTopic(logEvent.topics.stream().map(HexValue::toByteString).collect(Collectors.toList()))
+                            .build()
+                        )
                     ).build();
                 }
             }

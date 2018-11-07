@@ -92,8 +92,11 @@ class BurrowTest extends Specification {
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification logFunction = functions.get(0)
-        assert logFunction.name == 'log'
+        ContractInterface.Specification functionLog = functions.get(0)
+        assert functionLog.name == 'log'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogAddress = events.get(0)
+        assert eventLogAddress.name == 'LogAddress'
 
         String contractAddress
 
@@ -152,7 +155,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) function "log" is executed 2 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode([]))).build()
         ).build()
         Types.ResponseEthCall responseEthCall = null
         2.times {
@@ -172,6 +175,9 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getEventCount() == 2
         responseEthGetFilterChanges.getEvent(1).getLog().address.size() == 32*2+2
         responseEthGetFilterChanges.getEvent(1).getLog().data.size() == 32*2+2
+        responseEthGetFilterChanges.getEvent(1).getLog().getTopicCount() == 1
+        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
+        //HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(1).getLog().getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
     }
 
     def "test create solidity contract and listen to events"() {
@@ -179,8 +185,11 @@ class BurrowTest extends Specification {
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification logFunction = functions.get(0)
-        assert logFunction.name == 'log'
+        ContractInterface.Specification functionLog = functions.get(0)
+        assert functionLog.name == 'log'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogAddress = events.get(0)
+        assert eventLogAddress.name == 'LogAddress'
 
         String contractAddress
 
@@ -236,7 +245,7 @@ class BurrowTest extends Specification {
 
         when: println '(4) function "log" is executed 3 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(logFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode([]))).build()
         ).build()
         Types.ResponseEthCall responseEthCall = null
         3.times {
@@ -256,6 +265,9 @@ class BurrowTest extends Specification {
         results.size() == 3
         results[1].address.size() == 32*2+2
         results[1].data.size() == 32*2+2
+        results[1].topicCount == 1
+        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
+        //HexValue.stripPrefix(HexValue.toString(results[1].getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
 
         when: println '(6) the subscription is terminated'
         ethLogSubscription.unsubscribe()
@@ -269,10 +281,13 @@ class BurrowTest extends Specification {
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification setFunction = functions.get(1)
-        assert setFunction.name == 'set'
-        ContractInterface.Specification getFunction = functions.get(2)
-        assert getFunction.name == 'get'
+        ContractInterface.Specification functionSet = functions.get(1)
+        assert functionSet.name == 'set'
+        ContractInterface.Specification functionGet = functions.get(2)
+        assert functionGet.name == 'get'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogUint = events.get(1)
+        assert eventLogUint.name == 'LogUint'
 
         String contractAddress
 
@@ -331,7 +346,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) function "get" is executed'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode([]))).build()
         ).build()
         Types.ResponseEthCall responseEthCall = web3Service.ethCall(requestEthCall)
         println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
@@ -341,7 +356,7 @@ class BurrowTest extends Specification {
 
         when: println '(7) function "set" is executed'
         requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(setFunction.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionSet.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
         ).build()
         responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
         println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
@@ -351,7 +366,7 @@ class BurrowTest extends Specification {
 
         when: println '(8) function "get" is executed again'
         requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(getFunction.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode([]))).build()
         ).build()
         responseEthCall = web3Service.ethCall(requestEthCall)
         println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
@@ -376,6 +391,8 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getEventCount() == 1
         responseEthGetFilterChanges.getEvent(0).getLog().address.size() == 32*2+2
         HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getEvent(0).getLog().data)) == '7'
+        responseEthGetFilterChanges.getEvent(0).getLog().getTopicCount() == 1
+        HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(0).getLog().getTopic(0))).equalsIgnoreCase(eventLogUint.encode())
 
         when: println '(11) we unsubscribe to events from the the new contract account'
         Types.RequestEthUninstallFilter requestEthUninstallFilter = Types.RequestEthUninstallFilter.newBuilder().setId(filterId).build()

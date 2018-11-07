@@ -157,8 +157,11 @@ class BurrowTest extends RestClientSpecification {
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification logFunction = functions.get(0)
-        assert logFunction.name == 'log'
+        ContractInterface.Specification functionLog = functions.get(0)
+        assert functionLog.name == 'log'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogAddress = events.get(0)
+        assert eventLogAddress.name == 'LogAddress'
 
         def caller = [
                 address:'71044204395934D638C3BDA59E89C8219330A574',
@@ -229,7 +232,7 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(6) function "log" is executed 3 times'
         3.times {
-            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':logFunction.encode([])]]
+            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionLog.encode([])]]
             resp = send request
         }
 
@@ -244,6 +247,9 @@ class BurrowTest extends RestClientSpecification {
         then: 'an event for each call is received'
         resp.data.result.events.size() == 3
         resp.data.result.events.get(0).data == '000000000000000000000000' + callee.address
+        resp.data.result.events.get(0).topics.size() == 1
+        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
+        //resp.data.result.events.get(0).topics.get(0).equalsIgnoreCase(eventLogAddress.encode())
 
         when: println '(8) we poll for events again'
         request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]
@@ -258,10 +264,13 @@ class BurrowTest extends RestClientSpecification {
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/SimpleStorage']
         List functions = contract.abi.functions as List<ContractInterface.Specification>
-        ContractInterface.Specification setFunction = functions.get(1)
-        assert setFunction.name == 'set'
-        ContractInterface.Specification getFunction = functions.get(2)
-        assert getFunction.name == 'get'
+        ContractInterface.Specification functionSet = functions.get(1)
+        assert functionSet.name == 'set'
+        ContractInterface.Specification functionGet = functions.get(2)
+        assert functionGet.name == 'get'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogUint = events.get(1)
+        assert eventLogUint.name == 'LogUint'
         def caller = [
                 address:'71044204395934D638C3BDA59E89C8219330A574',
                 pub_key:'CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20',
@@ -331,7 +340,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events == []
 
         when: println '(6) function "get" is executed'
-        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
+        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode([])]]
         resp = send request
 
         then: 'a valid response is received'
@@ -340,7 +349,7 @@ class BurrowTest extends RestClientSpecification {
         when: println '(7) function "set" is executed'
         params = [
                 'priv_key':callee.priv_key,
-                'data':setFunction.encode([BigInteger.valueOf(7)]),
+                'data':functionSet.encode([BigInteger.valueOf(7)]),
                 'address':callee.address,
                 'fee':contract.gasPrice,
                 'gas_limit':contract.gasLimit,
@@ -357,7 +366,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.tx_id != null
 
         when: println '(8) function "get" is executed again'
-        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':getFunction.encode([])]]
+        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode([])]]
         resp = send request
 
         then: 'a valid response is received'
@@ -381,6 +390,8 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events.size() == 1
         resp.data.result.events.get(0).data.size() == 64
         HexValueBase.decode(resp.data.result.events.get(0).data as String) == '7'
+        resp.data.result.events.get(0).topics.size() == 1
+        resp.data.result.events.get(0).topics.get(0).equalsIgnoreCase(eventLogUint.encode())
 
         when: println '(11) we unsubscribe to events from the the new contract account'
         request = ['id': '11', 'jsonrpc': '2.0', 'method': 'burrow.eventUnsubscribe', 'params': ['sub_id':filterId]]
