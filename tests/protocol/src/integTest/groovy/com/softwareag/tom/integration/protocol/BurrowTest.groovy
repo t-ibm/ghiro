@@ -232,7 +232,7 @@ class BurrowTest extends RestClientSpecification {
 
         when: println '(6) function "log" is executed 3 times'
         3.times {
-            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionLog.encode([])]]
+            request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionLog.encode()]]
             resp = send request
         }
 
@@ -248,8 +248,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events.size() == 3
         resp.data.result.events.get(0).data == '000000000000000000000000' + callee.address
         resp.data.result.events.get(0).topics.size() == 1
-        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
-        //resp.data.result.events.get(0).topics.get(0).equalsIgnoreCase(eventLogAddress.encode())
+        resp.data.result.events.get(0).topics.get(0).equalsIgnoreCase(eventLogAddress.encode())
 
         when: println '(8) we poll for events again'
         request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.eventPoll', 'params': ['sub_id':subId]]
@@ -340,7 +339,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.events == []
 
         when: println '(6) function "get" is executed'
-        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode([])]]
+        request = ['id': '6', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode()]]
         resp = send request
 
         then: 'a valid response is received'
@@ -366,7 +365,7 @@ class BurrowTest extends RestClientSpecification {
         resp.data.result.tx_id != null
 
         when: println '(8) function "get" is executed again'
-        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode([])]]
+        request = ['id': '8', 'jsonrpc': '2.0', 'method': 'burrow.call', 'params': ['address':callee.address, 'data':functionGet.encode()]]
         resp = send request
 
         then: 'a valid response is received'

@@ -72,16 +72,16 @@ class SpecificationEncoderTest extends Specification {
 
         where: 'the specification items are from the Console contract'
         source << [
-            '{"constant":false,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"}],"name":"Notify","outputs":[],"payable":false,"type":"event"}',
-            '{"constant":false,"inputs":[{"name":"a","type":"address"},{"name":"b","type":"uint256"},{"name":"c","type":"uint256"}],"name":"Deposit","outputs":[],"payable":false,"type":"event"}'
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"a","type":"uint256"},{"indexed":false,"name":"b","type":"uint256"}],"name":"Notify","type":"event"}',
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"a","type":"address"},{"indexed":false,"name":"b","type":"uint256"},{"indexed":false,"name":"c","type":"uint256"}],"name":"Deposit","type":"event"}',
         ]
         signature << [
             'Notify(uint256,uint256)',
-            'Deposit(uint160,uint256,uint256)', //TODO :: Should be 'Deposit(address,uint256,uint256)'
+            'Deposit(address,uint256,uint256)',
         ]
         id << [
             '71e71a8458267085d5ab16980fd5f114d2d37f232479c245d523ce8d23ca40ed',
-            '019af80c8ede176a6c7a2386598573f3de9c95006daf5403a6fbde3d4bfb9372',
+            '90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a15',
         ]
     }
 
@@ -128,7 +128,6 @@ class SpecificationEncoderTest extends Specification {
                 '{"constant":true,"inputs":[],"name":"get","outputs":[{"name":"r","type":"uint256"}],"payable":false,"type":"function"}',
                 '{"constant":true,"inputs":[{"name":"v","type":"uint256"}],"name":"uintToBytes","outputs":[{"name":"ret","type":"bytes32"}],"payable":false,"type":"function"}',
                 '{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"log","outputs":[],"payable":false,"type":"function"}',
-
         ]
         signature << [
                 'storedData()',
@@ -145,6 +144,62 @@ class SpecificationEncoderTest extends Specification {
                 '6d4ce63c',
                 '94e8767d',
                 'f82c50f1',
+        ]
+    }
+
+    def "test function parameter type 'address' vs 'uint160'"() {
+        given: 'a valid contract specification'
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+        def values = [BigInteger.ONE.shiftLeft(ValueBase.ADDRESS_LENGTH).subtract(BigInteger.ONE), BigInteger.valueOf(42)]
+
+        expect: 'a valid function signature and id'
+        SpecificationEncoder.getFunctionSignature(specification) == signature
+        SpecificationEncoder.getFunctionId(specification) == id
+        SpecificationEncoder.encodeParameters(specification, id, values) == result
+
+        where: 'the specification items are from the Console contract'
+        source << [
+            '{"constant":false,"inputs":[{"name":"payee","type":"uint160"},{"name":"amount","type":"uint256"}],"name":"sendTo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}',
+            '{"constant":false,"inputs":[{"name":"payee","type":"address"},{"name":"amount","type":"uint256"}],"name":"sendTo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}',
+        ]
+        signature << [
+            'sendTo(uint160,uint256)',
+            'sendTo(uint160,uint256)',
+        ]
+        id << [
+            'f57c30b2',
+            'f57c30b2',
+        ]
+        result << [
+            'f57c30b2'
+                + '000000000000000000000000ffffffffffffffffffffffffffffffffffffffff'
+                + '000000000000000000000000000000000000000000000000000000000000002a',
+            'f57c30b2'
+                + '000000000000000000000000ffffffffffffffffffffffffffffffffffffffff'
+                + '000000000000000000000000000000000000000000000000000000000000002a',
+        ]
+    }
+
+    def "test event parameter type 'address' vs 'uint160'"() {
+        given: 'a valid contract specification'
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+
+        expect: 'a valid function signature and id'
+        SpecificationEncoder.getEventSignature(specification) == signature
+        SpecificationEncoder.getEventId(specification) == id
+
+        where: 'the specification items are from the Console contract'
+        source << [
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"address"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"uint160"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
+        ]
+        signature << [
+            'Sent(address,uint256,uint256)',
+            'Sent(uint160,uint256,uint256)',
+        ]
+        id << [
+            '6356739d963da01dc3533acba7203430fcc14f2175d48a8dd0973d7db49c785e',
+            '318900a757c479f66836672cd876f43b1a3fd4161a8710f20b9b4c108ed84968',
         ]
     }
 }
