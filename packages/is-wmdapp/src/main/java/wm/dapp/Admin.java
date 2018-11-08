@@ -14,6 +14,7 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
+import com.softwareag.tom.is.pkg.dapp.Event;
 import com.softwareag.tom.is.pkg.dapp.Util;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
@@ -25,7 +26,6 @@ import com.wm.data.IData;
 import com.wm.data.IDataCursor;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
-import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSRecord;
 
 import java.util.Map;
@@ -88,7 +88,7 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         boolean deployedOnly = IDataUtil.getBoolean(pc,"deployedOnly", false);
         String message;
         try {
-            Map<NSName,FlowSvcImpl> functions = Util.instance.getFunctions(deployedOnly);
+            Map<String,FlowSvcImpl> functions = Util.instance.getFunctions(deployedOnly);
             for (FlowSvcImpl function : functions.values()) {
                 if (NSFacade.getNSNode(function.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(function);
@@ -96,15 +96,15 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                     NSFacade.updateNSNode(function);
                 }
             }
-            Map<Trigger,NSRecord> events = Util.instance.getEvents(deployedOnly);
-            for (Map.Entry<Trigger,NSRecord> event : events.entrySet()) {
-                NSRecord nsRecord = event.getValue();
+            Map<String,Event> events = Util.instance.getEvents(deployedOnly);
+            for (Event event : events.values()) {
+                NSRecord nsRecord = event.getPdt();
                 if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(nsRecord);
                 } else {
                     NSFacade.updateNSNode(nsRecord);
                 }
-                Trigger trigger = event.getKey();
+                Trigger trigger = event.getTrigger();
                 if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(trigger);
                 } else {
