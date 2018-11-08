@@ -155,7 +155,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) function "log" is executed 2 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode())).build()
         ).build()
         Types.ResponseEthCall responseEthCall = null
         2.times {
@@ -176,8 +176,7 @@ class BurrowTest extends Specification {
         responseEthGetFilterChanges.getEvent(1).getLog().address.size() == 32*2+2
         responseEthGetFilterChanges.getEvent(1).getLog().data.size() == 32*2+2
         responseEthGetFilterChanges.getEvent(1).getLog().getTopicCount() == 1
-        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
-        //HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(1).getLog().getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
+        HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(1).getLog().getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
     }
 
     def "test create solidity contract and listen to events"() {
@@ -245,7 +244,7 @@ class BurrowTest extends Specification {
 
         when: println '(4) function "log" is executed 3 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionLog.encode())).build()
         ).build()
         Types.ResponseEthCall responseEthCall = null
         3.times {
@@ -266,8 +265,7 @@ class BurrowTest extends Specification {
         results[1].address.size() == 32*2+2
         results[1].data.size() == 32*2+2
         results[1].topicCount == 1
-        //TODO :: Expected name for ParameterTypeJava.NumericType.ADDRESS is 'uint160' while it should be 'address'
-        //HexValue.stripPrefix(HexValue.toString(results[1].getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
+        HexValue.stripPrefix(HexValue.toString(results[1].getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
 
         when: println '(6) the subscription is terminated'
         ethLogSubscription.unsubscribe()
@@ -346,7 +344,7 @@ class BurrowTest extends Specification {
 
         when: println '(6) function "get" is executed'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode())).build()
         ).build()
         Types.ResponseEthCall responseEthCall = web3Service.ethCall(requestEthCall)
         println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"
@@ -366,7 +364,7 @@ class BurrowTest extends Specification {
 
         when: println '(8) function "get" is executed again'
         requestEthCall = Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode([]))).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionGet.encode())).build()
         ).build()
         responseEthCall = web3Service.ethCall(requestEthCall)
         println ">>> $requestEthCall.descriptorForType.fullName....$requestEthCall<<< $responseEthCall.descriptorForType.fullName...$responseEthCall"

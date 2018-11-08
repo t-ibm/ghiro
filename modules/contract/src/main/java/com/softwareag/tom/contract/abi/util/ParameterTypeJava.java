@@ -54,7 +54,7 @@ final class ParameterTypeJava {
     static class NumericType implements ParameterType<BigInteger> {
         static final NumericType INT = new NumericType("int256");
         static final NumericType UINT = new NumericType("uint256");
-        static final NumericType ADDRESS = new NumericType("uint160");
+        static final NumericType ADDRESS = new NumericType("address");
         static final NumericType FIXED = new NumericType("fixed128x19");
         static final NumericType UFIXED = new NumericType("ufixed128x19");
 
@@ -68,7 +68,7 @@ final class ParameterTypeJava {
         @Override public BigInteger asType(Object value) { return value instanceof String ? getType().cast(HexValueBase.toBigInteger((String) value)) : getType().cast(value); }
         @Override public String getName() { return name; }
         @Override public boolean isDynamic() { return false; }
-        boolean isUnsigned() { return name.charAt(0) == 'u'; }
+        boolean isUnsigned() { return name.charAt(0) == 'u' || name.equals("address"); }
         boolean isFixed() { return name.startsWith("fixed") || name.startsWith("ufixed"); }
     }
 

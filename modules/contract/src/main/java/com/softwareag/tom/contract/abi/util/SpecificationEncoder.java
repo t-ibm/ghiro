@@ -62,16 +62,13 @@ public class SpecificationEncoder {
     }
 
     static <T> String getFunctionSignature(ContractInterface.Specification<T> specification) {
-        return getSpecificationSignatue(specification, specification.getInputParameters());
+        String params = specification.getInputParameters().stream().map(p -> String.valueOf(p.getType().getName().equals("address") ? "uint160" : p.getType().getName())).collect(Collectors.joining(","));
+        return specification.getName() + "(" + params + ")";
     }
 
     static <T> String getEventSignature(ContractInterface.Specification<T> specification) {
         List<ContractInterface.Parameter<T>> inputParameters = new ArrayList<>(specification.getInputParameters(true));
         inputParameters.addAll(specification.getInputParameters(false));
-        return getSpecificationSignatue(specification, inputParameters);
-    }
-
-    private static <T> String getSpecificationSignatue(ContractInterface.Specification<T> specification, List<? extends ContractInterface.Parameter<T>> inputParameters) {
         String params = inputParameters.stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
         return specification.getName() + "(" + params + ")";
     }
