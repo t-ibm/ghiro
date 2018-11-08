@@ -18,8 +18,6 @@ import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.lang.ns.NSName;
 import com.wm.msg.IMessage;
 
-import java.io.IOException;
-
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
 public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType> {
@@ -40,7 +38,7 @@ public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType
             Message<Types.FilterLogType> msg = Util.instance.decodeLogEvent(nsName, _event);
             setup(msg);
             return msg;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new MessagingCoderException(e);
         }
     }

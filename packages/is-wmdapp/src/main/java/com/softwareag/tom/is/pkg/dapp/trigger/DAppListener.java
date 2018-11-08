@@ -19,6 +19,7 @@ import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.trigger.control.ControlledTriggerSvcThreadPool;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias;
 import com.wm.app.b2b.server.resources.MessagingBundle;
+import com.wm.lang.ns.NSName;
 import rx.Observable;
 import rx.Subscription;
 
@@ -48,12 +49,13 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
     @Override protected void createListener() throws CommException {
         DAppLogger.logDebug(DAppMsgBundle.DAPP_METHOD_START, "Listener#createListener");
 
-        if (_channelFilterPairs == null || _channelFilterPairs.isEmpty()) {
+        if (_channelFilterPairs == null || _channelFilterPairs.isEmpty() || _channelFilterPairs.size() != 1) {
             throw new MessagingSubsystemException(MessagingBundle.MISSING_REQUIRED_PARAMETER, "Listener#createListener channelFilterPairs");
         }
 
+        NSName pdt = NSName.create(_channelFilterPairs.get(0).getPdtName());
         try {
-            logObservable = Util.instance.getLogObservable(_trigger.getNSName());
+            logObservable = Util.instance.getLogObservable(pdt);
         } catch (IOException e) {
             DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_INIT, e);
             _messageListenerRunning = false;
@@ -64,7 +66,9 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
             // On Next
             result -> {
                 try {
-                    _messageQueue.put(result);
+                    if (Util.instance.isMatchingEvent(pdt, result)) {
+                        _messageQueue.put(result);
+                    }
                 } catch (InterruptedException e) {
                     //  The put operation failed. This should not happen, but if the trigger is still running, then we will try again.
                     if (isRunning()) {
@@ -102,10 +106,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
      * trigger's retrieval is suspended then start the TriggerQueueConsumer in suspended mode.
      */
     @Override protected void initMessageDispatcher() {
-        String pdtName = null;
-        if (_channelFilterPairs.size() == 1) {
-            pdtName = _channelFilterPairs.get(0).getPdtName();
-        }
+        String pdtName = _channelFilterPairs.get(0).getPdtName();
 
         DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", pdtName, this);
 

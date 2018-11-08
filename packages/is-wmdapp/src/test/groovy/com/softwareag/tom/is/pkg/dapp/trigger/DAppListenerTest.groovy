@@ -72,8 +72,8 @@ abstract class ListenerSpecification extends Specification {
 
     def setup() {
         // Test fixture
-        pdtName = 'sample.SimpleStorage:LogAddress'
-        String triggerName = 'sample.SimpleStorage:trigger'
+        pdtName = 'sample.SimpleStorage:LogAddressDoc'
+        String triggerName = 'sample.SimpleStorage:LogAddressTrg'
         String serviceName = 'pub.flow:debugLog'
         // Create publishable document type
         NSName pdtNsName = NSName.create(pdtName)
