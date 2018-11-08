@@ -109,7 +109,7 @@ public class Util {
             Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
         ).build();
         Types.ResponseEthCall response = web3Service.ethCall(request);
-        decodeOutput(function, pipeline, HexValue.toString(response.getReturn()));
+        decodeFunctionOutput(function, pipeline, HexValue.toString(response.getReturn()));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
     }
 
@@ -163,7 +163,8 @@ public class Util {
         String uuid = HexValue.toString(logEvent.getTransactionIndex());
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
-        decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
+        List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
+        decodeEventInput(event, pipeline, HexValue.toString(logEvent.getData()), topics);
         DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventName(nsName), contract.getContractAddress()});
         return new Message<Types.FilterLogType>() {
             {
@@ -383,15 +384,32 @@ public class Util {
         return function.encode(values);
     }
 
-    private <T> void decodeOutput(ContractInterface.Specification<T> specification, IData pipeline, String response) {
-        IDataCursor pc = pipeline.getCursor();
-        List<T> values = specification.decode(response);
-        List<? extends ContractInterface.Parameter<T>> parameters = "event".equals(specification.getType()) ? specification.getInputParameters() : specification.getOutputParameters();
+    private <T> void decodeEventInput(ContractInterface.Specification<T> specification, IData pipeline, String data, List<String> topics) {
+        List<? extends ContractInterface.Parameter<T>> nonIndexedParameters = specification.getInputParameters(false);
+        List<T> nonIndexedValues = specification.decode(nonIndexedParameters, data);
+        decodeParameters(pipeline, nonIndexedParameters, nonIndexedValues);
+        List<? extends ContractInterface.Parameter<T>> indexedParameters = specification.getInputParameters(true);
+        List<T> indexedValues = new ArrayList<>();
+        for (int i = 0; i < indexedParameters.size(); i++) {
+            String input = HexValue.stripPrefix(topics.get(i + 1));
+            indexedValues.add(indexedParameters.get(i).decode(input));
+        }
+        decodeParameters(pipeline, indexedParameters, indexedValues);
+    }
+
+    private <T> void decodeFunctionOutput(ContractInterface.Specification<T> specification, IData pipeline, String data) {
+        List<? extends ContractInterface.Parameter<T>> parameters = specification.getOutputParameters();
+        List<T> values = specification.decode(parameters, data);
+        decodeParameters(pipeline, parameters, values);
+    }
+
+    private <T> void decodeParameters(IData pipeline, List<? extends ContractInterface.Parameter<T>> parameters, List<T> values) {
         assert values.size() == parameters.size();
-        Iterator<? extends ContractInterface.Parameter<T>> outputParametersIterator = parameters.iterator();
+        Iterator<? extends ContractInterface.Parameter<T>> parametersIterator = parameters.iterator();
         Iterator<T> valuesIterator = values.iterator();
-        while (outputParametersIterator.hasNext() && valuesIterator.hasNext()) {
-            IDataUtil.put(pc, outputParametersIterator.next().getName(), valuesIterator.next());
+        IDataCursor pc = pipeline.getCursor();
+        while (parametersIterator.hasNext() && valuesIterator.hasNext()) {
+            IDataUtil.put(pc, parametersIterator.next().getName(), valuesIterator.next());
         }
     }
 

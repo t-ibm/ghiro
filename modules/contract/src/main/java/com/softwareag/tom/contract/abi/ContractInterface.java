@@ -50,11 +50,12 @@ public abstract class ContractInterface {
             return encode(Collections.emptyList());
         }
         /**
-         * @param value The returned hex string
-         * @return a list of Java values
+         * @param parameters The parameters
+         * @param value The parameter values encoded as a hex string
+         * @return the parameter values as a Java type list
          */
-        default List<T> decode(String value) {
-            return ReturnDecoder.decode("event".equals(getType()) ? getInputParameters() : getOutputParameters(), value);
+        default List<T> decode(List<? extends ContractInterface.Parameter<T>> parameters, String value) {
+            return ReturnDecoder.decode(parameters, value);
         }
         /**
          * @return the input parameter size. Note, that this value will only be equal to the input parameter count if all input parameters are simple types
@@ -100,6 +101,13 @@ public abstract class ContractInterface {
          */
         default T decode(String value, int offset) {
             return ValueDecoder.decode(getType(), value, offset);
+        }
+        /**
+         * @param value The value as hex string
+         * @return the value as a Java type
+         */
+        default T decode(String value) {
+            return ValueDecoder.decode(getType(), value);
         }
     }
 }
