@@ -103,16 +103,14 @@ public class Util {
      */
     public void call(NSName nsName, IData pipeline) throws IOException {
         String uri = getContractUri(nsName);
-        String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
-        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
-        assert function != null;
+        ContractInterface.Specification<?> function = getFunction(nsName);
         Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
             Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
         ).build();
         Types.ResponseEthCall response = web3Service.ethCall(request);
         decodeOutput(function, pipeline, HexValue.toString(response.getReturn()));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
     }
 
     /**
@@ -121,12 +119,10 @@ public class Util {
      */
     public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
         String uri = getContractUri(nsName);
-        String functionName = getContractFunction(nsName);
         Contract contract = validate(contracts.get(uri));
-        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
-        assert function != null;
-        contract = sendTransaction(contract, encodeInput(function, pipeline));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, functionName, contract.getContractAddress()});
+        ContractInterface.Specification<?> function = getFunction(nsName);
+        sendTransaction(contract, encodeInput(function, pipeline));
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
     }
 
     /**
@@ -136,31 +132,39 @@ public class Util {
     public Observable<Types.FilterLogType> getLogObservable(NSName nsName) throws IOException {
         String uri = getContractUri(nsName);
         Contract contract = validate(contracts.get(uri));
+        String eventSignatureHash = getEvent(nsName).encode();
         Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
-            Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build()
+            Types.FilterOptionType.newBuilder()
+                .setAddress(HexValue.toByteString(contract.getContractAddress()))
+                .addTopic(HexValue.toByteString(eventSignatureHash))
+                .build()
         ).build();
         Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter);
         DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
         return ethLogObservable;
     }
 
+    public boolean isMatchingEvent(NSName nsName, Types.FilterLogType logEvent) {
+        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getTopic(0)));
+        String expected = getEvent(nsName).encode();
+        return actual.equalsIgnoreCase(expected);
+    }
+
     /**
      * @param nsName The contract's event ns name
      * @return the data pipeline wrapped as a {@link Message}
      */
-    public Message<Types.FilterLogType> decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) throws IOException {
+    public Message<Types.FilterLogType> decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) {
         String uri = getContractUri(nsName);
-        String eventName = getContractEvent(nsName);
-        Contract contract = validate(contracts.get(uri));
-        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
-        assert event != null;
+        Contract contract = contracts.get(uri);
+        ContractInterface.Specification<?> event = getEvent(nsName);
         IData pipeline = IDataFactory.create();
         IData envelope = IDataFactory.create();
         String uuid = HexValue.toString(logEvent.getTransactionIndex());
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         decodeOutput(event, pipeline, HexValue.toString(logEvent.getData()));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventName(nsName), contract.getContractAddress()});
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;
@@ -207,7 +211,7 @@ public class Util {
         if (contract.getContractAddress() != null) {
             throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
         } else {
-            contract = sendTransaction(contract, contract.getBinary());
+            sendTransaction(contract, contract.getBinary());
         }
         return contract.getContractAddress();
     }
@@ -404,7 +408,7 @@ public class Util {
         }
     }
 
-    private Contract sendTransaction(Contract contract, String data) throws IOException {
+    private void sendTransaction(Contract contract, String data) throws IOException {
         String contractAddress = contract.getContractAddress();
         // eth_sendTransaction
         Types.TxType.Builder txBuilder = Types.TxType.newBuilder();
@@ -423,7 +427,6 @@ public class Util {
         } else if (!Objects.equals(contract.getContractAddress(), contractAddress)) {
             throw new IllegalStateException("Returned contract address is different from known contract address!");
         }
-        return contract;
     }
 
     private String getInterfaceName(String uri) {
@@ -434,14 +437,32 @@ public class Util {
         return nsName.getInterfaceName().toString().replace('.', '/');
     }
 
-    private String getContractFunction(NSName nsName) {
+    private String getFunctionName(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
     }
 
-    private String getContractEvent(NSName nsName) {
+    private String getEventName(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
+    }
+
+    private ContractInterface.Specification<?> getFunction(NSName nsName) {
+        String uri = getContractUri(nsName);
+        String functionName = getFunctionName(nsName);
+        Contract contract = contracts.get(uri);
+        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
+        assert function != null;
+        return function;
+    }
+
+    private ContractInterface.Specification<?> getEvent(NSName nsName) {
+        String uri = getContractUri(nsName);
+        String eventName = getEventName(nsName);
+        Contract contract = contracts.get(uri);
+        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
+        assert event != null;
+        return event;
     }
 
     private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {

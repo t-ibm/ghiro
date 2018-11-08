@@ -30,6 +30,7 @@ import spock.lang.Specification
 
 import static Util.SUFFIX_REQ
 import static Util.SUFFIX_TRG
+import static Util.SUFFIX_DOC
 
 /**
  * System under specification: {@link Util}.
@@ -85,6 +86,7 @@ class UtilTest extends Specification {
         NSRecord nsRecord = entry.getValue()
 
         then: 'the document type of this ns node is as expected'
+        nsRecord.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
@@ -99,6 +101,7 @@ class UtilTest extends Specification {
         nsRecord = entry.getValue()
 
         then: 'the document type of this ns node is as expected'
+        nsRecord.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'ret'
         nsRecord.isPublishable()
