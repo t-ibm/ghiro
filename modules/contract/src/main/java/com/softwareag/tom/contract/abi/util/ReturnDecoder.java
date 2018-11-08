@@ -24,22 +24,22 @@ public class ReturnDecoder extends ValueBase {
 
     /**
      * @param hexValue The contract's return value as a hex string
-     * @param outputParameters The output parameters
+     * @param parameters The output parameters
      * @return the output parameter values as a list of Java types
      */
-    public static <T> List<T> decode(List<? extends ContractInterface.Parameter<T>> outputParameters, String hexValue) {
+    public static <T> List<T> decode(List<? extends ContractInterface.Parameter<T>> parameters, String hexValue) {
         String input = HexValueBase.stripPrefix(hexValue);
         if (input.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return build(outputParameters, input);
+            return build(parameters, input);
         }
     }
 
-    private static <T> List<T> build(List<? extends ContractInterface.Parameter<T>> outputParameters, String input) {
-        List<T> results = new ArrayList<>(outputParameters.size());
+    private static <T> List<T> build(List<? extends ContractInterface.Parameter<T>> parameters, String input) {
+        List<T> results = new ArrayList<>(parameters.size());
         int offset = 0;
-        for (ContractInterface.Parameter<T> parameter : outputParameters) {
+        for (ContractInterface.Parameter<T> parameter : parameters) {
             ParameterType<T> parameterType = parameter.getType();
             int hexStringDataOffset = getOffset(parameterType, input, offset);
             int length = parameterType.size();
