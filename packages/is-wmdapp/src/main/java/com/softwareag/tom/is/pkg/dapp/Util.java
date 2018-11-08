@@ -74,8 +74,8 @@ public class Util {
     private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
     private ContractRegistry contractRegistry;
     private Map<String,Contract> contracts;
-    private Map<NSName,FlowSvcImpl> services;
-    private Map<Trigger,NSRecord> triggers;
+    private Map<String,FlowSvcImpl> functions;
+    private Map<String,Event> events;
 
     public Web3Service web3Service;
 
@@ -84,8 +84,8 @@ public class Util {
      * @throws ExceptionInInitializerError if the node configuration is missing
      */
     private Util() throws ExceptionInInitializerError {
-        services = new HashMap<>();
-        triggers = new HashMap<>();
+        functions = new HashMap<>();
+        events = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         try {
             URI contractRegistryLocation = Node.instance().getContract().getRegistry().getLocationAsUri();
@@ -264,7 +264,7 @@ public class Util {
      * @param deployedOnly If set to {@code true} returns only functions from deployed contracts, otherwise returns all defined
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
-    public Map<NSName,FlowSvcImpl> getFunctions(boolean deployedOnly) throws IOException {
+    public Map<String,FlowSvcImpl> getFunctions(boolean deployedOnly) throws IOException {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the functions as defined in the ABI
@@ -276,9 +276,9 @@ public class Util {
             ContractInterface contractInterface = contract.getAbi();
             List<ContractInterface.Specification> functions = contractInterface.getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
-                String functionName = function.getName() + SUFFIX_REQ;
-                NSName nsName = NSName.create(interfaceName, functionName);
-                NSSignature nsSignature = getSignature(nsName, function);
+                String functionName = interfaceName + ':' + function.getName();
+                NSName nsName = NSName.create(functionName + SUFFIX_REQ);
+                NSSignature nsSignature = getSignature(functionName, function);
                 FlowInvoke flowInvoke = new FlowInvoke(IDataFactory.create());
                 FlowSvcImpl flowSvcImpl;
                 if (function.isConstant()) {
@@ -290,17 +290,17 @@ public class Util {
                     flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
                     flowSvcImpl.setStateless(false);
                 }
-                services.put(nsName, flowSvcImpl);
+                this.functions.put(functionName, flowSvcImpl);
             }
         }
-        return services;
+        return functions;
     }
 
     /**
      * @param deployedOnly If set to {@code true} returns only events from deployed contracts, otherwise returns all defined
      * @return the contract events as a {@link Trigger}/{@link NSRecord} map
      */
-    public Map<Trigger,NSRecord> getEvents(boolean deployedOnly) throws IOException {
+    public Map<String,Event> getEvents(boolean deployedOnly) throws IOException {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the events as defined in the ABI
@@ -317,8 +317,9 @@ public class Util {
             // Remember all record ns nodes for this contract
             Map<NSName,NSRecord> nsRecords = new HashMap<>();
             for (ContractInterface.Specification<?> event : events) {
+                String eventName = interfaceName + ':' + event.getName();
                 // The record name
-                NSName pdtNsName = NSName.create(interfaceName, event.getName() + SUFFIX_DOC);
+                NSName pdtNsName = NSName.create(eventName + SUFFIX_DOC);
                 // Ensure a folder for the ns node exists
                 mkdirs(pdtNsName);
                 // Get the record ns node
@@ -336,10 +337,10 @@ public class Util {
                 NSName triggerNsName = NSName.create(interfaceName, event.getName() + SUFFIX_TRG);
                 Trigger trigger = getTrigger(triggerNsName, Collections.singletonList(Condition.create(pdtNsName, svcNsName)));
                 // Add to the event condition map
-                triggers.put(trigger, pdt);
+                this.events.put(eventName, Event.create(trigger, pdt));
             }
         }
-        return triggers;
+        return events;
     }
 
     public NSRecord getPublishableDocumentType(NSName nsName) {
@@ -508,11 +509,11 @@ public class Util {
         return flowSvcImpl;
     }
 
-    private <T> NSSignature getSignature(NSName nsName, ContractInterface.Specification<T> function) {
+    private <T> NSSignature getSignature(String functionName, ContractInterface.Specification<T> function) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
-        NSSignature nsSignature = services.containsKey(nsName) ? services.get(nsName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
+        NSSignature nsSignature = functions.containsKey(functionName) ? functions.get(functionName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
-        boolean optional = services.containsKey(nsName);
+        boolean optional = functions.containsKey(functionName);
 
         // Input
         NSRecord inputRecord = getNsRecord(function.getInputParameters(), optional);

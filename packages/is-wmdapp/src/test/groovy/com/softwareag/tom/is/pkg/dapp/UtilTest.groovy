@@ -40,14 +40,15 @@ class UtilTest extends Specification {
 
     def "test contract function to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        Map<NSName, FlowSvcImpl> functions = Util.instance.getFunctions(false)
+        Map<String, FlowSvcImpl> functions = Util.instance.getFunctions(false)
 
         expect: 'to retrieve a populated map of ns nodes'
         functions.size() == 6
 
         when: 'a particular ns node is retrieved'
-        NSName nsName = NSName.create("sample.util.Console:uintToBytes$SUFFIX_REQ")
-        NSSignature nsSignature = functions[nsName].signature
+        String functionName = 'sample.util.Console:uintToBytes'
+        NSName nsName = NSName.create("$functionName$SUFFIX_REQ")
+        NSSignature nsSignature = functions[functionName].signature
 
         then: 'the signature of this ns node is as expected'
         nsName.fullName == "sample.util.Console:uintToBytes$SUFFIX_REQ"
@@ -59,7 +60,8 @@ class UtilTest extends Specification {
         nsSignature.output.fields[0].name == 'ret'
 
         when: 'a particular ns node is retrieved'
-        nsSignature = functions[NSName.create("sample.util.Console:log$SUFFIX_REQ")].signature
+        functionName = 'sample.util.Console:log'
+        nsSignature = functions[functionName].signature
         nsSignature.input = nsSignature.getInput()
 
         then: 'the signature of this ns node is as expected'
@@ -71,40 +73,44 @@ class UtilTest extends Specification {
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Map<Trigger,NSRecord> triggers = Util.instance.getEvents(false)
+        Map<String,Event> events = Util.instance.getEvents(false)
 
         expect: 'to retrieve a populated map of ns nodes'
-        triggers.size() == 4
+        events.size() == 4
 
         when: 'a particular entry is retrieved'
-        Map.Entry<Trigger,NSRecord> entry = triggers.find { Trigger trg, NSRecord doc -> trg.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_TRG")}
+        Event event = events.get('sample.util.Console:LogAddress')
 
         then: 'its value is non null'
-        entry != null
+        event != null
 
         when: 'the entry value is retrieved'
-        NSRecord nsRecord = entry.getValue()
+        NSRecord nsRecord = event.pdt
+        Trigger trigger = event.trigger
 
         then: 'the document type of this ns node is as expected'
         nsRecord.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
+        trigger.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_TRG")
 
         when: 'a particular entry is retrieved'
-        entry = triggers.find { Trigger trg, NSRecord doc -> trg.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_TRG")}
+        event = events.get('sample.util.Console:LogUint')
 
         then: 'its value is non null'
-        entry != null
+        event != null
 
         when: 'the entry value is retrieved'
-        nsRecord = entry.getValue()
+        nsRecord = event.pdt
+        trigger = event.trigger
 
         then: 'the document type of this ns node is as expected'
         nsRecord.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")
         nsRecord.fields.length == 1
         nsRecord.fields[0].name == 'ret'
         nsRecord.isPublishable()
+        trigger.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_TRG")
     }
 
     def "test contract address mapping"() {
