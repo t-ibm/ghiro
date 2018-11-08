@@ -26,22 +26,28 @@ class ReturnDecoderTest extends Specification {
 
         where: 'contract is valid and the returned hex value matches the expected Java values'
         source << [
-                '{"constant":false,"inputs":[],"name":"foo","outputs":[{"name":"a","type":"uint"}],"payable":false,"type":"function"}',
-                '{"constant":false,"inputs":[],"name":"bar","outputs":[{"name":"a","type":"string"}],"payable":false,"type":"function"}',
-                '{"constant":false,"inputs":[],"name":"baz","outputs":[{"name":"a","type":"string"}],"payable":false,"type":"function"}',
+            '{"constant":false,"inputs":[],"name":"foo","outputs":[{"name":"a","type":"uint160"}],"payable":false,"type":"function"}',
+            '{"constant":false,"inputs":[],"name":"foo","outputs":[{"name":"a","type":"address"}],"payable":false,"type":"function"}',
+            '{"constant":false,"inputs":[],"name":"foo","outputs":[{"name":"a","type":"uint"}],"payable":false,"type":"function"}',
+            '{"constant":false,"inputs":[],"name":"bar","outputs":[{"name":"a","type":"string"}],"payable":false,"type":"function"}',
+            '{"constant":false,"inputs":[],"name":"baz","outputs":[{"name":"a","type":"string"}],"payable":false,"type":"function"}',
         ]
         javaValues << [
-                [BigInteger.valueOf(55)],
-                ['one more time'],
-                [''],
+            [BigInteger.ONE.shiftLeft(ValueBase.ADDRESS_LENGTH).subtract(BigInteger.ONE)],
+            [BigInteger.ONE.shiftLeft(ValueBase.ADDRESS_LENGTH).subtract(BigInteger.ONE)],
+            [BigInteger.valueOf(55)],
+            ['one more time'],
+            [''],
         ]
         hexValue << [
-                '0x0000000000000000000000000000000000000000000000000000000000000037',
-                '0x0000000000000000000000000000000000000000000000000000000000000020'
-                        + '000000000000000000000000000000000000000000000000000000000000000d'
-                        + '6f6e65206d6f72652074696d6500000000000000000000000000000000000000',
-                '0x0000000000000000000000000000000000000000000000000000000000000020'
-                        + '0000000000000000000000000000000000000000000000000000000000000000'
+            '0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff',
+            '0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff',
+            '0x0000000000000000000000000000000000000000000000000000000000000037',
+            '0x0000000000000000000000000000000000000000000000000000000000000020'
+                + '000000000000000000000000000000000000000000000000000000000000000d'
+                + '6f6e65206d6f72652074696d6500000000000000000000000000000000000000',
+            '0x0000000000000000000000000000000000000000000000000000000000000020'
+                + '0000000000000000000000000000000000000000000000000000000000000000'
         ]
     }
 
@@ -114,5 +120,32 @@ class ReturnDecoderTest extends Specification {
 
         expect: 'a valid list of return values'
         ReturnDecoder.decode(specification.getOutputParameters(), hexValue) == javaValues
+    }
+
+    def "test contract event with indexed and non-indexed returns values"() {
+        given: 'a valid contract specification'
+        SolidityInterface.SoliditySpecification specification = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SoliditySpecification.class)
+
+        expect: 'a valid list of return values'
+        ReturnDecoder.decode(specification.getInputParameters(false), hexData) == javaData
+        ValueDecoder.decode(specification.getInputParameters(true).get(0).getType(), hexTopic) == javaTopic
+
+        where: 'contract is valid and the returned hex value matches the expected Java values'
+        source << [
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"address"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
+        ]
+        javaData << [
+            [BigInteger.valueOf(42), BigInteger.valueOf(7)],
+        ]
+        hexData << [
+            '0x000000000000000000000000000000000000000000000000000000000000002a'
+                + '0000000000000000000000000000000000000000000000000000000000000007',
+        ]
+        javaTopic << [
+            BigInteger.ONE.shiftLeft(ValueBase.ADDRESS_LENGTH).subtract(BigInteger.ONE),
+        ]
+        hexTopic << [
+            '0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff',
+        ]
     }
 }
