@@ -27,11 +27,14 @@ import com.wm.app.b2b.server.dispatcher.Dispatcher;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.ns.Namespace;
+import com.wm.app.b2b.ws.codegen.FlowGenUtil;
 import com.wm.data.IData;
 import com.wm.data.IDataCursor;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 import com.wm.lang.flow.FlowInvoke;
+import com.wm.lang.flow.FlowMap;
+import com.wm.lang.flow.FlowMapSet;
 import com.wm.lang.flow.FlowRoot;
 import com.wm.lang.ns.EventDescription;
 import com.wm.lang.ns.NSField;
@@ -302,7 +305,7 @@ public class Util {
      * @param deployedOnly If set to {@code true} returns only events from deployed contracts, otherwise returns all defined
      * @return the contract events as a {@link Trigger}/{@link NSRecord} map
      */
-    public Map<String,Event> getEvents(boolean deployedOnly) throws IOException {
+    public Map<String,Event> getEvents(boolean deployedOnly) throws Exception {
         contracts = contractRegistry.load();
         for (Map.Entry<String,Contract> entry : contracts.entrySet()) {
             // Add the events as defined in the ABI
@@ -317,10 +320,18 @@ public class Util {
             Map<NSName,NSRecord> nsRecords = new HashMap<>();
             for (ContractInterface.Specification<?> event : events) {
                 String eventName = interfaceName + ':' + event.getName();
+                // Nested service
+                FlowInvoke flowInvoke = FlowGenUtil.getFlowInvoke("pub.flow:debugLog");
+                FlowMap fm = FlowGenUtil.getFlowMap();
+                FlowMapSet fms = FlowGenUtil.getFlowMapSet("message", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Processing event");
+                fm.addNode(fms);
+                fms = FlowGenUtil.getFlowMapSet("function", NSField.FIELD_STRING, NSField.DIM_SCALAR, eventName);
+                fm.addNode(fms);
+                fms = FlowGenUtil.getFlowMapSet("level", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Info");
+                fm.addNode(fms);
+                flowInvoke.setInputMap(fm);
                 // Response service
                 NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
-                FlowInvoke flowInvoke = new FlowInvoke(IDataFactory.create());
-                flowInvoke.setService(NSName.create("pub.flow:debugLog"));
                 NSSignature nsSignature = getEventSignature(eventName, event);
                 FlowSvcImpl flowSvcImpl = getFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
                 // The record name
