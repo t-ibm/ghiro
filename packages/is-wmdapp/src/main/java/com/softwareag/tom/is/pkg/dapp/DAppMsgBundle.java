@@ -32,10 +32,10 @@ public class DAppMsgBundle extends B2BListResourceBundle {
         // Log messages
         {FAC + "." + DAPP_METHOD_START, "Entering method: {0}"},
         {FAC + "." + DAPP_METHOD_END, "Completing method: (0)"},
-        {FAC + "." + DAPP_CONTRACT_DEPLOY, "Deployed contract {0} at contract address {1}."},
-        {FAC + "." + DAPP_CONTRACT_CALL, "Called contract function {0}#{1} at {2}."},
+        {FAC + "." + DAPP_CONTRACT_DEPLOY, "Deployed contract {0} to contract address {1}."},
+        {FAC + "." + DAPP_CONTRACT_CALL, "Called function {0}#{1} at contract address {2}."},
         {FAC + "." + DAPP_OBSERVABLE_LOG, "Registered log observable for contract {0} at contract address {1}."},
-        {FAC + "." + DAPP_EVENT_LOG, "Received log event {0}#{1} at {2}."},
+        {FAC + "." + DAPP_EVENT_LOG, "Received event {0}#{1} from contract address {2}."},
         {FAC + "." + DAPP_TRIGGER_WAITFORTHROTTLED, "Trigger {0} waiting for throttled queue capacity to become available."},
         // Error messages
         {FAC + "." + DAPP_ERROR_INIT, "Error during initialization: {0}"},
