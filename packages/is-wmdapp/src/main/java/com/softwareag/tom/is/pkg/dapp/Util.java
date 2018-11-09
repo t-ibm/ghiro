@@ -533,7 +533,7 @@ public class Util {
 
     private <T> NSSignature getEventSignature(String eventName, ContractInterface.Specification<T> event) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
-        NSSignature nsSignature = events.containsKey(eventName) ? functions.get(eventName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
+        NSSignature nsSignature = events.containsKey(eventName) ? events.get(eventName).getService().getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
         boolean optional = events.containsKey(eventName);
 
