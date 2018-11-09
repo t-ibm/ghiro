@@ -110,6 +110,12 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                 } else {
                     NSFacade.updateNSNode(trigger);
                 }
+                FlowSvcImpl service = event.getService();
+                if (NSFacade.getNSNode(service.getNSName().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(service);
+                } else {
+                    NSFacade.updateNSNode(service);
+                }
             }
             message = "Successfully synchronized all contracts to the IS namespace.";
             IDataUtil.put(pc,"message", message);

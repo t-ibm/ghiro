@@ -31,6 +31,7 @@ import spock.lang.Specification
 import static Util.SUFFIX_REQ
 import static Util.SUFFIX_TRG
 import static Util.SUFFIX_DOC
+import static Util.SUFFIX_REP
 
 /**
  * System under specification: {@link Util}.
@@ -87,6 +88,7 @@ class UtilTest extends Specification {
         when: 'the entry value is retrieved'
         NSRecord nsRecord = event.pdt
         Trigger trigger = event.trigger
+        FlowSvcImpl service = event.service
 
         then: 'the document type of this ns node is as expected'
         nsRecord.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_DOC")
@@ -94,6 +96,7 @@ class UtilTest extends Specification {
         nsRecord.fields[0].name == 'contractAddress'
         nsRecord.isPublishable()
         trigger.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_TRG")
+        service.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_REP")
 
         when: 'a particular entry is retrieved'
         event = events.get('sample.util.Console:LogUint')
@@ -104,6 +107,7 @@ class UtilTest extends Specification {
         when: 'the entry value is retrieved'
         nsRecord = event.pdt
         trigger = event.trigger
+        service = event.service
 
         then: 'the document type of this ns node is as expected'
         nsRecord.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_DOC")
@@ -111,6 +115,7 @@ class UtilTest extends Specification {
         nsRecord.fields[0].name == 'ret'
         nsRecord.isPublishable()
         trigger.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_TRG")
+        service.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_REP")
     }
 
     def "test contract address mapping"() {

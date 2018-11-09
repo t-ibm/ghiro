@@ -40,6 +40,7 @@ import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
 import com.wm.lang.ns.NSRecordUtil;
 import com.wm.lang.ns.NSService;
+import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 import com.wm.lang.ns.NSTrigger;
 import com.wm.msg.Header;
@@ -67,6 +68,7 @@ public class Util {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_TRG = "Trg";
+    static final String SUFFIX_REP = "Rep";
 
     public static Util instance = new Util();
 
@@ -278,16 +280,16 @@ public class Util {
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = interfaceName + ':' + function.getName();
                 NSName nsName = NSName.create(functionName + SUFFIX_REQ);
-                NSSignature nsSignature = getSignature(functionName, function);
+                NSSignature nsSignature = getFunctionSignature(functionName, function);
                 FlowInvoke flowInvoke = new FlowInvoke(IDataFactory.create());
                 FlowSvcImpl flowSvcImpl;
                 if (function.isConstant()) {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
-                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(true);
                 } else {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
-                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke);
+                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(false);
                 }
                 this.functions.put(functionName, flowSvcImpl);
@@ -311,13 +313,16 @@ public class Util {
             }
             ContractInterface contractInterface = contract.getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
-            // Response service
-            String serviceName = "pub.flow:debugLog";
-            NSName svcNsName = NSName.create(serviceName);
             // Remember all record ns nodes for this contract
             Map<NSName,NSRecord> nsRecords = new HashMap<>();
             for (ContractInterface.Specification<?> event : events) {
                 String eventName = interfaceName + ':' + event.getName();
+                // Response service
+                NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
+                FlowInvoke flowInvoke = new FlowInvoke(IDataFactory.create());
+                flowInvoke.setService(NSName.create("pub.flow:debugLog"));
+                NSSignature nsSignature = getEventSignature(eventName, event);
+                FlowSvcImpl flowSvcImpl = getFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
                 // The record name
                 NSName pdtNsName = NSName.create(eventName + SUFFIX_DOC);
                 // Ensure a folder for the ns node exists
@@ -337,7 +342,7 @@ public class Util {
                 NSName triggerNsName = NSName.create(interfaceName, event.getName() + SUFFIX_TRG);
                 Trigger trigger = getTrigger(triggerNsName, Collections.singletonList(Condition.create(pdtNsName, svcNsName)));
                 // Add to the event condition map
-                this.events.put(eventName, Event.create(trigger, pdt));
+                this.events.put(eventName, Event.create(trigger, pdt, flowSvcImpl));
             }
         }
         return events;
@@ -484,7 +489,7 @@ public class Util {
         return event;
     }
 
-    private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke) {
+    private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {
         mkdirs(nsName);
 
         FlowSvcImpl flowSvcImpl;
@@ -495,7 +500,7 @@ public class Util {
             flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName, null);
             flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
             flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
-            flowSvcImpl.getServiceType().setSubtype("dapp"); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+            flowSvcImpl.setServiceType(serviceType);
         }
 
         if (nsSignature != null) {
@@ -509,7 +514,7 @@ public class Util {
         return flowSvcImpl;
     }
 
-    private <T> NSSignature getSignature(String functionName, ContractInterface.Specification<T> function) {
+    private <T> NSSignature getFunctionSignature(String functionName, ContractInterface.Specification<T> function) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
         NSSignature nsSignature = functions.containsKey(functionName) ? functions.get(functionName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
@@ -522,6 +527,19 @@ public class Util {
         // Output
         NSRecord outputRecord = getNsRecord(function.getOutputParameters(), optional);
         nsSignature.setOutput(outputRecord);
+
+        return nsSignature;
+    }
+
+    private <T> NSSignature getEventSignature(String eventName, ContractInterface.Specification<T> event) {
+        // If the same ns node with a different signature already exists we simply add to the existing signature ...
+        NSSignature nsSignature = events.containsKey(eventName) ? functions.get(eventName).getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
+        // ... but make the parameters optional
+        boolean optional = events.containsKey(eventName);
+
+        // Input
+        NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
+        nsSignature.setInput(inputRecord);
 
         return nsSignature;
     }
