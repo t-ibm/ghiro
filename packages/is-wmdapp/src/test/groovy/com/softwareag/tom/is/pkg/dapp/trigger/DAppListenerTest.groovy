@@ -7,6 +7,7 @@
  */
 package com.softwareag.tom.is.pkg.dapp.trigger
 
+import com.softwareag.tom.is.pkg.dapp.RuntimeSpecification
 import com.softwareag.tom.is.pkg.dapp.Util
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
@@ -33,7 +34,6 @@ import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
 import com.wm.lang.ns.NSTrigger
 import spock.lang.Shared
-import spock.lang.Specification
 
 /**
  * System under specification: {@link DAppListener}.
@@ -65,7 +65,7 @@ class DAppListenerTest extends ListenerSpecification {
     }
 }
 
-abstract class ListenerSpecification extends Specification {
+abstract class ListenerSpecification extends RuntimeSpecification {
     @Shared ControlledTriggerSvcThreadPool threadPool
     @Shared DAppListener listener
     @Shared String pdtName
