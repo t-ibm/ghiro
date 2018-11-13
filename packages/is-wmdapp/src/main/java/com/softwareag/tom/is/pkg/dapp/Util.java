@@ -288,11 +288,11 @@ public class Util {
                 FlowSvcImpl flowSvcImpl;
                 if (function.isConstant()) {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
-                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, NSServiceType.SVCSUB_UNKNOWN)); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(true);
                 } else {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
-                    flowSvcImpl = getFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, NSServiceType.SVCSUB_UNKNOWN)); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(false);
                 }
                 this.functions.put(functionName, flowSvcImpl);
@@ -333,7 +333,7 @@ public class Util {
                 // Response service
                 NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
                 NSSignature nsSignature = getEventSignature(eventName, event);
-                FlowSvcImpl flowSvcImpl = getFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
+                FlowSvcImpl flowSvcImpl = createFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
                 // The record name
                 NSName pdtNsName = NSName.create(eventName + SUFFIX_DOC);
                 // Ensure a folder for the ns node exists
@@ -500,19 +500,13 @@ public class Util {
         return event;
     }
 
-    private FlowSvcImpl getFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {
+    private FlowSvcImpl createFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {
         mkdirs(nsName);
 
-        FlowSvcImpl flowSvcImpl;
-        NSNode node = Namespace.current().getNode(nsName);
-        if (node instanceof FlowSvcImpl) {
-            flowSvcImpl = (FlowSvcImpl) node;
-        } else {
-            flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName, null);
-            flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
-            flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
-            flowSvcImpl.setServiceType(serviceType);
-        }
+        FlowSvcImpl flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName, null);
+        flowSvcImpl.setServiceSigtype(NSService.SIG_JAVA_3_5);
+        flowSvcImpl.setFlowRoot(new FlowRoot(IDataFactory.create()));
+        flowSvcImpl.setServiceType(serviceType);
 
         if (nsSignature != null) {
             flowSvcImpl.setSignature(nsSignature);
