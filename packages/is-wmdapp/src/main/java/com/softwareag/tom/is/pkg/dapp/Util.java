@@ -18,14 +18,21 @@ import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
+import com.wm.app.b2b.broker.conv.Transformer;
+import com.wm.app.b2b.broker.conv.TypeCoderException;
+import com.wm.app.b2b.broker.sync.SyncException;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.NodeFactory;
 import com.wm.app.b2b.server.NodeMaster;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
+import com.wm.app.b2b.server.dispatcher.DispatchFacade;
 import com.wm.app.b2b.server.dispatcher.Dispatcher;
+import com.wm.app.b2b.server.dispatcher.exceptions.MessagingSubsystemException;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.RuntimeConfiguration;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.app.b2b.ws.codegen.FlowGenUtil;
 import com.wm.data.IData;
@@ -41,14 +48,12 @@ import com.wm.lang.ns.NSField;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
-import com.wm.lang.ns.NSRecordUtil;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 import com.wm.lang.ns.NSTrigger;
 import com.wm.msg.Header;
 import com.wm.util.JavaWrapperType;
-import com.wm.util.Name;
 import com.wm.util.Values;
 import rx.Observable;
 
@@ -74,6 +79,7 @@ public class Util {
     static final String SUFFIX_REP = "Rep";
 
     public static Util instance = new Util();
+    public static RuntimeConfiguration rt;
 
     private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
     private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
@@ -359,14 +365,17 @@ public class Util {
         return events;
     }
 
-    public NSRecord getPublishableDocumentType(NSName nsName) {
-        EventDescription eventDescription = EventDescription.create(IS_DAPP_CONNECTION, Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
+    public NSRecord getPublishableDocumentType(NSName nsName) throws SyncException, TypeCoderException, MessagingSubsystemException {
+        rt = rt != null ? rt : DispatchFacade.getRuntimeConfiguration();
+
+        ConnectionAlias alias = rt.getConnectionAlias(IS_DAPP_CONNECTION);
         NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
         nsRecord.setNSName(nsName);
         nsRecord.setPackage(pkgWmDAppContract);
-//        IData result = Transformer.transform(Namespace.current(), nsRecord.getNSName().getFullName(), 0, EventDescription.VOLATILE, false, IS_DAPP_CONNECTION, false, false);
-//        assert result.equals(IDataFactory.create(new Object[][]{{"isSuccessful","true"}}));
-        NSRecordUtil.transform(nsRecord, eventDescription);
+        IData result = Transformer.transformTo(Namespace.current(), nsRecord, 0, EventDescription.VOLATILE, false, alias, IS_DAPP_CONNECTION, false, false);
+        assert result.equals(IDataFactory.create(new Object[][]{{"isSuccessful","true"}}));
+//        EventDescription eventDescription = EventDescription.create(IS_DAPP_CONNECTION, Name.create(nsName.getFullName()), 0, EventDescription.VOLATILE);
+//        NSRecordUtil.transform(nsRecord, eventDescription);
         return nsRecord;
     }
 
