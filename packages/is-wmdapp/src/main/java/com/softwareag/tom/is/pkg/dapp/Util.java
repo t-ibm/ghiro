@@ -48,6 +48,7 @@ import com.wm.lang.ns.NSField;
 import com.wm.lang.ns.NSName;
 import com.wm.lang.ns.NSNode;
 import com.wm.lang.ns.NSRecord;
+import com.wm.lang.ns.NSRecordRef;
 import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
@@ -326,20 +327,6 @@ public class Util {
             Map<NSName,NSRecord> nsRecords = new HashMap<>();
             for (ContractInterface.Specification<?> event : events) {
                 String eventName = interfaceName + ':' + event.getName();
-                // Nested service
-                FlowInvoke flowInvoke = FlowGenUtil.getFlowInvoke("pub.flow:debugLog");
-                FlowMap fm = FlowGenUtil.getFlowMap();
-                FlowMapSet fms = FlowGenUtil.getFlowMapSet("message", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Processing event");
-                fm.addNode(fms);
-                fms = FlowGenUtil.getFlowMapSet("function", NSField.FIELD_STRING, NSField.DIM_SCALAR, eventName);
-                fm.addNode(fms);
-                fms = FlowGenUtil.getFlowMapSet("level", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Info");
-                fm.addNode(fms);
-                flowInvoke.setInputMap(fm);
-                // Response service
-                NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
-                NSSignature nsSignature = getEventSignature(eventName, event);
-                FlowSvcImpl flowSvcImpl = createFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
                 // The record name
                 NSName pdtNsName = NSName.create(eventName + SUFFIX_DOC);
                 // Ensure a folder for the ns node exists
@@ -355,6 +342,20 @@ public class Util {
                 pdt.mergeRecord(inputRecord);
                 // Remember this record ns node
                 nsRecords.put(pdtNsName, pdt);
+                // Nested service
+                FlowInvoke flowInvoke = FlowGenUtil.getFlowInvoke("pub.flow:debugLog");
+                FlowMap fm = FlowGenUtil.getFlowMap();
+                FlowMapSet fms = FlowGenUtil.getFlowMapSet("message", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Processing event");
+                fm.addNode(fms);
+                fms = FlowGenUtil.getFlowMapSet("function", NSField.FIELD_STRING, NSField.DIM_SCALAR, eventName);
+                fm.addNode(fms);
+                fms = FlowGenUtil.getFlowMapSet("level", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Info");
+                fm.addNode(fms);
+                flowInvoke.setInputMap(fm);
+                // Response service
+                NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
+                NSSignature nsSignature = getEventSignature(eventName, pdt);
+                FlowSvcImpl flowSvcImpl = createFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
                 // The trigger name
                 NSName triggerNsName = NSName.create(interfaceName, event.getName() + SUFFIX_TRG);
                 Trigger trigger = getTrigger(triggerNsName, Collections.singletonList(Condition.create(pdtNsName, svcNsName)));
@@ -545,14 +546,21 @@ public class Util {
         return nsSignature;
     }
 
-    private <T> NSSignature getEventSignature(String eventName, ContractInterface.Specification<T> event) {
+    private NSSignature getEventSignature(String eventName, NSRecord pdt) {
         // If the same ns node with a different signature already exists we simply add to the existing signature ...
         NSSignature nsSignature = events.containsKey(eventName) ? events.get(eventName).getService().getSignature() : NSSignature.create(Namespace.current(), IDataFactory.create());
         // ... but make the parameters optional
         boolean optional = events.containsKey(eventName);
 
+        // Pdt reference
+        NSRecordRef pdtRef = new NSRecordRef(Namespace.current(), pdt.getName(), pdt, NSField.DIM_SCALAR);
+        pdtRef.setOptional(optional);
+
         // Input
-        NSRecord inputRecord = getNsRecord(event.getInputParameters(), optional);
+        NSRecord inputRecord = nsSignature.getInput() != null ? nsSignature.getInput() : new NSRecord(Namespace.current());
+        if (inputRecord.getField(pdt.getName(), NSField.FIELD_RECORDREF, NSField.DIM_SCALAR) == null) {
+            inputRecord.addField(pdtRef);
+        }
         nsSignature.setInput(inputRecord);
 
         return nsSignature;
