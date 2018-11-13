@@ -294,11 +294,11 @@ public class Util {
                 FlowSvcImpl flowSvcImpl;
                 if (function.isConstant()) {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:call"));
-                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, NSServiceType.SVCSUB_UNKNOWN)); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(true);
                 } else {
                     flowInvoke.setService(NSName.create("wm.dapp.Contract:sendTransaction"));
-                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, NSServiceType.SVCSUB_UNKNOWN)); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
+                    flowSvcImpl = createFlowSvcImpl(nsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW, "dapp")); // TODO :: Maybe add global field to NSServiceType.SVCSUB_DAPP
                     flowSvcImpl.setStateless(false);
                 }
                 this.functions.put(functionName, flowSvcImpl);
