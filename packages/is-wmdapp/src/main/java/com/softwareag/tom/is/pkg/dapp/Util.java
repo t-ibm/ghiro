@@ -368,10 +368,32 @@ public class Util {
         return events.values().stream().map(Event::getTrigger).distinct().collect(Collectors.toList());
     }
 
-    public NSRecord getPublishableDocumentType(NSName nsName) throws SyncException, TypeCoderException, MessagingSubsystemException {
+    public ConnectionAlias getConnectionAlias() {
+        rt = rt != null ? rt : DispatchFacade.getRuntimeConfiguration();
+        try {
+            return rt.getConnectionAlias(IS_DAPP_CONNECTION);
+        } catch (MessagingSubsystemException e) {
+            return null;
+        }
+    }
+
+    public void createConnectionAlias() throws Exception {
         rt = rt != null ? rt : DispatchFacade.getRuntimeConfiguration();
 
-        ConnectionAlias alias = rt.getConnectionAlias(IS_DAPP_CONNECTION);
+        IData input = IDataFactory.create();
+        IDataCursor ic = input.getCursor();
+        IDataUtil.put(ic, "aliasName", IS_DAPP_CONNECTION);
+        IDataUtil.put(ic, "description", "system generated Decentralised Application connection alias");
+        IDataUtil.put(ic, "enabled", true);
+        IDataUtil.put(ic, "systemGenerated", true);
+        ic.destroy();
+
+        rt.createDAppConnectionAliasReference(input);
+    }
+
+    public NSRecord getPublishableDocumentType(NSName nsName) throws SyncException, TypeCoderException {
+        ConnectionAlias alias = getConnectionAlias();
+        assert alias != null;
         NSRecord nsRecord = new NSRecord(Namespace.current(), nsName.getFullName(), NSRecord.DIM_SCALAR);
         nsRecord.setNSName(nsName);
         nsRecord.setPackage(pkgWmDAppContract);
