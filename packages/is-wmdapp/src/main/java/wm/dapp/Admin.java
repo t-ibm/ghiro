@@ -18,20 +18,15 @@ import com.softwareag.tom.is.pkg.dapp.Event;
 import com.softwareag.tom.is.pkg.dapp.Util;
 import com.wm.app.b2b.server.FlowSvcImpl;
 import com.wm.app.b2b.server.ServiceException;
-import com.wm.app.b2b.server.dispatcher.DispatchFacade;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
-import com.wm.app.b2b.server.dispatcher.wmmessaging.RuntimeConfiguration;
 import com.wm.app.b2b.ws.ns.NSFacade;
 import com.wm.data.IData;
 import com.wm.data.IDataCursor;
-import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSRecord;
 
 import java.util.List;
 import java.util.Map;
-
-import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
@@ -49,20 +44,11 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
         IDataCursor pc = pipeline.getCursor();
         String message;
         try {
-            RuntimeConfiguration rt = DispatchFacade.getRuntimeConfiguration();
-            if (rt.getConnectionAliasOrNull(IS_DAPP_CONNECTION) != null) {
-                message = "Connection alias '" + IS_DAPP_CONNECTION + "' already exists.";
+            if (Util.instance.getConnectionAlias() != null) {
+                message = "DApp connection alias already exists.";
             } else {
-                IData input = IDataFactory.create();
-                IDataCursor ic = input.getCursor();
-                IDataUtil.put(ic, "aliasName", IS_DAPP_CONNECTION);
-                IDataUtil.put(ic, "description", "system generated Decentralised Application connection alias");
-                IDataUtil.put(ic, "enabled", true);
-                IDataUtil.put(ic, "systemGenerated", true);
-                ic.destroy();
-
-                rt.createDAppConnectionAliasReference(input);
-                message = "Successfully created connection alias '" + IS_DAPP_CONNECTION + "'.";
+                Util.instance.createConnectionAlias();
+                message = "Successfully created DApp connection alias.";
             }
             IDataUtil.put(pc,"message", message);
         } catch (Exception e) {
