@@ -49,13 +49,12 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
     @Override protected void createListener() throws CommException {
         DAppLogger.logDebug(DAppMsgBundle.DAPP_METHOD_START, "Listener#createListener");
 
-        if (_channelFilterPairs == null || _channelFilterPairs.isEmpty() || _channelFilterPairs.size() != 1) {
+        if (_channelFilterPairs == null || _channelFilterPairs.isEmpty()) {
             throw new MessagingSubsystemException(MessagingBundle.MISSING_REQUIRED_PARAMETER, "Listener#createListener channelFilterPairs");
         }
 
-        NSName pdt = NSName.create(_channelFilterPairs.get(0).getPdtName());
         try {
-            logObservable = Util.instance.getLogObservable(pdt);
+            logObservable = Util.instance.getLogObservable(_trigger.getNSName());
         } catch (IOException e) {
             DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_INIT, e);
             _messageListenerRunning = false;
@@ -66,9 +65,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
             // On Next
             result -> {
                 try {
-                    if (Util.instance.isMatchingEvent(pdt, result)) {
-                        _messageQueue.put(result);
-                    }
+                    _messageQueue.put(result);
                 } catch (InterruptedException e) {
                     //  The put operation failed. This should not happen, but if the trigger is still running, then we will try again.
                     if (isRunning()) {
@@ -108,7 +105,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
     @Override protected void initMessageDispatcher() {
         String pdtName = _channelFilterPairs.get(0).getPdtName();
 
-        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", pdtName, this);
+        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", _channelFilterPairs, this);
 
         if (_trigger.isProcessingSuspended()) {
             suspendProcessing();

@@ -28,6 +28,7 @@ import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSRecord;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
@@ -104,17 +105,19 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
                 } else {
                     NSFacade.updateNSNode(nsRecord);
                 }
-                Trigger trigger = event.getTrigger();
-                if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
-                    NSFacade.saveNewNSNode(trigger);
-                } else {
-                    NSFacade.updateNSNode(trigger);
-                }
                 FlowSvcImpl service = event.getService();
                 if (NSFacade.getNSNode(service.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(service);
                 } else {
                     NSFacade.updateNSNode(service);
+                }
+            }
+            List<Trigger> triggers = Util.instance.getTriggers(events);
+            for (Trigger trigger : triggers) {
+                if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
+                    NSFacade.saveNewNSNode(trigger);
+                } else {
+                    NSFacade.updateNSNode(trigger);
                 }
             }
             message = "Successfully synchronized all contracts to the IS namespace.";
