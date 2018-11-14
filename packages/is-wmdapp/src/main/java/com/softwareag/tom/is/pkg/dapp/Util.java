@@ -54,6 +54,7 @@ import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 import com.wm.lang.ns.NSTrigger;
 import com.wm.msg.Header;
+import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Values;
 import rx.Observable;
@@ -62,8 +63,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -144,12 +144,8 @@ public class Util {
     public Observable<Types.FilterLogType> getLogObservable(NSName nsName) throws IOException {
         String uri = getContractUri(nsName);
         Contract contract = validate(contracts.get(uri));
-        String eventSignatureHash = getEvent(nsName).encode();
         Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
-            Types.FilterOptionType.newBuilder()
-                .setAddress(HexValue.toByteString(contract.getContractAddress()))
-                .addTopic(HexValue.toByteString(eventSignatureHash))
-                .build()
+            Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build()
         ).build();
         Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter);
         DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
@@ -323,6 +319,9 @@ public class Util {
             }
             ContractInterface contractInterface = contract.getAbi();
             List<ContractInterface.Specification> events = contractInterface.getEvents();
+            // The trigger
+            NSName triggerNsName = NSName.create(interfaceName, "trigger");
+            Trigger trigger = createTrigger(triggerNsName);
             // Remember all record ns nodes for this contract
             Map<NSName,NSRecord> nsRecords = new HashMap<>();
             for (ContractInterface.Specification<?> event : events) {
@@ -356,14 +355,17 @@ public class Util {
                 NSName svcNsName = NSName.create(eventName + SUFFIX_REP);
                 NSSignature nsSignature = getEventSignature(eventName, pdt);
                 FlowSvcImpl flowSvcImpl = createFlowSvcImpl(svcNsName, nsSignature, flowInvoke, NSServiceType.create(NSServiceType.SVC_FLOW,NSServiceType.SVCSUB_UNKNOWN));
-                // The trigger name
-                NSName triggerNsName = NSName.create(interfaceName, event.getName() + SUFFIX_TRG);
-                Trigger trigger = getTrigger(triggerNsName, Collections.singletonList(Condition.create(pdtNsName, svcNsName)));
+                // Add condition
+                addCondition(trigger, Condition.create(pdtNsName, svcNsName).asCondition());
                 // Add to the event condition map
                 this.events.put(eventName, Event.create(trigger, pdt, flowSvcImpl));
             }
         }
         return events;
+    }
+
+    public List<Trigger> getTriggers(Map<String,Event> events) {
+        return events.values().stream().map(Event::getTrigger).distinct().collect(Collectors.toList());
     }
 
     public NSRecord getPublishableDocumentType(NSName nsName) throws SyncException, TypeCoderException, MessagingSubsystemException {
@@ -384,19 +386,22 @@ public class Util {
         return new FlowSvcImpl(pkgWmDAppContract, nsName, null);
     }
 
-    public Trigger getTrigger(NSName nsName, Collection<Condition> triggerConditions) {
-        IData[] conditions = triggerConditions.stream().map(Condition::asIData).toArray(IData[]::new);
+    public Trigger createTrigger(NSName nsName) {
         NodeFactory nf = NodeMaster.getFactory(NSTrigger.TYPE.getType());
         IData nodeDef = IDataFactory.create(new Object[][]{
             {NSNode.KEY_NSN_NSNAME, nsName.getFullName()},
             {NSNode.KEY_NSN_TYPE, NSTrigger.TYPE_KEY},
-            {NSTrigger.KEY_TRIGGER, IDataFactory.create(new Object[][]{
-                {"conditions", conditions},
-            })},
         });
         Trigger trigger = (Trigger)nf.createFromNodeDef(pkgWmDAppContract, nsName, Values.use(nodeDef));
         trigger.setPackage(pkgWmDAppContract);
         return trigger;
+    }
+
+    public void addCondition(Trigger trigger, ICondition triggerCondition) {
+        ICondition[] c = trigger.getConditions() != null ? trigger.getConditions() : new ICondition[]{};
+        List<ICondition> triggerConditions = new ArrayList<>(Arrays.asList(c));
+        triggerConditions.add(triggerCondition);
+        trigger.setConditions(triggerConditions.toArray(c));
     }
 
     private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {

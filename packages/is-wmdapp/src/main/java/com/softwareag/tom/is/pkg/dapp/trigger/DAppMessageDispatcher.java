@@ -9,19 +9,26 @@ package com.softwareag.tom.is.pkg.dapp.trigger;
 
 import com.softwareag.tom.is.pkg.dapp.DAppLogger;
 import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
+import com.softwareag.tom.is.pkg.dapp.Util;
 import com.softwareag.tom.protocol.abi.Types;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
 import com.wm.app.b2b.server.dispatcher.AbstractMessageDispatcher;
+import com.wm.app.b2b.server.dispatcher.um.trigger.UMChannelFilterPair;
+import com.wm.lang.ns.NSName;
+
+import java.util.List;
 
 public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.FilterLogType> {
 
+    private List<UMChannelFilterPair> channelFilterPairs;
     /**
      * @param id The message dispatcher id
-     * @param pdtName The publishable document type name
+     * @param channelFilterPairs The publishable document type names
      * @param listener The message listener reference
      */
-    DAppMessageDispatcher(String id, String pdtName, AbstractListener<Types.FilterLogType> listener) {
-        super(id, pdtName, listener);
+    DAppMessageDispatcher(String id, List<UMChannelFilterPair> channelFilterPairs, AbstractListener<Types.FilterLogType> listener) {
+        super(id, channelFilterPairs.get(0).getPdtName(), listener);
+        this.channelFilterPairs = channelFilterPairs;
     }
 
     @Override protected boolean processNextMessage() {
@@ -30,9 +37,17 @@ public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.Filte
 
             _listener.checkForThrottling();
 
+            String pdtName = null;
+            for (UMChannelFilterPair channelFilterPair : channelFilterPairs) {
+                pdtName = channelFilterPair.getPdtName();
+                if (Util.instance.isMatchingEvent(NSName.create(pdtName), consumerEvent)) {
+                    break;
+                }
+            }
+
             DAppExecutionTask task;
             try {
-                task = new DAppExecutionTask(consumerEvent, _pdtName, _listener);
+                task = new DAppExecutionTask(consumerEvent, pdtName, _listener);
                 _toc.prepareToExecuteUMTrigger(); // This will block until a trigger thread is available
 
                 if (_isSerial && _listener.isRetrievalSuspended()) {

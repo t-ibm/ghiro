@@ -86,7 +86,8 @@ abstract class ListenerSpecification extends RuntimeSpecification {
         Namespace.current().putNode(svc)
         // Create trigger
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Trigger trigger = Util.instance.getTrigger(NSName.create(triggerName), [Condition.create(pdtNsName, svcNsName,'contractAddress != null')])
+        Trigger trigger = Util.instance.createTrigger(NSName.create(triggerName))
+        Util.instance.addCondition(trigger, Condition.create(pdtNsName, svcNsName,'contractAddress != null').asCondition())
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager
