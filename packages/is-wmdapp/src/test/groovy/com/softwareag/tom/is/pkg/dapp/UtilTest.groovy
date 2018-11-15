@@ -28,7 +28,6 @@ import com.wm.lang.ns.NSTrigger
 import rx.Observable
 
 import static Util.SUFFIX_REQ
-import static Util.SUFFIX_TRG
 import static Util.SUFFIX_DOC
 import static Util.SUFFIX_REP
 
@@ -95,7 +94,7 @@ class UtilTest extends RuntimeSpecification {
         nsRecord.fields[0].name == '_env'
         nsRecord.fields[1].name == 'contractAddress'
         nsRecord.isPublishable()
-        trigger.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_TRG")
+        trigger.getNSName() == NSName.create("sample.util.Console:trigger")
         service.getNSName() == NSName.create("sample.util.Console:LogAddress$SUFFIX_REP")
 
         when: 'a particular entry is retrieved'
@@ -115,7 +114,7 @@ class UtilTest extends RuntimeSpecification {
         nsRecord.fields[0].name == '_env'
         nsRecord.fields[1].name == 'ret'
         nsRecord.isPublishable()
-        trigger.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_TRG")
+        trigger.getNSName() == NSName.create("sample.util.Console:trigger")
         service.getNSName() == NSName.create("sample.util.Console:LogUint$SUFFIX_REP")
     }
 
