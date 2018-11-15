@@ -76,7 +76,6 @@ import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNEC
 public class Util {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
-    static final String SUFFIX_TRG = "Trg";
     static final String SUFFIX_REP = "Rep";
 
     public static Util instance = new Util();
