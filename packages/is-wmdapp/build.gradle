@@ -12,6 +12,7 @@ dependencies {
     testRuntime(
         project(":modules:$project.rootProject.name-contract"),
         project(":modules:$project.rootProject.name-protocol"),
+        project.sag.module.jmx,
     )
 }
 
