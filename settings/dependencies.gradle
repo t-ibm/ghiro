@@ -19,6 +19,7 @@ ext {
 sag.module += [
     crypto : 'org.bouncycastle:bcprov-jdk15on:1.56@jar',
     groovy : 'org.codehaus.groovy:groovy-all:2.4.12@jar',
+    jmx : 'javax.jms:javax.jms-api:2.0.1@jar',
     log4j : 'log4j:log4j:1.2.17@jar',
     protobuf : 'com.google.protobuf:protobuf-java:3.6.0@jar',
     protoc : 'com.google.protobuf:protoc:3.2.0',
