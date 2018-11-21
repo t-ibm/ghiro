@@ -19,7 +19,6 @@ import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.trigger.control.ControlledTriggerSvcThreadPool;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias;
 import com.wm.app.b2b.server.resources.MessagingBundle;
-import com.wm.lang.ns.NSName;
 import rx.Observable;
 import rx.Subscription;
 
@@ -91,9 +90,6 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
             this::stopProcessing
         );
 
-        for (int i = 0; i < _channelFilterPairs.size(); i++) {
-            //TODO
-        }
         _messageListenerRunning = true;
         DAppLogger.logDebug(DAppMsgBundle.DAPP_METHOD_END, "Listener#createListener");
     }
@@ -103,9 +99,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
      * trigger's retrieval is suspended then start the TriggerQueueConsumer in suspended mode.
      */
     @Override protected void initMessageDispatcher() {
-        String pdtName = _channelFilterPairs.get(0).getPdtName();
-
-        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", _channelFilterPairs, this);
+        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", this);
 
         if (_trigger.isProcessingSuspended()) {
             suspendProcessing();
