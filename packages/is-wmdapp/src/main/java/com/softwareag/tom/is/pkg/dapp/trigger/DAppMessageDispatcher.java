@@ -16,19 +16,14 @@ import com.wm.app.b2b.server.dispatcher.AbstractMessageDispatcher;
 import com.wm.app.b2b.server.dispatcher.um.trigger.UMChannelFilterPair;
 import com.wm.lang.ns.NSName;
 
-import java.util.List;
-
 public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.FilterLogType> {
 
-    private List<UMChannelFilterPair> channelFilterPairs;
     /**
      * @param id The message dispatcher id
-     * @param channelFilterPairs The publishable document type names
      * @param listener The message listener reference
      */
-    DAppMessageDispatcher(String id, List<UMChannelFilterPair> channelFilterPairs, AbstractListener<Types.FilterLogType> listener) {
-        super(id, channelFilterPairs.get(0).getPdtName(), listener);
-        this.channelFilterPairs = channelFilterPairs;
+    DAppMessageDispatcher(String id, AbstractListener<Types.FilterLogType> listener) {
+        super(id, listener);
     }
 
     @Override protected boolean processNextMessage() {
