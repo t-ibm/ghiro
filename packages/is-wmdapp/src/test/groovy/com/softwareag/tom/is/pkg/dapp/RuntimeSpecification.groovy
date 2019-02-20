@@ -36,7 +36,7 @@ class RuntimeSpecification extends Specification {
             true
         }
         connectionAlias.getType() >> {
-            ConnectionAlias.TYPE.DApp
+            ConnectionAlias.TYPE.DAPP
         }
         // Inject connection alias into runtime configuration
         RuntimeConfiguration runtimeConfiguration = Mock(RuntimeConfiguration)
