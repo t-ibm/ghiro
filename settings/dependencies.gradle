@@ -34,6 +34,7 @@ sag.module.is = [
     runtime : [
         'com.entrust:entrust-toolkit:8.0.+',
         'com.softwareag.ext.org.apache.axis2:axis2-kernel:1.6.2+',
+        "com.softwareag.mom.is:is-graphql-client:$project.sag.is.version",
         "com.softwareag.sc:sc-audit:$project.sag.is.version",
         "com.softwareag.sc:sc-core:$project.sag.is.version",
         "com.softwareag.tps:tps-gf-javax-mail:$project.sag.is.version",
