@@ -1,8 +1,8 @@
 # Application Layer
 User interaction with the DLT layer is through two IS packages.
 
-#### Support for Distributed Applications
-IS package `WmDApp` contains administrative services as well as the runtime services allowing to communicate with the distributed
+#### Support for Decentralized Applications
+IS package `WmDApp` contains administrative services as well as the runtime services allowing to communicate with the decentralized
 applications hosted by the distributed ledger.
 
 ###### Configuration
@@ -22,7 +22,7 @@ Declaring a named node is done via package property `node` as persisted in file 
 |`wm.dapp.Contract:call`|Interact with a contract. To be used with stateless EVM functions.|
 |`wm.dapp.Contract:sendTransaction`|Interact with a contract. To be used with stateful EVM functions.|
 
-#### The actual Distributed Applications
+#### The actual Decentralized Applications
 IS package `WmDAppContract` contains all generated contract namespace nodes; the contract's functions are represented as
 services while the contract's events are represented as publishable document types. If a contract has at least one event
 defined than a trigger namespace node is created with the publishable document types listed as conditions.

@@ -32,5 +32,5 @@ specifications are of type `constructor`, `function`, or `event`. Beyond other p
 of `inputParameters` and `outputParameters` whereas constructor and event specifications are composed of `inputParameters` only.
 For the complete set of declared properties see the [Ethereum Contract ABI specification](https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI).
 
-For a Java application to interact with the contract, aka Ethereum Distributed Application (DApp), a type-system mapping
+For a Java application to interact with the contract, aka Ethereum Decentralized Application (DApp), a type-system mapping
 is needed. See file [ParameterTypeJava.java](./src/main/java/com/softwareag/tom/contract/abi/util/ParameterTypeJava.java) for the current implementation status.

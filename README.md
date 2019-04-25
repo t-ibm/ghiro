@@ -7,11 +7,11 @@ A minimal viable product implementing a Transaction Oriented Middleware approach
 * [IS Packages](./packages)
 
 #### Architecture
-A multi-layered architecture for distributed applications.
+A multi-layered architecture for decentralized applications.
 
 |Layer 4|Quality of Service|
 |------:|:-----------------|
-|**Layer 3**|**Distributed Applications**|
+|**Layer 3**|**Decentralized Applications**|
 |**Layer 2**|**Distributed Ledger Technology**|
 |**Layer 1**|**Network Infrastructure**|
 
@@ -57,7 +57,7 @@ $ ./gradlew tasks
 $ ./gradlew build
 ```
 
-#### Sync the Distributed Application packages to an IS instance
+#### Sync the Decentralized Application packages to an IS instance
 Access to layer 3 is represented by IS packages `WmDApp` and `WmDAppContract`.
 ```
 $ ./gradlew syncPkg -Dcom.softwareag.tom.test.is.instance.dir=${sagRootDir}/IntegrationServer/instances/default
