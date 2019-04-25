@@ -19,7 +19,7 @@ By the means of _virtualization_ we ensure that independent applications, centra
 by a dedicated instance of such a system, greatly improving efficiency.
 
 #### Core Infrastructure
-The first-class services offered by a core IaaS system are:
+The first-class services offered by the core IaaS system are:
 - Compute
 - Storage
 - Messaging
