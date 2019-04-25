@@ -47,11 +47,6 @@ $ cd ./ghiro
 $ ./gradlew projects
 ```
 
-#### More Build Information
-```
-$ ./gradlew help
-```
-
 #### Build Default Tasks
 ```
 $ ./gradlew
@@ -67,6 +62,11 @@ $ ./gradlew syncPkg -Dcom.softwareag.tom.test.is.instance.dir=${sagRootDir}/Inte
 Layers 1 and 2 are provided by `burrow`.
 ```
 $ ./gradlew spawnBurrow
+```
+
+#### More Build Information
+```
+$ ./gradlew help
 ```
 
 #### More Information
