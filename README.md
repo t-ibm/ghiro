@@ -7,7 +7,7 @@ A minimal viable product implementing a Transaction Oriented Middleware approach
 * [IS Packages](./packages)
 
 #### Architecture
-A multi-layered architecture for decentralized applications.
+A multi-layered [architecture](./architecture.md) for decentralized applications.
 
 |Layer 4|Quality of Service|
 |------:|:-----------------|
