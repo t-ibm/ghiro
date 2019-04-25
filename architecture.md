@@ -40,5 +40,6 @@ version. There are essentially two options to make it available to a decentraliz
 #### Virtualization
 Virtualization provides a dedicated instance for 1..n related applications running on top of a shared physical
 node.
+
 ---
 1. E. Di Nitto and D. Rosenblum. Exploiting ADLs to specify architectural styles induced by middleware infrastructures. In Proceedings of the 1999 International Conference on Software Engineering, Los Angeles, May 16-22, 1999, pp. 13-22.
