@@ -47,14 +47,14 @@ $ cd ./ghiro
 $ ./gradlew projects
 ```
 
-#### Display Tasks
+#### More Build Information
 ```
-$ ./gradlew tasks
+$ ./gradlew help
 ```
 
-#### Build
+#### Build Default Tasks
 ```
-$ ./gradlew build
+$ ./gradlew
 ```
 
 #### Sync the Decentralized Application packages to an IS instance
