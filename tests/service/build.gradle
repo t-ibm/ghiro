@@ -1,9 +1,10 @@
 description = 'Service-level integration tests'
 
 dependencies {
-    integTestCompile(
-        project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
-        project(":modules:$project.rootProject.name-protocol"),
+    integTestImplementation(
+        project(path:":modules:$project.rootProject.name-contract", configuration:'runtimeElements'),
+        project(path:":modules:$project.rootProject.name-protocol", configuration:'runtimeElements'),
+        project.sag.module.protobuf,
     )
-    integTestRuntime project.sag.module.slf4j.impl
+    integTestRuntimeOnly project.sag.module.httpcomponents
 }

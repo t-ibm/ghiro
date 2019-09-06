@@ -1,12 +1,10 @@
 description = "The $project.name module"
 
+apply from: "$project.rootDir/settings/test-fixture.gradle"
+
 dependencies {
-    compile(
-            project.sag.module.crypto,
-            project.sag.module.jackson,
-            project.sag.module.slf4j.api,
-    )
-    runtime project.sag.module.slf4j.impl
+    implementation project.sag.module.crypto
+    compileOnly project.sag.module.yaml
 }
 
 test {

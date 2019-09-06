@@ -9,16 +9,14 @@ repositories {
 }
 
 dependencies {
-    integTestCompile(
-        project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime'),
-        project(":packages:is-$project.rootProject.name-wmdapp"),
+    integTestImplementation(
+        project(path:":packages:is-$project.rootProject.name-wmdapp", configuration:'runtimeElements'),
         project.sag.module.is.compile,
         project.sag.module.jmx,
         project.sag.module.protobuf,
     )
-    integTestRuntime(
-        project(":modules:$project.rootProject.name-protocol"),
-        project.sag.module.slf4j.impl,
+    integTestRuntimeOnly(
+        project.sag.module.httpcomponents,
         project.sag.module.is.runtime,
     )
 }

@@ -26,22 +26,18 @@ task clean(type:Delete, group:'build') {
  * Project domain specific configuration
  */
 subprojects {
-    apply from: "$project.rootDir/settings/java.gradle"
-    apply from: "$project.rootDir/settings/groovy.gradle"
+    group = "com.softwareag.mom.is"
+    apply from: "$project.rootDir/settings/java-base.gradle"
+    apply from: "$project.rootDir/settings/groovy-base.gradle"
+    apply from: "$project.rootDir/settings/publish.gradle"
+    apply from: "$project.rootDir/settings/jacoco.gradle"
+    apply plugin: 'groovy'
     apply plugin: IntegrationServerPackagePlugin
     configurations {
         nodeutil {
             visible = false
         }
-        providedCompile {
-            description = 'Additional compile classpath for modules provided by the Integration Server.'
-        }
-        providedRuntime {
-            description = 'Additional runtime classpath for modules provided by the Integration Server.'
-            extendsFrom providedCompile
-        }
-        testCompile.extendsFrom providedCompile
-        testRuntime.extendsFrom providedRuntime
+        testImplementation.extendsFrom compileOnly
     }
     repositories {
         ivy {
@@ -52,15 +48,9 @@ subprojects {
     }
     dependencies {
         nodeutil group:'com.softwareag.mom.is', name:'is-server', version:project.sag.is.version, configuration:'nodeutil'
-        providedCompile project.sag.module.is.compile
-        testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
-        testRuntime project.sag.module.is.runtime
-    }
-    sourceSets {
-        main {
-            compileClasspath += project.configurations.providedCompile
-            runtimeClasspath += project.configurations.providedRuntime
-        }
+        compileOnly project.sag.module.is.compile
+        testImplementation project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntimeElements')
+        testRuntimeOnly project.sag.module.is.runtime
     }
     frag {
         nodeUtilClasspath = project.configurations.nodeutil

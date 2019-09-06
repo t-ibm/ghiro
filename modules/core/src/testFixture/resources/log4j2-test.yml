@@ -1,0 +1,31 @@
+---
+configuration:
+  status: warn
+  name: ghiroTest
+  thresholdFilter:
+    level: debug
+  appenders:
+    console:
+      - name: stdout
+        target: SYSTEM_OUT
+        patternLayout:
+          pattern: "%highlight{%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n}"
+      - name: stderr
+        target: SYSTEM_ERR
+        patternLayout:
+          Pattern: "%highlight{%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n}"
+        filters:
+          thresholdFilter:
+            level: error
+  loggers:
+    logger:
+      - name: com.softwareag.tom
+        level: debug
+        additivity: false
+        appenderRef:
+          ref: stdout
+    root:
+      level: error
+      appenderRef:
+        - ref: stderr
+...

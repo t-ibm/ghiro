@@ -1,0 +1,106 @@
+File sagRootDir = new File( project.buildDir, 'installs')
+File isRootDir = new File( System.getProperty( 'com.softwareag.tom.test.is.instance.dir', "$sagRootDir/IntegrationServer/instances/default"))
+/*
+ * Common project properties
+ */
+ext {
+    sag = [
+        build : [
+            version : [
+                major : 0,
+                minor : 0,
+                micro : 1,
+            ],
+            patch : 0,
+        ],
+        ttl : 60*60*24*7, // Cache dynamic versions for 7 days
+        module : [:],
+        bas : [
+            version : '4.0.0+',
+        ],
+        is : [
+            version : '10.4.0+',
+            rootDir : isRootDir,
+        ]
+    ]
+}
+/*
+ * Common dependencies
+ */
+sag.module += [
+    crypto : 'org.bouncycastle:bcprov-jdk15on:1.56@jar',
+    groovy : 'org.codehaus.groovy:groovy-all:2.4.15@jar',
+    jmx : 'javax.jms:javax.jms-api:2.0.1@jar',
+    log4j : 'log4j:log4j:1.2.17@jar',
+    protobuf : 'com.google.protobuf:protobuf-java:3.6.0@jar',
+    protoc : 'com.google.protobuf:protoc:3.2.0',
+    rx : 'io.reactivex:rxjava:1.2.4@jar',
+]
+sag.module.is = [
+    compile : [
+        "com.softwareag.mom.is:is-client:$project.sag.is.version",
+        "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
+        "com.softwareag.g11n:g11n-utils:10.2+",
+    ],
+    runtime : [
+        'com.entrust:entrust-toolkit:8.0.+',
+        'com.softwareag.ext.org.apache.axis2:axis2-kernel:1.6.2+',
+        "com.softwareag.mom.is:is-graphql-client:$project.sag.is.version",
+        "com.softwareag.sc:sc-audit:$project.sag.is.version",
+        "com.softwareag.sc:sc-core:$project.sag.is.version",
+        "com.softwareag.tps:tps-gf-javax-mail:$project.sag.is.version",
+        "com.softwareag.wsstack:deployer-api:$project.sag.is.version",
+    ]
+]
+sag.module.jackson = [
+        'com.fasterxml.jackson.core:jackson-annotations:2.9.2@jar',
+        'com.fasterxml.jackson.core:jackson-core:2.9.2@jar',
+        'com.fasterxml.jackson.core:jackson-databind:2.9.2@jar',
+]
+sag.module.yaml = [
+    sag.module.jackson,
+    'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.7@jar',
+    'org.yaml:snakeyaml:1.19@jar',
+]
+sag.module.log = [
+    api : 'org.slf4j:slf4j-api:1.7.7@jar',
+    runtime : [
+        sag.module.yaml,
+        'org.apache.logging.log4j:log4j-api:2.11.2@jar',
+        'org.apache.logging.log4j:log4j-core:2.11.2@jar',
+        'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2@jar',
+    ],
+]
+sag.module.spock = [
+    implementation : [
+        sag.module.groovy,
+        'junit:junit:4.12@jar',
+        'org.spockframework:spock-core:1.1-groovy-2.4@jar',
+    ],
+    runtime : [
+    	'org.hamcrest:hamcrest-core:1.1@jar',
+        'org.objenesis:objenesis:2.6@jar',
+        'net.bytebuddy:byte-buddy:1.9.7@jar',
+    ],
+]
+sag.module.httpcomponents = [
+    'org.apache.httpcomponents:httpclient:4.5.2@jar',
+    'org.apache.httpcomponents:httpcore:4.4.4@jar',
+    'commons-logging:commons-logging:1.1.3@jar',
+]
+sag.module.httpbuilder = [
+    api : [
+        'org.codehaus.groovy.modules.http-builder:http-builder:0.6@jar',
+        sag.module.httpcomponents,
+    ],
+    impl : [
+        'nekohtml:nekohtml:1.9.6.2@jar',
+        'net.sf.json-lib:json-lib:2.3:jdk15@jar',
+        'net.sf.ezmorph:ezmorph:1.0.6@jar',
+        'xerces:xercesImpl:2.11.0@jar',
+        'xml-resolver:xml-resolver:1.2@jar',
+        'commons-collections:commons-collections:3.2.1@jar',
+        'commons-beanutils:commons-beanutils:1.8.0@jar',
+        'commons-lang:commons-lang:2.4@jar',
+    ]
+]

@@ -1,5 +1,7 @@
 syntax = "proto3";
-package com.softwareag.tom.protocol.abi;
+option java_package = "com.softwareag.tom.protocol.abi";
+option java_outer_classname = "Types";
+
 /*
  * Code Types.
  */

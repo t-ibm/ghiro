@@ -3,67 +3,27 @@ description = 'Product modules'
  * Project domain specific configuration
  */
 subprojects {
-    apply from: "$project.rootDir/settings/groovy.gradle"
-    // Adding the test fixture source set
-    sourceSets {
-        testFixture {
-            java {
-                compileClasspath += sourceSets.main.output
-            }
-        }
-        testFixtureTest {
-            java {
-                compileClasspath += sourceSets.main.output
-                runtimeClasspath += sourceSets.main.output
-            }
-        }
-    }
-    configurations {
-        testFixtureCompile.extendsFrom compile
-        testFixtureRuntime {
-            visible = true
-            extendsFrom runtime
-        }
-        testFixtureTestCompile.extendsFrom testFixtureCompile
-        testFixtureTestRuntime.extendsFrom testFixtureRuntime
-        testCompile.extendsFrom testFixtureCompile
-        testRuntime.extendsFrom testFixtureRuntime
-    }
+    apply from: "$project.rootDir/settings/java-base.gradle"
+    apply from: "$project.rootDir/settings/groovy-base.gradle"
+    apply from: "$project.rootDir/settings/publish.gradle"
+    apply from: "$project.rootDir/settings/jacoco.gradle"
+    apply plugin: 'groovy'
     dependencies {
-        testFixtureCompile(
-            project.sag.module.spock.compile,
-            project.sag.module.slf4j.api,
-        )
-        testFixtureRuntime(
-            project.sag.module.spock.runtime,
-            project.sag.module.slf4j.impl,
-        )
-        testFixtureTestCompile sourceSets.testFixture.output
-        testCompile sourceSets.testFixture.output
+        testImplementation project.sag.module.spock.implementation
+        testRuntimeOnly project.sag.module.spock.runtime
     }
-    task testFixtureTest(type: Test) {
-        description = "Testing the 'testFixture' source set."
-        testClassesDirs = project.sourceSets.testFixtureTest.output.classesDirs
-        classpath = project.sourceSets.testFixtureTest.runtimeClasspath
-    }
-    project.tasks.test.dependsOn project.tasks.testFixtureTest
-    task jarTestFixture(type: Jar) {
-        from sourceSets.testFixture.output
-        appendix = 'test'
-    }
-    project.tasks.assemble.dependsOn project.tasks.jarTestFixture
-    artifacts {
-        testFixtureRuntime(jarTestFixture) { type = 'test' }
-        archives(jarTestFixture) { type = 'test' }
-    }
-    eclipse { //TODO :: Without this, this project has build path issues in Eclipe IDE, needs more investigation
-        new File(buildDir, 'resources/testFixture').mkdirs()
-    }
-    idea {
-        module {
-            scopes.COMPILE.plus += [configurations.testFixtureTestCompile]
-            scopes.TEST.plus += [configurations.testFixtureTestRuntime]
-            scopes.TEST.minus += [configurations.testFixtureTestCompile]
+    project.plugins.withType(JavaPlugin) {
+        /*
+         * Add to the consolidated JaCoCo report
+         */
+        project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.test
+        project.rootProject.tasks.jacocoMerge.executionData files(project.tasks.test.jacoco.destinationFile as File).filter { f -> f.exists() }
+        project.rootProject.tasks.jacocoMergeReport.sourceSets project.sourceSets.main
+        /*
+         * Configure JaCoCo report
+         */
+        jacocoTestReport {
+            reports.xml.enabled = true
         }
     }
 }

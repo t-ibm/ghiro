@@ -8,4 +8,13 @@ protobuf {
         // The artifact spec for the Protobuf Compiler
         artifact = project.sag.module.protoc
     }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'annotate_code=true'
+                }
+            }
+        }
+    }
 }
