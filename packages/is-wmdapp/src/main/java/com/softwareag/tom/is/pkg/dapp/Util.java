@@ -73,13 +73,13 @@ import java.util.stream.Collectors;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public class Util {
+public final class Util {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_REP = "Rep";
 
-    public static Util instance = new Util();
-    public static RuntimeConfiguration rt;
+    public static final Util instance = new Util();
+    public RuntimeConfiguration rt;
 
     private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
     private Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
@@ -473,7 +473,7 @@ public class Util {
             //TODO :: Replace with eth_getCode when available
             Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build();
             Types.ResponseEthGetBalance response = web3Service.ethGetBalance(request);
-            return response.getBalance() == HexValue.toByteString(0) ? contract.setValid(true) : contract;
+            return response.getBalance().equals(HexValue.toByteString(0)) ? contract.setValid(true) : contract;
         } else {
             return contract;
         }

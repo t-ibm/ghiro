@@ -18,7 +18,7 @@ import java.util.List;
  * Decodes values returned by function or event calls.
  * Adapted from the <a href="https://github.com/web3j/web3j/blob/master/abi/src/main/java/org/web3j/abi/FunctionReturnDecoder.java">Web3 Java</a> implementation.
  */
-public class ReturnDecoder extends ValueBase {
+public final class ReturnDecoder extends ValueBase {
 
     private ReturnDecoder() {}
 

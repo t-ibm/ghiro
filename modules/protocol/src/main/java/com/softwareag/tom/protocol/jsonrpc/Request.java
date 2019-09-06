@@ -57,7 +57,7 @@ public abstract class Request<P, R extends Response> {
     }
 
     private static ParameterizedType getParameterizedType(Class<?> c) {
-        if ("com.softwareag.tom.protocol.jsonrpc.Request".equals(c.getSuperclass().getName())) {
+        if (Request.class.equals(c.getSuperclass())) {
             return (ParameterizedType) c.getGenericSuperclass();
         }
         return getParameterizedType(c.getSuperclass());

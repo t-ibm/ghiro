@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Solidity fs location implementation.
@@ -44,20 +46,27 @@ public class SolidityLocationFileSystem implements ContractLocation {
 
     @Override public Map<String, Contract> load() throws IOException {
         Map<String, Contract> contracts = new HashMap<>();
-        Files.find(Paths.get(rootUri), 64, (path, bfa) -> bfa.isRegularFile() && path.getFileName().toString().matches(".*\\.bin")).forEachOrdered(
-            pathBin -> {
-                URI uri = rootUri.relativize(pathBin.toUri());
-                uri = URI.create(uri.toString().substring(0, uri.toString().lastIndexOf('.'))); //Remove extension from URI
-                logger.info("Loading contract '{}'.", uri);
-                Path pathAbi = Paths.get(rootUri.resolve(uri.toString() + ".abi"));
-                try {
-                    Contract contract = Contract.create(getContractInterface(Files.readAllBytes(pathAbi)), new String(Files.readAllBytes(pathBin)));
-                    contracts.put(uri.toString(), contract);
-                } catch (IOException e) {
-                    logger.warn("Unable to read file content, got exception: " + e);
+        Stream<Path> input = null;
+        try {
+            input = Files.find(Paths.get(rootUri), 64, (path, bfa) -> bfa.isRegularFile() && path.getFileName().toString().matches(".*\\.bin"));
+            input.forEachOrdered(
+                pathBin -> {
+                    URI uri = rootUri.relativize(pathBin.toUri());
+                    uri = URI.create(uri.toString().substring(0, uri.toString().lastIndexOf('.'))); //Remove extension from URI
+                    logger.info("Loading contract '{}'.", uri);
+                    Path pathAbi = Paths.get(rootUri.resolve(uri.toString() + ".abi"));
+                    try {
+                        Contract contract = Contract.create(getContractInterface(Files.readAllBytes(pathAbi)), new String(Files.readAllBytes(pathBin), Charset.defaultCharset()));
+                        contracts.put(uri.toString(), contract);
+                    } catch (IOException e) {
+                        logger.warn("Unable to read file content, got exception: " + e);
+                    }
                 }
-            }
-        );
+            );
+        } finally {
+            assert input != null;
+            input.close();
+        }
         return contracts;
     }
 

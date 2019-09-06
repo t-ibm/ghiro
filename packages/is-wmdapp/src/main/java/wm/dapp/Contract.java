@@ -17,6 +17,7 @@ import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Contract {
+    private Contract() {}
     /**
      * Calls the contract. To be used by stateless EVM contracts.
      *

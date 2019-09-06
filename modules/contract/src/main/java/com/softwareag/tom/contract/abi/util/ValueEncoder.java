@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  * Adapted from the <a href="https://github.com/web3j/web3j/blob/master/abi/src/main/java/org/web3j/abi/TypeEncoder.java">Web3 Java</a> implementation.
  */
-public class ValueEncoder extends ValueBase {
+public final class ValueEncoder extends ValueBase {
 
     private ValueEncoder() {}
 

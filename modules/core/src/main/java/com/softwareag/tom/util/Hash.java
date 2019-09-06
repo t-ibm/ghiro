@@ -11,7 +11,7 @@ import org.bouncycastle.jcajce.provider.digest.Keccak;
 /**
  * The Keccak (SHA-3) hash helper class.
  */
-public class Hash {
+public final class Hash {
     private Hash() {}
     /**
      * Keccak (SHA-3) hash.

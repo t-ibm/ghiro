@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
  * <p>
  * Adapted from the <a href="https://github.com/web3j/web3j/blob/master/abi/src/main/java/org/web3j/abi/TypeDecoder.java">Web3 Java</a> implementation.
  */
-public class ValueDecoder extends ValueBase {
+public final class ValueDecoder extends ValueBase {
 
     private ValueDecoder() {}
 

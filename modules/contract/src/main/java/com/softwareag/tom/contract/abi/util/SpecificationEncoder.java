@@ -21,7 +21,7 @@ import static com.softwareag.tom.contract.abi.util.ValueEncoder.MAX_BYTE_LENGTH;
 /**
  * The <a href="https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI">Ethereum Contract ABI</a> encoding for constructors, functions, and events.
  */
-public class SpecificationEncoder {
+public final class SpecificationEncoder {
 
     private SpecificationEncoder() {}
 

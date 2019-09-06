@@ -25,11 +25,13 @@ import com.wm.data.IDataCursor;
 import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSRecord;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
 
 @SuppressWarnings("unused") public final class Admin {
+    private Admin() {}
     /**
      * Creates new DApp connection alias if not already existing.
      *
@@ -133,7 +135,7 @@ import java.util.Map;
         IData[]  contracts;
         try {
             contracts = Util.instance.getContractAddresses();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ServiceException(e);
         }
         IDataUtil.put(pc,"contracts", contracts);
@@ -160,7 +162,7 @@ import java.util.Map;
             Util.instance.storeContractAddress(uri, contractAddress);
             message = "Successfully deployed contract '" + uri + "'.";
             IDataUtil.put(pc,"message", message);
-        } catch (Exception e) {
+        } catch (IOException e) {
             message = "Failed to deploy contract '" + uri + "'!";
             IDataUtil.put(pc,"message", message);
             throw new ServiceException(e);

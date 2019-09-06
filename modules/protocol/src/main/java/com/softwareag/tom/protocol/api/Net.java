@@ -17,6 +17,7 @@ interface Net {
     /**
      * Method {@code net_listening}.
      * @return {@code true} when listening, otherwise {@code false}
+     * @throws IOException in case of an error
      */
     Types.ResponseNetListening netListening() throws IOException;
 }

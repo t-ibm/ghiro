@@ -47,10 +47,10 @@ class NodeInterceptor extends AbstractMethodInterceptor {
         if (!configField && invocation.spec.superSpec != null) {
             configField = invocation.spec.superSpec.fields.find { it.type == ConfigObject }
         }
-        if (!configField) {
-            logger.error("Fields annotated with $Node must be of type $ConfigObject")
-        } else {
+        if (configField) {
             invocation.proceed()
+        } else {
+            logger.error("Fields annotated with $Node must be of type $ConfigObject")
         }
     }
 

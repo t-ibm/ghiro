@@ -17,6 +17,7 @@ public interface Web3 extends Net, Eth {
     /**
      * Method {@code web3_clientversion}.
      * @return the current client version
+     * @throws IOException in case of an error
      */
     Types.ResponseWeb3ClientVersion web3ClientVersion() throws IOException;
 }

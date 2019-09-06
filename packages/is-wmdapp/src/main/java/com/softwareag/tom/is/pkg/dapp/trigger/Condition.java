@@ -13,7 +13,7 @@ import com.wm.lang.ns.NSName;
 import com.wm.msg.ConditionFactory;
 import com.wm.msg.ICondition;
 
-public class Condition {
+public final class Condition {
     private String type;
     private String name;
     private NSName pdt;
