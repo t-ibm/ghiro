@@ -44,6 +44,6 @@ class RuntimeSpecification extends Specification {
             connectionAlias
         }
         // Set runtime configuration
-        Util.rt = runtimeConfiguration
+        Util.instance.rt = runtimeConfiguration
     }
 }

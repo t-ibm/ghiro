@@ -30,8 +30,6 @@ public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType
         super(consumerEvent, pdtName, listener);
     }
 
-    @Override protected void processMessage() { super.processMessage(); }
-
     @Override protected IMessage preprocess() throws MessagingCoderException {
         NSName nsName = NSName.create(_pdtName);
         try {

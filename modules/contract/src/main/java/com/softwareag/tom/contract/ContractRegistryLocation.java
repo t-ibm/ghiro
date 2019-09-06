@@ -25,9 +25,9 @@ class ContractRegistryLocation implements ContractRegistry {
     @Override public Map<String, Contract> load() throws IOException {
         Map<String, Contract> contracts = contractLocation.load();
         Map<String, String> addresses = loadContractAddresses();
-        for (String key : addresses.keySet()) {
-            if (contracts.containsKey(key)) {
-                contracts.get(key).setContractAddress(addresses.get(key));
+        for (Map.Entry<String, String> entry : addresses.entrySet()) {
+            if (contracts.containsKey(entry.getKey())) {
+                contracts.get(entry.getKey()).setContractAddress(entry.getValue());
             }
         }
         return contracts;

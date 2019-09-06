@@ -13,7 +13,7 @@ import java.math.BigInteger;
 /**
  * Smart contract abstraction.
  */
-public class Contract {
+public final class Contract {
     //https://blog.ethereum.org/2016/10/31/uncle-rate-transaction-fee-analysis/
     private static final BigInteger GAS_PRICE = BigInteger.valueOf(20);
     private static final BigInteger GAS_LIMIT = BigInteger.valueOf(4_300_000);

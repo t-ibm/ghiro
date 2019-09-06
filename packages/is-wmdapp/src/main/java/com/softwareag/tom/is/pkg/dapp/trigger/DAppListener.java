@@ -12,7 +12,6 @@ import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
 import com.softwareag.tom.protocol.abi.Types;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
-import com.wm.app.b2b.server.dispatcher.MessageListenerQueue;
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException;
 import com.wm.app.b2b.server.dispatcher.exceptions.MessagingSubsystemException;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
@@ -38,8 +37,6 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
     public DAppListener(Trigger trigger, ControlledTriggerSvcThreadPool threadPool) throws CommException {
         super(trigger, threadPool);
     }
-
-    @Override protected MessageListenerQueue<Types.FilterLogType> getQueue() { return super.getQueue(); }
 
     @Override protected ConnectionAlias getConnectionAlias() {
         return null;

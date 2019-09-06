@@ -15,7 +15,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 /**
  * Object mapper factory.
  */
-public class ObjectMapperFactory {
+public final class ObjectMapperFactory {
 
     private static final ObjectMapper jsonMapper = new ObjectMapper();
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());

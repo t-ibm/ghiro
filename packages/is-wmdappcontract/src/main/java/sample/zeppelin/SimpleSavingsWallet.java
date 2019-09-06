@@ -16,7 +16,10 @@ import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 // --- <<B2B-END-IMPORTS>> ---
 
-@SuppressWarnings("unused") public class SimpleSavingsWallet {
+@SuppressWarnings("unused") public final class SimpleSavingsWallet {
+    // --- <<IS-START-SHARED>> ---
+    // --- <<IS-END-SHARED>> ---
+    private SimpleSavingsWallet() {}
     public static void sendTo(IData pipeline) throws ServiceException {
         // --- <<B2B-START(sendTo)>> ---
         // @sigtype java 3.5
@@ -32,15 +35,11 @@ import com.wm.data.IDataUtil;
         try {
             IData output = Service.doInvoke("zeppelin.examples.SimpleSavingsWallet", "sendToReq", IDataFactory.create(input));
             IDataUtil.merge(pipeline, output);
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof ServiceException) {
-                throw (ServiceException) e;
-            } else {
-                throw new ServiceException(e);
-            }
+            throw new ServiceException(e);
         }
         // --- <<B2B-END>> ---
     }
-    // --- <<IS-START-SHARED>> ---
-    // --- <<IS-END-SHARED>> ---
 }

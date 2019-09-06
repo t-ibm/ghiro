@@ -13,6 +13,8 @@ import com.softwareag.tom.contract.abi.ParameterType;
  */
 public abstract class ValueBase {
 
+    ValueBase() {}
+
     static final int ADDRESS_LENGTH = 160;
     static final int MAX_BIT_LENGTH = 256;
     static final int MAX_BYTE_LENGTH = MAX_BIT_LENGTH / 8;

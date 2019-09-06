@@ -11,6 +11,7 @@ import com.softwareag.tom.is.pkg.dapp.DAppLogger;
 import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
 import com.softwareag.tom.protocol.abi.Types;
+import com.wm.app.b2b.server.ISRuntimeException;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
 import com.wm.app.b2b.server.dispatcher.AbstractMessageDispatcher;
 import com.wm.app.b2b.server.dispatcher.um.trigger.UMChannelFilterPair;
@@ -52,11 +53,11 @@ public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.Filte
                     _threadPool.runTarget(task);
                 }
 
-            } catch (Throwable t) {
-                DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_TRIGGEREXECUTION, _trigger.getName(), t);
+            } catch (ISRuntimeException e) {
+                DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_TRIGGEREXECUTION, _trigger.getName(), e);
             }
             return true;
-        }else {
+        } else {
             return false;
         }
     }

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Transaction manager implementation using Burrow's unsafe API to manage the remotely created and signed transactions.
  */
-public class TransactionManager {
+public final class TransactionManager {
     public static final TransactionManager instance = new TransactionManager();
 
     private final Map<ByteString, Types.TxReceiptType> transactions = new ConcurrentHashMap<>();

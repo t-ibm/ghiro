@@ -13,7 +13,7 @@ import com.wm.lang.ns.NSRecord;
 
 import java.util.Objects;
 
-public class Event {
+public final class Event {
     private Trigger trigger;
     private NSRecord pdt;
     private FlowSvcImpl service;

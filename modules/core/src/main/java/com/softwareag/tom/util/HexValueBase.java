@@ -7,6 +7,7 @@
 package com.softwareag.tom.util;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
 /**
  * The hex value encoding base helper class. See the <a href="https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding">JSON-RPC Wiki</a> for more info.
@@ -124,14 +125,14 @@ public class HexValueBase {
     }
 
     public static String decode(byte[] bytes) {
-        return  new String(bytes).trim();
+        return  new String(bytes, Charset.defaultCharset()).trim();
     }
 
     public static String decode(String hexStr) {
-        return new String(toByteArray(hexStr)).trim();
+        return new String(toByteArray(hexStr), Charset.defaultCharset()).trim();
     }
 
     public static String encode(String str) {
-        return toString(str.getBytes());
+        return toString(str.getBytes(Charset.defaultCharset()));
     }
 }
