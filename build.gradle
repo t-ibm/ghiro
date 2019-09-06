@@ -20,15 +20,16 @@ buildscript {
  */
 plugins {
     id 'project-report'
+    id 'org.sonarqube' version '2.7.1'
 }
 /*
  * Root-project only configuration
  */
 description = 'A minimal viable transaction oriented middleware approach.'
-apply from: 'settings/dependencies.gradle'
-apply from: 'settings/groups.gradle'
-apply from: 'settings/ide-eclipse.gradle'
-apply from: 'settings/ide-idea.gradle'
+apply from: 'settings/extension.gradle'
+group = "com.softwareag.tom.${project.name}"
+version = SAGBuild.instance(project).version
+sag.build.status = SAGBuild.status
 task clean(type:Delete, group:'build') {
     description = 'Deletes the build directory.'
     delete project.buildDir
@@ -37,7 +38,9 @@ task clean(type:Delete, group:'build') {
  * Common configuration for all projects
  */
 allprojects {
-    project.ext.build = new SAGBuild(project)
+    group = project.rootProject.group
+    version = project.rootProject.version
+    project.ext.build = SAGBuild.instance(project) //TODO :: Needed by IntegrationServerPackagePlugin
     defaultTasks 'assemble'
     configurations.all {
         resolutionStrategy {
@@ -47,7 +50,7 @@ allprojects {
         }
     }
     // We care mostly about the dependency report for projects that actually publish something to the repository
-    project.plugins.withType( BasePlugin.class) {
+    project.plugins.withType(BasePlugin.class) {
         project.apply plugin: 'project-report'
     }
     repositories {
@@ -55,15 +58,60 @@ allprojects {
     }
 }
 /*
+ * Add consolidated JaCoCo report
+ */
+apply from: "$project.rootDir/settings/jacoco.gradle"
+task jacocoMerge(type: JacocoMerge, group:'verification') {
+    description = "Merges multiple execution data files into one."
+}
+task jacocoMergeReport(type:JacocoReport, group:'verification') {
+    description = "Generates a consolidated code coverage report."
+    dependsOn project.tasks.jacocoMerge
+    executionData project.tasks.jacocoMerge.destinationFile
+}
+/*
+ * Configure code quality reporting
+ */
+sonarqube.properties {
+    properties(
+            'sonar.projectName' : project.group,
+            'sonar.host.url' : 'http://bas.eur.ad.sag:9000',
+            'sonar.login' : project.hasProperty('sonar.login') ? project.property('sonar.login') : 'local',
+            'sonar.password' : project.hasProperty('sonar.password') ? project.property('sonar.password') : 'sonarLocal',
+            'sonar.issuesReport.html.enable' : 'true',
+            'sonar.issuesReport.console.enable' : 'true',
+            'sonar.jacoco.reportPaths' : project.tasks.jacocoMerge.destinationFile.absolutePath,
+            'sonar.analysis.mode' : project.gradle.startParameter.offline ? 'preview' : 'publish',
+            'sonar.exclusions' : "**/com/softwareag/tom/protocol/abi/**",
+    )
+}
+project.tasks['sonarqube'].dependsOn project.tasks.jacocoMerge
+/*
  * Helper classes.
  */
-public class SAGBuild {
-    private final Project project
-    public SAGBuild(Project project) { this.project = project }
-    public int number = getProjectProperty(project, 'build.number', 0)
-    public String version = "${getProjectProperty(project, 'build.version.major', 0)}.${getProjectProperty(project, 'build.version.minor', 0)}.${getProjectProperty(project, 'build.version.micro', 0)}.${getProjectProperty(project, 'build.patch', 0)}"
-    public String getInstallerVersion() { return "$version.$number" }
-    private static int getProjectProperty(Project project, String propertyName, int defaultValue) {
-        project.hasProperty(propertyName) ? Integer.parseInt((String) project.property(propertyName)) : defaultValue
+class SAGBuild {
+    private final Project p
+    private static SAGBuild instance
+    static SAGBuild instance(Project project) {
+        return instance == null ? instance = new SAGBuild(project) : instance
+    }
+    private SAGBuild(Project p) {
+        this.p = p
+    }
+    private String getQualifier() {
+        String q = p.sag.build.patch > 0 ? ".$p.sag.build.patch" : ''
+        q + String.format("-v%04d", number)
+    }
+    String getVersion() {
+        return "${p.sag.build.version.major}.${p.sag.build.version.minor}.${p.sag.build.version.micro}$qualifier"
+    }
+    String getInstallerVersion() {
+        return "${p.sag.build.version.major}.${p.sag.build.version.minor}.${p.sag.build.version.micro}.${p.sag.build.patch}.$number"
+    }
+    static int getNumber() {
+        return System.getenv().containsKey('BUILD_NUMBER') ? Integer.parseInt(System.getenv().get('BUILD_NUMBER')) : 0
+    }
+    static String getStatus() {
+        return System.getenv().containsKey('BUILD_STATUS') ? System.getenv().get('BUILD_STATUS') : 'integration'
     }
 }

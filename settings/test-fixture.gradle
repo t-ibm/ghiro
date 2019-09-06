@@ -1,0 +1,79 @@
+/*
+ * Add test fixture source set etc.
+ */
+apply from: "$project.rootDir/settings/java-base.gradle"
+sourceSets {
+    testFixture
+    testTestFixture
+}
+configurations {
+    testFixtureImplementation.extendsFrom implementation
+    testFixtureCompileOnly.extendsFrom compileOnly
+    testFixtureRuntimeOnly.extendsFrom runtimeOnly
+    testImplementation.extendsFrom testFixtureImplementation
+    testCompileOnly.extendsFrom testFixtureCompileOnly
+    testRuntimeOnly.extendsFrom testFixtureRuntimeOnly
+    testTestFixtureImplementation.extendsFrom testFixtureImplementation
+    testTestFixtureCompileOnly.extendsFrom testFixtureCompileOnly
+    testTestFixtureRuntimeOnly.extendsFrom testFixtureRuntimeOnly
+    testFixtureRuntimeElements {
+        description = "Runtime elements for source set 'testFixture'."
+        extendsFrom testFixtureImplementation, testFixtureRuntimeOnly
+    }
+}
+dependencies {
+    testFixtureImplementation(
+            project.sag.module.spock.implementation,
+            project.sag.module.log.api,
+    )
+    testFixtureRuntimeOnly(
+            project.sag.module.spock.runtime,
+            project.sag.module.log.runtime,
+    )
+    testFixtureImplementation sourceSets.main.output
+    testImplementation sourceSets.testFixture.output
+    testTestFixtureImplementation sourceSets.testFixture.output
+}
+task testFixtureTest(type: Test) {
+    description = "Testing the 'testFixture' source set."
+    testClassesDirs = project.sourceSets.testTestFixture.output.classesDirs
+    classpath = project.sourceSets.testTestFixture.runtimeClasspath
+}
+project.tasks.build.dependsOn project.tasks.testFixtureTest
+task jarTestFixture(type:Jar, group:'build') {
+    description = "Assembles a jar archive containing the $project.sourceSets.testFixture.name classes."
+    from sourceSets.testFixture.output
+    appendix = 'test'
+}
+project.tasks.assemble.dependsOn project.tasks.jarTestFixture
+artifacts {
+    testFixtureImplementation(jarTestFixture) { type = 'test' }
+    archives(jarTestFixture) { type = 'test' }
+}
+/*
+ * Add to the consolidated JaCoCo report
+ */
+apply from: "$project.rootDir/settings/jacoco.gradle"
+project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.testFixtureTest
+project.rootProject.tasks.jacocoMerge.executionData files(project.tasks.testFixtureTest.jacoco.destinationFile as File).filter { f -> f.exists() }
+project.rootProject.tasks.jacocoMergeReport.sourceSets project.sourceSets.testFixture
+/*
+ * Add test fixture test JaCoCo report
+ */
+task jacocoTestFixtureTestReport(type:JacocoReport, group:'verification') {
+    description = "Generates code coverage report for the $project.tasks.testFixtureTest.name task."
+    dependsOn project.tasks.testFixtureTest
+    executionData project.tasks.testFixtureTest.jacoco.destinationFile
+    sourceSets project.sourceSets.testFixture
+    reports.xml.enabled = true
+}
+/*
+ * Add to the code quality configuration
+ */
+def testFixtureSrcDirs = project.sourceSets.testFixture.allSource.srcDirs.findAll { File f -> f.exists() }
+def testTestFixtureSrcDirs = project.sourceSets.testTestFixture.allSource.srcDirs.findAll { File f -> f.exists() }
+apply plugin: "org.sonarqube"
+sonarqube.properties {
+    properties["sonar.sources"] = properties["sonar.sources"] == null ? testFixtureSrcDirs : properties["sonar.sources"] + testFixtureSrcDirs
+    properties["sonar.tests"] = properties["sonar.tests"] == null ? testTestFixtureSrcDirs : properties["sonar.tests"] + testTestFixtureSrcDirs
+}

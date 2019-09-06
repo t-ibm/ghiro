@@ -32,7 +32,7 @@ class ValueCoderTest extends Specification {
         e.message == "Value of type 'class java.lang.String' cannot be encoded as 'bool'."
     }
 
-    @Unroll def "test bool parameter with value #value"() {
+    @Unroll def "test bool parameter with value #javaValue"() {
         given: 'a parameter of type "bool"'
         String source = '{"name":"a","type":"bool"}'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
@@ -52,7 +52,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test bool parameter with offset #offset and value #value"() {
+    @Unroll def "test bool parameter with offset #offset and value #javaValue"() {
         given: 'a parameter of type "bool"'
         String source = '{"name":"a","type":"bool"}'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
@@ -91,7 +91,7 @@ class ValueCoderTest extends Specification {
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
 
-    @Unroll def "test uint<M> parameter with value #value"() {
+    @Unroll def "test uint<M> parameter with value #javaValue"() {
         given: 'a parameter of type "uint<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
@@ -120,7 +120,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test int<M> parameter with value #value"() {
+    @Unroll def "test int<M> parameter with value #javaValue"() {
         given: 'a parameter of type "int<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
@@ -149,7 +149,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test ufixed<M>x<N> parameter with value #value"() {
+    @Unroll def "test ufixed<M>x<N> parameter with value #javaValue"() {
         given: 'a parameter of type "ufixed<M>x<N>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
@@ -175,7 +175,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test fixed<M>x<N> parameter with value #value"() {
+    @Unroll def "test fixed<M>x<N> parameter with value #javaValue"() {
         given: 'a parameter of type "fixed<M>x<N>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
@@ -204,7 +204,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test fixed-length bytes<M> parameter with value #value"() {
+    @Unroll def "test fixed-length bytes<M> parameter with value #javaValue"() {
         given: 'a parameter of type "bytes<M>"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
@@ -230,7 +230,7 @@ class ValueCoderTest extends Specification {
         ]
     }
 
-    @Unroll def "test dynamic bytes parameter with value #value"() {
+    @Unroll def "test dynamic bytes parameter with source #source"() {
         given: 'a parameter of type "bytes"'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 

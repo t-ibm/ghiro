@@ -1,20 +1,24 @@
 description = "The $project.name module"
 
+apply from: "$project.rootDir/settings/test-fixture.gradle"
 apply from: "$project.rootDir/settings/proto.gradle"
 
+sourceSets.main.java.srcDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
+
 dependencies {
-    compile(
-        project(":modules:$project.rootProject.name-core"),
-        project.sag.module.httpcomponents,
-        project.sag.module.protobuf,
+    implementation(
+        project(path:":modules:$project.rootProject.name-core", configuration:'runtimeElements'),
         project.sag.module.rx,
     )
-    testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
-}
-
-idea {
-    module {
-        sourceDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
-        generatedSourceDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
-    }
+    compileOnly(
+        project.sag.module.httpcomponents,
+        project.sag.module.jackson,
+        project.sag.module.log.api,
+        project.sag.module.protobuf,
+    )
+    testImplementation project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntimeElements')
+    testRuntimeOnly(
+        project.sag.module.httpcomponents,
+        project.sag.module.protobuf,
+    )
 }

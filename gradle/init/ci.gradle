@@ -1,0 +1,7 @@
+startParameter.taskNames                = ['clean', 'dependencyReport', 'build', 'integTest', 'sonarqube', 'publish']
+startParameter.excludedTaskNames        = []
+startParameter.continueOnFailure        = false
+logger.lifecycle                        "Executing task sequence....$startParameter.taskNames"
+logger.lifecycle                        "Excluding tasks............$startParameter.excludedTaskNames"
+logger.lifecycle                        "Using project properties...$startParameter.projectProperties"
+logger.lifecycle                        "Using system properties....$startParameter.systemPropertiesArgs"

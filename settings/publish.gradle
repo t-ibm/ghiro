@@ -1,0 +1,28 @@
+/*
+ * Basic publishing configuration
+ */
+apply plugin: 'ivy-publish'
+apply plugin: 'java'
+
+publishing {
+    repositories {
+        ivy {
+            name 'remote'
+            url "http://bas.eur.ad.sag:8081/artifactory/lib-${project.sag.build.status == 'integration' ? 'snapshot' : project.sag.build.status}-local"
+            layout 'maven'
+            credentials {
+                username = project.hasProperty('build.arm.username') ? project.property('build.arm.username') : 'anonymous'
+                password = project.hasProperty('build.arm.password') ? project.property('build.arm.password') : ''
+            }
+        }
+    }
+    publications {
+        ivy(IvyPublication) {
+            from components.java
+            descriptor.status = project.sag.build.status
+            descriptor.description {
+                text = description
+            }
+        }
+    }
+}

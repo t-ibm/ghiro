@@ -3,6 +3,10 @@ description = "The $project.name module"
 apply plugin: 'com.softwareag.tom.plugin.solidity'
 
 dependencies {
-    compile project(":modules:$project.rootProject.name-core")
-    testCompile project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntime')
+    implementation project(path:":modules:$project.rootProject.name-core", configuration:'runtimeElements')
+    compileOnly(
+        project.sag.module.log.api,
+        project.sag.module.jackson,
+    )
+    testImplementation project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntimeElements')
 }

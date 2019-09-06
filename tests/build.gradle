@@ -42,24 +42,12 @@ task spawnBurrow(type:SpawnTask, group:'test fixture', dependsOn:project.tasks.i
 subprojects {
     apply from: "$project.rootDir/settings/java-base.gradle"
     apply from: "$project.rootDir/settings/groovy-base.gradle"
-    apply from: "$project.rootDir/settings/ide-eclipse.gradle"
-	apply from: "$project.rootDir/settings/ide-idea.gradle"
     /*
-     * Add integTest source set etc.
+     * Add integration test source set etc.
      */
     sourceSets {
         integTest
     }
-    configurations {
-        integTestCompile
-        integTestRuntime {
-            visible = true
-            extendsFrom integTestCompile
-        }
-    }
-    /*
-     * Add integration test task
-     */
     task integTest(type: Test) {
         description = 'Runs the integration tests.'
         group = JavaBasePlugin.VERIFICATION_GROUP
@@ -73,19 +61,31 @@ subprojects {
      * Common integration test dependencies
      */
     dependencies {
-        integTestCompile(
-            project(":modules:$project.rootProject.name-contract"),
-            sag.module.spock.compile,
-        )
-        integTestRuntime sag.module.spock.runtime
+        integTestImplementation project(path:":modules:$project.rootProject.name-core", configuration:'testFixtureRuntimeElements')
     }
     /*
-     * Make Eclipe aware of the added configuration
+     * Add to the consolidated JaCoCo report
      */
-    eclipse {
-        classpath {
-            plusConfigurations += [project.configurations.integTestRuntime]
-        }
+    apply from: "$project.rootDir/settings/jacoco.gradle"
+    project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.integTest
+    project.rootProject.tasks.jacocoMerge.executionData project.tasks.integTest.jacoco.destinationFile
+    /*
+     * Add integration test JaCoCo report
+     */
+    task jacocoIntegTestReport(type:JacocoReport, group:'verification') {
+        description = "Generates code coverage report for the $project.tasks.integTest.name task."
+        dependsOn project.tasks.integTest
+        executionData project.tasks.integTest.jacoco.destinationFile
+        sourceDirectories.from project.rootProject.tasks.jacocoMergeReport.sourceDirectories
+        classDirectories.from project.rootProject.tasks.jacocoMergeReport.classDirectories
+        reports.xml.enabled = true
+    }
+    /*
+     * Add to the code quality configuration
+     */
+    apply plugin: "org.sonarqube"
+    sonarqube.properties {
+        property 'sonar.tests', project.sourceSets.integTest.allSource.srcDirs.findAll { File f -> f.exists() }
     }
 }
 /*

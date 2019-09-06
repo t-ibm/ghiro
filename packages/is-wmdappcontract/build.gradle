@@ -2,14 +2,14 @@ project.label = 'WmDAppContract'
 project.description = "Contains the actual Distributed Applications"
 
 dependencies {
-    providedCompile (project(":modules:$project.rootProject.name-contract"))
+    compileOnly project(path:":modules:$project.rootProject.name-contract", configuration:'runtimeElements')
 }
 
 pkg {
-    classpath project.sourceSets.main.runtimeClasspath - project.configurations.providedRuntime
+    classpath project.sourceSets.main.runtimeClasspath
     manifest.values(
         'name': project.label,
         'description': project.description,
-        'requires' : ['WmDApp':project.build.version],
+        'requires' : ['WmDApp':project.version],
     )
 }
