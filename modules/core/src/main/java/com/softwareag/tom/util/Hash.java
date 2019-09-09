@@ -19,7 +19,7 @@ public final class Hash {
      * @param data hex encoded string
      * @return hash value as hex encoded string
      */
-    public static String sha3(String data) {
+    static String sha3(String data) {
 
         byte[] bytes = HexValueBase.toByteArray(data);
         byte[] result = sha3(bytes);

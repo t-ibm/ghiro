@@ -74,12 +74,15 @@ class RequestTest extends RequestSpecification {
     }
 
     def "test eth_getBalance"() {
+        given: 'a text fixture'
+        String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
+
         when: 'a valid request type is created'
-        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {}
+        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
         String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.address == 'E9B5D87313356465FAE33C406CE2C2979DE60BCB'
+        request.params.address == address
 
         when: 'the request is send'
         request.send()

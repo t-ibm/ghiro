@@ -35,6 +35,10 @@ public class HexValueBase {
         return value;
     }
 
+    public static String getHash(String methodSignature) {
+        return Hash.sha3(HexValueBase.encode(methodSignature));
+    }
+
     public static String addPrefix(String input) {
         if (!containsPrefix(input)) {
             return PREFIX + input;

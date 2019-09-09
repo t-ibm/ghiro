@@ -61,7 +61,7 @@ public final class ValueDecoder extends ValueBase {
      * @param offset The index of the hex string where this particular parameter value starts
      * @return the value as an {@code int}
      */
-    public static int decodeUintAsInt(String hexValue, int offset) {
+    static int decodeUintAsInt(String hexValue, int offset) {
         String input = hexValue.substring(offset, offset + MAX_BYTE_LENGTH_FOR_HEX_STRING);
         return decode(ParameterTypeJava.UINT, input, 0).intValue();
     }
@@ -156,7 +156,7 @@ public final class ValueDecoder extends ValueBase {
 
         BiFunction<List<T>, String, List<T>> function = (elements, typeName) -> {
             if (elements.isEmpty()) {
-                throw new UnsupportedOperationException("Zero length fixed array is invalid type");
+                throw new UnsupportedOperationException("Zero length fixed array is invalid type.");
             } else {
                 return (List<T>) new ArrayList<>(elements);
             }
@@ -188,14 +188,14 @@ public final class ValueDecoder extends ValueBase {
     }
 
     private static <T> ParameterType<T> getItemType(ParameterType<T> parameterType) {
-        String baseType = parameterType.getName().substring(0, parameterType.getName().indexOf('['));
+        String baseType = parameterType.getName().substring(0, parameterType.getName().lastIndexOf('['));
         return ValueEncoder.parse(baseType);
     }
 
     private static <T> List<T> decodeArrayElements(String input, int offset, ParameterType<T> parameterType, int length, BiFunction<List<T>, String, List<T>> consumer) {
         String name = parameterType.getName();
         if (name.trim().contains("[")) {
-            throw new UnsupportedOperationException("Arrays of arrays are not currently supported for external functions, see http://solidity.readthedocs.io/en/develop/types.html#members");
+            throw new UnsupportedOperationException("Arrays of arrays are not currently supported for external functions, see http://solidity.readthedocs.io/en/develop/types.html#members.");
         } else {
             List<T> elements = new ArrayList<>(length);
 

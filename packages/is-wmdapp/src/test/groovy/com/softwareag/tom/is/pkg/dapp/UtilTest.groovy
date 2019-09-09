@@ -27,6 +27,8 @@ import com.wm.lang.ns.NSSignature
 import com.wm.lang.ns.NSTrigger
 import rx.Observable
 
+import java.util.concurrent.Executors
+
 import static Util.SUFFIX_REQ
 import static Util.SUFFIX_DOC
 import static Util.SUFFIX_REP
@@ -170,7 +172,7 @@ class UtilTest extends RuntimeSpecification {
             println "<<< $response"
             response
         }
-        Util.instance.web3Service = Web3Service.build(service)
+        Util.instance.web3Service = Web3Service.build(service, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()))
 
         when: 'the contract address is remembered; implying the contract was deployed'
         if (!Util.instance.isContractDeployed(nsName)) {
