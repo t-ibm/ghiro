@@ -18,18 +18,61 @@ import spock.lang.Unroll
  */
 class ValueCoderTest extends Specification {
 
-    def "test unsupported operation exception"() {
+    @Unroll def "test negative encode value #value"() {
         given: 'a parameter of type "bool"'
-        String source = '{"name":"a","type":"bool"}'
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         when: 'a value is mapped to a parameter of incompatible type'
-        ValueEncoder.encode(parameter.type, "NotABooleanValue")
+        ValueEncoder.encode(parameter.type, value)
 
         then: 'an exception is thrown'
         def e = thrown(UnsupportedOperationException)
         e.cause == null
-        e.message == "Value of type 'class java.lang.String' cannot be encoded as 'bool'."
+        e.message == message
+
+        where: 'the given values are invalid'
+        source << [
+                '{"name":"a","type":"bool"}',
+                '{"name":"b","type":"foo"}',
+        ]
+        value << [
+                "NotABooleanValue",
+                "bar",
+        ]
+        message << [
+                "Value of type 'class java.lang.String' cannot be encoded as 'bool'.",
+                "Value of type 'class java.lang.String' cannot be encoded as '${ParameterTypeJava.UNKNOWN.name}'.",
+        ]
+    }
+
+    @Unroll def "test negative decode value #value"() {
+        given: 'a parameter of type "bool"'
+        SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
+
+        when: 'a value is mapped to a parameter of incompatible type'
+        ValueDecoder.decode(parameter.type, value)
+
+        then: 'an exception is thrown'
+        def e = thrown(UnsupportedOperationException)
+        e.cause == null
+        e.message == message
+
+        where: 'the given values are invalid'
+        source << [
+                '{"name":"a","type":"foo"}',
+                '{"name":"b","type":"uint[0]"}',
+                '{"name":"c","type":"uint[][]"}',
+        ]
+        value << [
+                '0000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000',
+        ]
+        message << [
+                "Unknown type, value '$value' cannot be decoded.",
+                "Zero length fixed array is invalid type.",
+                "Arrays of arrays are not currently supported for external functions, see http://solidity.readthedocs.io/en/develop/types.html#members.",
+        ]
     }
 
     @Unroll def "test bool parameter with value #javaValue"() {
@@ -38,6 +81,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type == ParameterTypeJava.BOOL
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
@@ -87,6 +132,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type == ParameterTypeJava.ADDRESS
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
@@ -96,6 +143,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.NumericType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
@@ -125,6 +174,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.NumericType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
@@ -154,21 +205,29 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.NumericType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
-                '{"name":"a","type":"ufixed24x40"}',
-                '{"name":"b","type":"ufixed24x40"}',
-                '{"name":"c","type":"ufixed128x128"}',
+                '{"name":"a","type":"ufixed"}',
+                '{"name":"b","type":"ufixed128x19"}',
+                '{"name":"c","type":"ufixed24x40"}',
+                '{"name":"d","type":"ufixed24x40"}',
+                '{"name":"e","type":"ufixed128x128"}',
         ]
         javaValue << [
+                BigInteger.ZERO,
+                BigInteger.ZERO,
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
         ]
         hexValue << [
+                '0000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -180,23 +239,31 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.NumericType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
         where: 'the given values are valid'
         source << [
-                '{"name":"a","type":"fixed24x40"}',
-                '{"name":"b","type":"fixed24x40"}',
+                '{"name":"a","type":"fixed"}',
+                '{"name":"b","type":"fixed128x19"}',
                 '{"name":"c","type":"fixed24x40"}',
                 '{"name":"d","type":"fixed24x40"}',
+                '{"name":"e","type":"fixed24x40"}',
+                '{"name":"f","type":"fixed24x40"}',
         ]
         javaValue << [
+                BigInteger.ZERO,
+                BigInteger.ZERO,
                 BigInteger.ZERO,
                 BigInteger.valueOf(Long.MAX_VALUE),
                 BigInteger.valueOf(Long.MIN_VALUE),
                 BigInteger.valueOf(-1),
         ]
         hexValue << [
+                '0000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000007fffffffffffffff',
                 'ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000',
@@ -209,6 +276,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.BytesType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
@@ -217,16 +286,19 @@ class ValueCoderTest extends Specification {
                 '{"name":"a","type":"bytes6"}',
                 '{"name":"b","type":"bytes1"}',
                 '{"name":"c","type":"bytes4"}',
+                '{"name":"d","type":"bytes0"}',
         ]
         javaValue << [
                 [0, 1, 2, 3, 4, 5 ] as byte[],
                 [0] as byte[],
                 "dave".bytes,
+                [] as byte[],
         ]
         hexValue << [
                 '0001020304050000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000',
                 '6461766500000000000000000000000000000000000000000000000000000000',
+                '',
         ]
     }
 
@@ -235,6 +307,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type == ParameterTypeJava.BYTES
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
 
@@ -293,6 +367,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type == ParameterTypeJava.STRING
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
@@ -309,6 +385,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.ArrayType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
@@ -321,6 +399,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.ArrayType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
@@ -338,6 +418,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.ArrayType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }
@@ -350,6 +432,8 @@ class ValueCoderTest extends Specification {
         SolidityInterface.SolidityParameter parameter = ObjectMapperFactory.getJsonMapper().readValue(source.bytes, SolidityInterface.SolidityParameter.class)
 
         expect: 'a valid conversion'
+        parameter.type instanceof ParameterTypeJava.ArrayType
+        parameter.type.asType(javaValue) == javaValue
         ValueEncoder.encode(parameter.type, javaValue) == hexValue
         ValueDecoder.decode(parameter.type, hexValue) == javaValue
     }

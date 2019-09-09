@@ -19,8 +19,8 @@ class HexValueBaseTest extends Specification {
         HexValueBase.stripPrefix(source) == target
 
         where:
-        source << ['0x0', '0x001', '0x41', '0x0400', '0x400', '0x7fffffffffffffff']
-        target << ['0', '001', '41', '0400', '400', '7fffffffffffffff']
+        source << ['0', '0x0', '0x001', '0x41', '0x0400', '0x400', '0x7fffffffffffffff']
+        target << ['0', '0', '001', '41', '0400', '400', '7fffffffffffffff']
     }
 
     def 'test add prefix'() {
@@ -32,24 +32,33 @@ class HexValueBaseTest extends Specification {
         target << ['0x0', '0x001', '0x41', '0x0400', '0x400', '0x7fffffffffffffff']
     }
 
+    def 'test get hash'() {
+        expect:
+        HexValueBase.getHash(source) == target
+
+        where:
+        source << ['sendTo(uint160,uint256)', 'Sent(address,uint256,uint256)']
+        target << ['0xf57c30b2c6f23cbb236c950ff54da4f085de950ceeb144edbd7eca5b3b99e10d', '0x6356739d963da01dc3533acba7203430fcc14f2175d48a8dd0973d7db49c785e']
+    }
+
     def 'test positive string to long'() {
         expect:
         HexValueBase.toBigInteger(source) == BigInteger.valueOf(target)
 
         where:
-        source << ['0x0', '0x001', '0x41', '0x0400', '0x400', '0x7fffffffffffffff']
-        target << [0L, 1L, 65L, 1024L, 1024L, Long.MAX_VALUE]
+        source << ['0', '0x0', '0x001', '0x41', '0x0400', '0x400', '0x7fffffffffffffff']
+        target << [0L, 0L, 1L, 65L, 1024L, 1024L, Long.MAX_VALUE]
     }
 
     def 'test negative string to long'() {
         when:
-        HexValueBase.toBigInteger(source)
+        HexValueBase.toBigInteger(source as String)
 
         then:
         thrown NumberFormatException
 
         where:
-        source << ['0x']
+        source << [null, '0x']
     }
 
     def 'test positive long to string'() {
@@ -74,20 +83,38 @@ class HexValueBaseTest extends Specification {
 
     def 'test byte array to string'() {
         expect:
-        HexValueBase.toString(source) == target
+        HexValueBase.toString(source as byte[]) == target
 
         where:
-        source << [[1] as byte[], [0xff] as byte[], [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef] as byte[]]
+        source << [[1], [0xff], [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]]
         target << ['0x01', '0xff', '0x0123456789abcdef']
     }
 
     def 'test string to byte array'() {
         expect:
-        HexValueBase.toByteArray(source) == target
+        HexValueBase.toByteArray(source) == target as byte[]
 
         where:
-        source << ['0x01', '0xff', '0x0123456789abcdef']
-        target << [[1] as byte[], [0xff] as byte[], [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef] as byte[]]
+        source << ['0x', '0x1', '0x01', '0xff', '0x0123456789abcdef']
+        target << [[], [1], [1], [0xff], [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]]
+    }
+
+    def 'test positive big integer to byte array'() {
+        expect:
+        HexValueBase.toByteArray(BigInteger.valueOf(source), length) == target as byte[]
+
+        where:
+        source << [0L, 1L, 65L, 257L, 1024L, Long.MAX_VALUE]
+        length << [1, 1, 1, 2, 2, 8]
+        target << [[0], [1], [65], [1, 1], [4, 0], [127, -1, -1, -1, -1, -1, -1, -1]]
+    }
+
+    def 'test negative big integer to byte array'() {
+        when:
+        HexValueBase.toByteArray(BigInteger.valueOf(1024L), 1)
+
+        then:
+        thrown RuntimeException
     }
 
     def 'test round trip'() {

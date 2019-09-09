@@ -7,7 +7,6 @@
 package com.softwareag.tom.contract.abi.util;
 
 import com.softwareag.tom.contract.abi.ContractInterface;
-import com.softwareag.tom.util.Hash;
 import com.softwareag.tom.util.HexValueBase;
 
 import java.math.BigInteger;
@@ -75,15 +74,11 @@ public final class SpecificationEncoder {
 
     static <T> String getEventId(ContractInterface.Specification<T> specification) {
         String specificationSignature = getEventSignature(specification);
-        return HexValueBase.stripPrefix(getSpecificationId(specificationSignature));
+        return HexValueBase.stripPrefix(HexValueBase.getHash(specificationSignature));
     }
 
     static <T> String getFunctionId(ContractInterface.Specification<T> specification) {
         String specificationSignature = getFunctionSignature(specification);
-        return HexValueBase.stripPrefix(getSpecificationId(specificationSignature).substring(0, 10));
-    }
-
-    private static String getSpecificationId(String methodSignature) {
-        return Hash.sha3(HexValueBase.encode(methodSignature));
+        return HexValueBase.stripPrefix(HexValueBase.getHash(specificationSignature).substring(0, 10));
     }
 }
