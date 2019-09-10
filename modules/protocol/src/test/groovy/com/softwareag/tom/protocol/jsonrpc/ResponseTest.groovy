@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.protocol.jsonrpc
 
+
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
@@ -35,7 +36,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "error":{"code":-32603, "message":"Internal JSON-RPC error"}}'
 
         when: 'the response is received'
-        ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse);
+        ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.id == 42
@@ -50,7 +51,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"client_version":"0.8.0"}}'
 
         when: 'the response is received'
-        ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse);
+        ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -62,7 +63,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"listening":true}}'
 
         when: 'the response is received'
-        ResponseNetListening response = serviceHttp.getResponseHandler(ResponseNetListening.class).handleResponse(closeableHttpResponse);
+        ResponseNetListening response = serviceHttp.getResponseHandler(ResponseNetListening.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -74,7 +75,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB", "balance":200000000, "code":"", "pub_key":null, "sequence":0, "storage_root":""}}'
 
         when: 'the response is received'
-        ResponseEthGetBalance response = serviceHttp.getResponseHandler(ResponseEthGetBalance.class).handleResponse(closeableHttpResponse);
+        ResponseEthGetBalance response = serviceHttp.getResponseHandler(ResponseEthGetBalance.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -86,7 +87,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"key":"", "value":""}}'
 
         when: 'the response is received'
-        ResponseEthGetStorageAt response = serviceHttp.getResponseHandler(ResponseEthGetStorageAt.class).handleResponse(closeableHttpResponse);
+        ResponseEthGetStorageAt response = serviceHttp.getResponseHandler(ResponseEthGetStorageAt.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -98,7 +99,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"call_data":{"callee":"3F2F648518AE519964315B9B54ECD8FE23E6075F", "caller":"37236DF251AB70022B1DA351F08A20FB52443E37", "data":"606060", "gas":208, "value":0}, "exception":"", "origin":"37236DF251AB70022B1DA351F08A20FB52443E37", "return":"606060", "tx_id":"619DB1BBEC212208EF9949D5F341722B0312219C"}}'
 
         when: 'the response is received'
-        ResponseEthSendTransaction response = serviceHttp.getResponseHandler(ResponseEthSendTransaction.class).handleResponse(closeableHttpResponse);
+        ResponseEthSendTransaction response = serviceHttp.getResponseHandler(ResponseEthSendTransaction.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -111,7 +112,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"gas_used":49, "return":""}}'
 
         when: 'the response is received'
-        ResponseEthCall response = serviceHttp.getResponseHandler(ResponseEthCall.class).handleResponse(closeableHttpResponse);
+        ResponseEthCall response = serviceHttp.getResponseHandler(ResponseEthCall.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -123,7 +124,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F"}}'
 
         when: 'the response is received'
-        ResponseEthNewFilter response = serviceHttp.getResponseHandler(ResponseEthNewFilter.class).handleResponse(closeableHttpResponse);
+        ResponseEthNewFilter response = serviceHttp.getResponseHandler(ResponseEthNewFilter.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -135,7 +136,7 @@ class ResponseTest extends ResponseSpecification {
         content '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
 
         when: 'the response is received'
-        ResponseEthUninstallFilter response = serviceHttp.getResponseHandler(ResponseEthUninstallFilter.class).handleResponse(closeableHttpResponse);
+        ResponseEthUninstallFilter response = serviceHttp.getResponseHandler(ResponseEthUninstallFilter.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null
@@ -149,7 +150,7 @@ class ResponseTest extends ResponseSpecification {
                                                              '{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]}]}}'
 
         when: 'the response is received'
-        ResponseEthGetFilterChanges response = serviceHttp.getResponseHandler(ResponseEthGetFilterChanges.class).handleResponse(closeableHttpResponse);
+        ResponseEthGetFilterChanges response = serviceHttp.getResponseHandler(ResponseEthGetFilterChanges.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
         response.error == null

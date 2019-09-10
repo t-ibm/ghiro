@@ -7,6 +7,11 @@
 package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.protocol.abi.Types
+import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddress
+import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddressData
+import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddressDataTx
+import com.softwareag.tom.protocol.jsonrpc.request.ParamsEvent
+import com.softwareag.tom.protocol.jsonrpc.request.ParamsFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
@@ -52,163 +57,188 @@ class RequestTest extends RequestSpecification {
     def "test web3_clientVersion"() {
         given: 'a valid request type'
         RequestWeb3ClientVersion request = new RequestWeb3ClientVersion(serviceHttp) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.getClientVersion","params":{},"id":"1"}'
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test net_listening"() {
         given: 'a valid request type'
         RequestNetListening request = new RequestNetListening(serviceHttp) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.isListening","params":{},"id":"1"}'
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_getBalance"() {
         given: 'a text fixture'
         String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
+        ParamsAddress params = new ParamsAddress(address)
 
         when: 'a valid request type is created'
         RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.getAccount","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.address == address
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_getStorageAt"() {
+        given: 'a text fixture'
+        String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
+        ParamsAddress params = new ParamsAddress(address)
+
         when: 'a valid request type is created'
-        RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString("E9B5D87313356465FAE33C406CE2C2979DE60BCB")).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.getStorageAt","params":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB"},"id":"1"}'
+        RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
 
         then: 'the expected request object is created'
-        request.params.address == 'E9B5D87313356465FAE33C406CE2C2979DE60BCB'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_sendTransaction"() {
+        given: 'a text fixture'
+        String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        String data = '606060'
+        long fee = 12
+        long gasLimit = 223
+        ParamsAddressDataTx params = new ParamsAddressDataTx(address, data, fee, gasLimit)
+
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).setGas(HexValue.toByteString(223)).setGasPrice(HexValue.toByteString(12)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(gasLimit)).setGasPrice(HexValue.toByteString(fee)).build()
         ).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.transactAndHold","params":{"priv_key":"4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20","address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060","fee":12,"gas_limit":223},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.privKey == '4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
-        request.params.address == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        request.params.data == '606060'
-        request.params.fee == 12
-        request.params.gasLimit == 223
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_call"() {
+        given: 'a text fixture'
+        String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        String data = '606060'
+        ParamsAddressData params = new ParamsAddressData(address, data)
+
         when: 'a valid request type is created'
         RequestEthCall request = new RequestEthCall(serviceHttp, Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).setData(HexValue.toByteString('606060')).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).build()
         ).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.call","params":{"address":"33F71BB66F8994DD099C0E360007D4DEAE11BFFE","data":"606060"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.address == '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        request.params.data == '606060'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_newFilter"() {
+        given: 'a text fixture'
+        String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        ParamsEvent params = new ParamsEvent("Log/$address")
+
         when: 'a valid request type is created'
         RequestEthNewFilter request = new RequestEthNewFilter(serviceHttp, Types.RequestEthNewFilter.newBuilder().setOptions(
-                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString('33F71BB66F8994DD099C0E360007D4DEAE11BFFE')).build()
+                Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(address)).build()
         ).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.eventId == 'Log/33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_newBlockFilter"() {
+        given: 'a text fixture'
+        ParamsEvent params = new ParamsEvent("NewBlock")
+
         when: 'a valid request type is created'
         RequestEthNewBlockFilter request = new RequestEthNewBlockFilter(serviceHttp) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.eventSubscribe","params":{"event_id":"NewBlock"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.eventId == 'NewBlock'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_uninstallFilter"() {
+        given: 'a text fixture'
+        String filterId = '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
+        ParamsFilter params = new ParamsFilter(filterId)
+
         when: 'a valid request type is created'
         RequestEthUninstallFilter request = new RequestEthUninstallFilter(serviceHttp, Types.RequestEthUninstallFilter.newBuilder().setId(
-                HexValue.toByteString('11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164')
+                HexValue.toByteString(filterId)
         ).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.eventUnsubscribe","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.filterId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 
     def "test eth_getFilterChanges"() {
+        given: 'a text fixture'
+        String filterId = '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
+        ParamsFilter params = new ParamsFilter(filterId)
+
         when: 'a valid request type is created'
         RequestEthGetFilterChanges request = new RequestEthGetFilterChanges(serviceHttp, Types.RequestEthGetFilterChanges.newBuilder().setId(
-                HexValue.toByteString('11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164')
+                HexValue.toByteString(filterId)
         ).build()) {}
-        String expected = '{"jsonrpc":"2.0","method":"burrow.eventPoll","params":{"sub_id":"11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164"},"id":"1"}'
 
         then: 'the expected request object is created'
-        request.params.filterId == '11FADF899CA265DCE0D2071C5CC3F317ADA94930D837F597B440B3BCB9291164'
+        request.params.hashCode() == params.hashCode()
+        request.params == params
 
         when: 'the request is send'
         request.send()
 
         then: 'the expected JSON-RPC request is created'
-        actual == expected
+        actual == request.toString()
     }
 }
 

@@ -6,8 +6,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
@@ -16,29 +14,8 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance;
 /**
  * {@code eth_getBalance}.
  */
-public class RequestEthGetBalance extends Request<RequestEthGetBalance.Params, ResponseEthGetBalance> {
+public class RequestEthGetBalance extends Request<ParamsAddress, ResponseEthGetBalance> {
     public RequestEthGetBalance(Service jsonRpcService, Types.RequestEthGetBalance msg) {
-        super(jsonRpcService, "burrow.getAccount", new Params(msg.getAddress()));
-    }
-
-    static class Params {
-        @JsonProperty("address") public String address;
-
-        Params(ByteString address) {
-            this.address = validate(address);
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Params params = (Params) o;
-
-            return address != null ? address.equals(params.address) : params.address == null;
-        }
-
-        @Override public int hashCode() {
-            return address != null ? address.hashCode() : 0;
-        }
+        super(jsonRpcService, "burrow.getAccount", new ParamsAddress(msg.getAddress()));
     }
 }

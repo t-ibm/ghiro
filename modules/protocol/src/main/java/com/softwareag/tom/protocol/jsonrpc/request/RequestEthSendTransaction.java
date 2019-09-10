@@ -6,64 +6,16 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.softwareag.tom.conf.Node;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction;
-import com.softwareag.tom.protocol.util.HexValue;
-
-import java.io.IOException;
 
 /**
  * {@code eth_sendTransaction}.
  */
-public class RequestEthSendTransaction extends Request<RequestEthSendTransaction.Params, ResponseEthSendTransaction> {
+public class RequestEthSendTransaction extends Request<ParamsAddressDataTx, ResponseEthSendTransaction> {
     public RequestEthSendTransaction(Service jsonRpcService, Types.RequestEthSendTransaction msg) {
-        super(jsonRpcService, "burrow.transactAndHold", new Params(msg.getTx()));
-    }
-
-    static class Params {
-        @JsonProperty("priv_key") public String privKey;
-        @JsonProperty("address") public String address;
-        @JsonProperty("data") public String data;
-        @JsonProperty("fee") public long fee;
-        @JsonProperty("gas_limit") public long gasLimit;
-
-        Params(Types.TxType tx) {
-            try {
-                this.privKey = Node.instance().getKey().getPrivate(); //TODO :: Replace with client-side cryptographic support for transaction signing
-            } catch (IOException e) {
-                logger.error("Failed to retrieve private key.", e);
-            }
-            this.address = validate(tx.getTo());
-            this.data = HexValue.stripPrefix(tx.getData());
-            this.fee = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
-            this.gasLimit = HexValue.toBigInteger(tx.getGas()).longValueExact();
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Params params = (Params) o;
-
-            if (fee != params.fee) return false;
-            if (gasLimit != params.gasLimit) return false;
-            if (privKey != null ? !privKey.equals(params.privKey) : params.privKey != null) return false;
-            if (address != null ? !address.equals(params.address) : params.address != null) return false;
-            return data != null ? data.equals(params.data) : params.data == null;
-
-        }
-
-        @Override public int hashCode() {
-            int result = privKey != null ? privKey.hashCode() : 0;
-            result = 31 * result + (address != null ? address.hashCode() : 0);
-            result = 31 * result + (data != null ? data.hashCode() : 0);
-            result = 31 * result + (int) (fee ^ (fee >>> 32));
-            result = 31 * result + (int) (gasLimit ^ (gasLimit >>> 32));
-            return result;
-        }
+        super(jsonRpcService, "burrow.transactAndHold", new ParamsAddressDataTx(msg.getTx()));
     }
 }

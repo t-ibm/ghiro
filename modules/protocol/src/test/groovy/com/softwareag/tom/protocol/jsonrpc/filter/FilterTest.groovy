@@ -7,7 +7,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.filter
 
-
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.ResponseMock
 import com.softwareag.tom.protocol.jsonrpc.JsonRpcRx

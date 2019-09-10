@@ -6,42 +6,21 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges;
-import com.softwareag.tom.protocol.util.HexValue;
 
 /**
  * {@code eth_getFilterChanges}.
  */
-public class RequestEthGetFilterChanges extends Request<RequestEthGetFilterChanges.Params, ResponseEthGetFilterChanges> {
+public class RequestEthGetFilterChanges extends Request<ParamsFilter, ResponseEthGetFilterChanges> {
     public RequestEthGetFilterChanges(Service jsonRpcService, Types.RequestEthGetFilterChanges msg) {
         this(jsonRpcService, msg.getId());
     }
 
     public RequestEthGetFilterChanges(Service jsonRpcService, ByteString filterId) {
-        super(jsonRpcService, "burrow.eventPoll", new Params(filterId));
-    }
-
-    static class Params {
-        @JsonProperty("sub_id") public String filterId;
-
-        Params(ByteString filterId) {
-            this.filterId = HexValue.stripPrefix(filterId);
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Params params = (Params) o;
-            return filterId != null ? filterId.equals(params.filterId) : params.filterId == null;
-        }
-
-        @Override public int hashCode() {
-            return filterId != null ? filterId.hashCode() : 0;
-        }
+        super(jsonRpcService, "burrow.eventPoll", new ParamsFilter(filterId));
     }
 }
