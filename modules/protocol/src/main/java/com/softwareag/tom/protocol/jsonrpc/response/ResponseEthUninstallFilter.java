@@ -11,12 +11,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 
-import java.util.Objects;
-
 /**
  * {@code eth_uninstallFilter}.
  */
 public class ResponseEthUninstallFilter extends Response<ResponseEthUninstallFilter.Result, Types.ResponseEthUninstallFilter> {
+
+    public ResponseEthUninstallFilter() {
+        super();
+    }
+
+    public ResponseEthUninstallFilter(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseEthUninstallFilter(boolean isRemoved) {
+        super();
+        this.result = new Result(isRemoved);
+    }
 
     public Types.ResponseEthUninstallFilter getResponse() {
         if (this.error != null) {
@@ -28,18 +39,31 @@ public class ResponseEthUninstallFilter extends Response<ResponseEthUninstallFil
 
     public boolean isRemoved() { return this.result.isRemoved; }
 
-    static class Result {
-        @JsonProperty("result") public boolean isRemoved;
+    final static class Result {
+        @JsonProperty("result") boolean isRemoved;
+
+        private Result() {}
+
+        private Result(boolean isRemoved) {
+            this();
+            this.isRemoved = isRemoved;
+        }
+
+        @Override public String toString() {
+            return "{\"result\":\"" + isRemoved + "\"}";
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             Result result = (Result) o;
+
             return isRemoved == result.isRemoved;
         }
 
         @Override public int hashCode() {
-            return Objects.hash(isRemoved);
+            return (isRemoved ? 1 : 0);
         }
     }
 }

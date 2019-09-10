@@ -12,5 +12,6 @@ import java.io.IOException;
  * JSON-RPC service API.
  */
 public interface Service {
+    String JSONRPC_VERSION = "2.0";
     <T extends Response> T send(Request request, Class<T> responseType) throws IOException;
 }

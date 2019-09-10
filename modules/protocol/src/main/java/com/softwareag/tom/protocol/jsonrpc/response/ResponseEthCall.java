@@ -16,6 +16,19 @@ import com.softwareag.tom.protocol.util.HexValue;
  */
 public class ResponseEthCall extends Response<ResponseEthCall.Result, Types.ResponseEthCall> {
 
+    public ResponseEthCall() {
+        super();
+    }
+
+    public ResponseEthCall(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseEthCall(long gasUsed, String ret) {
+        super();
+        this.result = new Result(gasUsed, ret);
+    }
+
     public Types.ResponseEthCall getResponse() {
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
@@ -24,8 +37,21 @@ public class ResponseEthCall extends Response<ResponseEthCall.Result, Types.Resp
         }
     }
 
-    static class Result {
-        @JsonProperty("return") public String ret;
+    final static class Result {
+        @JsonProperty("gas_used") long gasUsed;
+        @JsonProperty("return") String ret;
+
+        private Result() {}
+
+        private Result(long gasUsed, String ret) {
+            this();
+            this.gasUsed = gasUsed;
+            this.ret = ret;
+        }
+
+        @Override public String toString() {
+            return "{\"gas_used\":" + gasUsed + ", \"return\":\"" + ret + "\"}";
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
@@ -33,11 +59,14 @@ public class ResponseEthCall extends Response<ResponseEthCall.Result, Types.Resp
 
             Result result = (Result) o;
 
-            return ret != null ? ret.equals(result.ret) : result.ret == null;
+            if (gasUsed != result.gasUsed) return false;
+            return ret.equals(result.ret);
         }
 
         @Override public int hashCode() {
-            return ret != null ? ret.hashCode() : 0;
+            int result = (int) (gasUsed ^ (gasUsed >>> 32));
+            result = 31 * result + ret.hashCode();
+            return result;
         }
     }
 }

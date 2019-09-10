@@ -51,7 +51,7 @@ class ResponseMock {
                     .setAddress(HexValue.toByteString(logEvent.address))
                     .setData(HexValue.toByteString(logEvent.data))
                     .setBlockNumber(HexValue.toByteString(logEvent.height))
-                    .addAllTopic(logEvent.topics.collect {t -> HexValue.toByteString(t)})
+                    .addAllTopic(logEvent.topics.collect {t -> HexValue.toByteString(t.getTopic())})
                     .build()
             }
         }

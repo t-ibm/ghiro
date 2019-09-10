@@ -17,6 +17,19 @@ import com.softwareag.tom.protocol.util.HexValue;
  */
 public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result, Types.ResponseEthNewFilter> {
 
+    public ResponseEthNewFilter() {
+        super();
+    }
+
+    public ResponseEthNewFilter(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseEthNewFilter(String filterId) {
+        super();
+        this.result = new Result(filterId);
+    }
+
     public Types.ResponseEthNewFilter getResponse() {
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
@@ -29,8 +42,19 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result, 
         return HexValue.toByteString(this.result.filterId);
     }
 
-    static class Result {
-        @JsonProperty("sub_id") public String filterId;
+    final static class Result {
+        @JsonProperty("sub_id") String filterId;
+
+        private Result() {}
+
+        private Result(String filterId) {
+            this();
+            this.filterId = filterId;
+        }
+
+        @Override public String toString() {
+            return "{\"sub_id\":\"" + filterId + "\"}";
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
@@ -38,11 +62,11 @@ public class ResponseEthNewFilter extends Response<ResponseEthNewFilter.Result, 
 
             Result result = (Result) o;
 
-            return filterId != null ? filterId.equals(result.filterId) : result.filterId == null;
+            return filterId.equals(result.filterId);
         }
 
         @Override public int hashCode() {
-            return filterId != null ? filterId.hashCode() : 0;
+            return filterId.hashCode();
         }
     }
 }

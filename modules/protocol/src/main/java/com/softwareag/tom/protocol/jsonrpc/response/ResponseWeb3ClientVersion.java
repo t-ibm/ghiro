@@ -15,6 +15,19 @@ import com.softwareag.tom.protocol.jsonrpc.Response;
  */
 public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersion.Result, Types.ResponseWeb3ClientVersion> {
 
+    public ResponseWeb3ClientVersion() {
+        super();
+    }
+
+    public ResponseWeb3ClientVersion(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseWeb3ClientVersion(String clientVersion) {
+        super();
+        this.result = new Result(clientVersion);
+    }
+
     public Types.ResponseWeb3ClientVersion getResponse() {
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
@@ -23,8 +36,19 @@ public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersio
         }
     }
 
-    static class Result {
-        @JsonProperty("client_version") public String clientVersion;
+    final static class Result {
+        @JsonProperty("client_version") String clientVersion;
+
+        private Result() {}
+
+        private Result(String clientVersion) {
+            this();
+            this.clientVersion = clientVersion;
+        }
+
+        @Override public String toString() {
+            return "{\"client_version\":\"" + clientVersion + "\"}";
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
@@ -32,11 +56,11 @@ public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersio
 
             Result result = (Result) o;
 
-            return clientVersion != null ? clientVersion.equals(result.clientVersion) : result.clientVersion == null;
+            return clientVersion.equals(result.clientVersion);
         }
 
         @Override public int hashCode() {
-            return clientVersion != null ? clientVersion.hashCode() : 0;
+            return clientVersion.hashCode();
         }
     }
 }

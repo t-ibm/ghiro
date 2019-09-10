@@ -22,13 +22,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * {@code eth_getFilterChanges}.
  */
 public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterChanges.Result, Types.ResponseEthGetFilterChanges> {
+
+    public ResponseEthGetFilterChanges() {
+        super();
+    }
+
+    public ResponseEthGetFilterChanges(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseEthGetFilterChanges(List<Event> events) {
+        super();
+        this.result = new Result(events);
+    }
 
     public Types.ResponseEthGetFilterChanges getResponse() {
         if (this.error != null) {
@@ -44,7 +56,7 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
                             .setAddress(HexValue.toByteString(logEvent.address))
                             .setData(HexValue.toByteString(logEvent.data))
                             .setBlockNumber(HexValue.toByteString(logEvent.height))
-                            .addAllTopic(logEvent.topics.stream().map(HexValue::toByteString).collect(Collectors.toList()))
+                            .addAllTopic(logEvent.topics.stream().map(Topic::getTopic).map(HexValue::toByteString).collect(Collectors.toList()))
                             .build()
                         )
                     ).build();
@@ -54,22 +66,35 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
         }
     }
 
-    static class Result {
-        @JsonDeserialize(using = LogResultDeserialiser.class) @JsonProperty("events") public List<Event> events;
+    final static class Result {
+        @JsonDeserialize(using = LogResultDeserializer.class) @JsonProperty("events") public List<Event> events;
+
+        private Result() {}
+
+        private Result(List<Event> events) {
+            this();
+            this.events = events;
+        }
+
+        @Override public String toString() {
+            return "{events:" + events + '}';
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             Result result = (Result) o;
-            return Objects.equals(events, result.events);
+
+            return events.equals(result.events);
         }
 
         @Override public int hashCode() {
-            return Objects.hash(events);
+            return events.hashCode();
         }
     }
 
-    public static class LogResultDeserialiser extends JsonDeserializer<List<Event>> {
+    private static class LogResultDeserializer extends JsonDeserializer<List<Event>> {
 
         private ObjectReader objectReader = ObjectMapperFactory.getJsonMapper().reader();
 
@@ -96,26 +121,77 @@ public class ResponseEthGetFilterChanges extends Response<ResponseEthGetFilterCh
         T get();
     }
 
-    public static class Log implements Event<Log> {
+    public final static class Log implements Event<Log> {
         @JsonProperty("address") public String address;
         @JsonProperty("data") public String data;
         @JsonProperty("height") public long height;
-        @JsonProperty("topics") public List<String> topics;
+        @JsonProperty("topics") public List<Topic> topics;
+
+        private Log() {}
+
+        public Log(String address, String data, long height, List<String> topics) {
+            this();
+            this.address = address;
+            this.data = data;
+            this.height = height;
+            this.topics = topics.stream().map(Topic::new).collect(Collectors.toList());
+        }
 
         @Override public Log get() {
             return this;
         }
 
+        @Override public String toString() {
+            return "{\"address\":\"" + address + "\", \"data\":\"" + data + "\", \"height\":" + height + ", \"topics\":" + topics + '}';
+        }
+
         @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             Log log = (Log) o;
-            return height == log.height &&
-                    Objects.equals(address, log.address) &&
-                    Objects.equals(data, log.data) &&
-                    Objects.equals(topics, log.topics);
+
+            if (height != log.height) return false;
+            if (!address.equals(log.address)) return false;
+            if (!data.equals(log.data)) return false;
+            return topics.equals(log.topics);
         }
 
-        @Override public int hashCode() { return Objects.hash(address, data, height, topics); }
+        @Override public int hashCode() {
+            int result = address.hashCode();
+            result = 31 * result + data.hashCode();
+            result = 31 * result + (int) (height ^ (height >>> 32));
+            result = 31 * result + topics.hashCode();
+            return result;
+        }
+    }
+
+    public final static class Topic {
+        String topic;
+
+        private Topic(String topic) {
+            this.topic = topic;
+        }
+
+        public String getTopic() {
+            return topic;
+        }
+
+        @Override public String toString() {
+            return '\"' + topic + '\"';
+        }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Topic topic1 = (Topic) o;
+
+            return topic.equals(topic1.topic);
+        }
+
+        @Override public int hashCode() {
+            return topic.hashCode();
+        }
     }
 }
