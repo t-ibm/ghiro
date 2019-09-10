@@ -15,6 +15,19 @@ import com.softwareag.tom.protocol.jsonrpc.Response;
  */
 public class ResponseNetListening extends Response<ResponseNetListening.Result, Types.ResponseNetListening> {
 
+    public ResponseNetListening() {
+        super();
+    }
+
+    public ResponseNetListening(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseNetListening(boolean listening) {
+        super();
+        this.result = new Result(listening);
+    }
+
     public Types.ResponseNetListening getResponse() {
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
@@ -23,8 +36,19 @@ public class ResponseNetListening extends Response<ResponseNetListening.Result, 
         }
     }
 
-    static class Result {
-        @JsonProperty("listening") public boolean listening;
+    final static class Result {
+        @JsonProperty("listening") boolean listening;
+
+        private Result() {}
+
+        private Result(boolean listening) {
+            this();
+            this.listening = listening;
+        }
+
+        @Override public String toString() {
+            return "{\"listening\":" + listening + '}';
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;

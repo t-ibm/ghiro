@@ -42,7 +42,7 @@ public class LogFilter extends Filter<Types.FilterLogType> {
                     .setAddress(HexValue.toByteString(logEvent.address))
                     .setData(HexValue.toByteString(logEvent.data))
                     .setBlockNumber(HexValue.toByteString(logEvent.height))
-                    .addAllTopic(logEvent.topics.stream().map(HexValue::toByteString).collect(Collectors.toList()))
+                    .addAllTopic(logEvent.topics.stream().map(ResponseEthGetFilterChanges.Topic::getTopic).map(HexValue::toByteString).collect(Collectors.toList()))
                     .build()
                 );
             } else {

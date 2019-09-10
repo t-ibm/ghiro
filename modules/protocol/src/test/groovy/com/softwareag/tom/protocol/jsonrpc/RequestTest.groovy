@@ -41,7 +41,7 @@ class RequestTest extends RequestSpecification {
         Request request = new RequestWeb3ClientVersion(serviceHttp)
 
         when: 'the base fields are accessible and set to their default values'
-        request.jsonrpc = Request.JSONRPC_VERSION
+        request.jsonrpc = Service.JSONRPC_VERSION
         request.method = 'burrow.getClientVersion'
         request.params = [:]
         request.id = 1
@@ -51,6 +51,7 @@ class RequestTest extends RequestSpecification {
         request.method == defaultRequest.method
         request.params == defaultRequest.params
         request.id == defaultRequest.id
+        request.hashCode() == defaultRequest.hashCode()
         request == defaultRequest
     }
 

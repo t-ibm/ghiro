@@ -22,13 +22,12 @@ import java.util.Objects;
  */
 public abstract class Request<P, R extends Response> {
     private static final long DEFAULT_CORRELATION_ID = 1;
-    protected static final String JSONRPC_VERSION = "2.0";
 
     private static final Logger logger = LoggerFactory.getLogger(Request.class);
 
     private Service jsonRpcService;
 
-    @JsonProperty("jsonrpc") protected String jsonrpc = JSONRPC_VERSION;
+    @JsonProperty("jsonrpc") protected String jsonrpc = Service.JSONRPC_VERSION;
     @JsonProperty("method") protected String method;
     @JsonProperty("params") protected P params;
     @JsonProperty("id") protected String id;

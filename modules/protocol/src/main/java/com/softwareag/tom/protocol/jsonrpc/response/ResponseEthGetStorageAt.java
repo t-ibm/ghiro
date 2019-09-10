@@ -16,6 +16,19 @@ import com.softwareag.tom.protocol.util.HexValue;
  */
 public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Result, Types.ResponseEthGetStorageAt> {
 
+    public ResponseEthGetStorageAt() {
+        super();
+    }
+
+    public ResponseEthGetStorageAt(int errorCode, String errorMessage) {
+        super(errorCode, errorMessage);
+    }
+
+    public ResponseEthGetStorageAt(String key, String value) {
+        super();
+        this.result = new Result(key, value);
+    }
+
     public Types.ResponseEthGetStorageAt getResponse() {
         if (this.error != null) {
             throw new UnsupportedOperationException(this.error.message);
@@ -24,8 +37,21 @@ public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Re
         }
     }
 
-    static class Result {
-        @JsonProperty("value") public String value;
+    final static class Result {
+        @JsonProperty("key") String key;
+        @JsonProperty("value") String value;
+
+        private Result() {}
+
+        private Result(String key, String value) {
+            this();
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override public String toString() {
+            return "{\"key\":\"" + key + "\",\"value\":\"" + value + "\"}";
+        }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
@@ -33,11 +59,14 @@ public class ResponseEthGetStorageAt extends Response<ResponseEthGetStorageAt.Re
 
             Result result = (Result) o;
 
-            return value != null ? value.equals(result.value) : result.value == null;
+            if (!key.equals(result.key)) return false;
+            return value.equals(result.value);
         }
 
         @Override public int hashCode() {
-            return value != null ? value.hashCode() : 0;
+            int result = key.hashCode();
+            result = 31 * result + value.hashCode();
+            return result;
         }
     }
 }

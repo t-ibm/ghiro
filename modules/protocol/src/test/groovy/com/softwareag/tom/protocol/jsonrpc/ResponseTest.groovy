@@ -24,6 +24,7 @@ import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.message.BasicStatusLine
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * System under specification: {@link Response}.
@@ -31,133 +32,140 @@ import spock.lang.Specification
  */
 class ResponseTest extends ResponseSpecification {
 
-    def "test error"() {
+    @Unroll def "test error with #type"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "error":{"code":-32603, "message":"Internal JSON-RPC error"}}'
+        Response expected = type.newInstance([-32603, "Internal JSON-RPC error"] as Object[])
+        content expected.toString()
 
         when: 'the response is received'
-        ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse)
+        Response response = serviceHttp.getResponseHandler(type).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.id == 42
-        response.jsonrpc == '2.0'
-        response.error.code == -32603
-        response.error.message == 'Internal JSON-RPC error'
-        response.error.data == null
+        response.hashCode() == expected.hashCode()
+        response == expected
+
+        where:
+        type << [
+                ResponseEthCall, ResponseEthGetBalance, ResponseEthGetFilterChanges, ResponseEthGetStorageAt, ResponseEthNewFilter, ResponseEthSendTransaction, ResponseEthUninstallFilter, ResponseNetListening, ResponseWeb3ClientVersion
+        ]
     }
 
     def "test web3_clientVersion"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"client_version":"0.8.0"}}'
+        ResponseWeb3ClientVersion expected = new ResponseWeb3ClientVersion("0.8.0")
+        content expected.toString()
 
         when: 'the response is received'
         ResponseWeb3ClientVersion response = serviceHttp.getResponseHandler(ResponseWeb3ClientVersion.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.clientVersion == '0.8.0'
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test net_listening"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"listening":true}}'
+        ResponseNetListening expected = new ResponseNetListening(true)
+        content expected.toString()
 
         when: 'the response is received'
         ResponseNetListening response = serviceHttp.getResponseHandler(ResponseNetListening.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.listening
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_getBalance"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"address":"E9B5D87313356465FAE33C406CE2C2979DE60BCB", "balance":200000000, "code":"", "pub_key":null, "sequence":0, "storage_root":""}}'
+        ResponseEthGetBalance expected = new ResponseEthGetBalance("E9B5D87313356465FAE33C406CE2C2979DE60BCB", 200000000)
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthGetBalance response = serviceHttp.getResponseHandler(ResponseEthGetBalance.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.balance == 200000000
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_getStorageAt"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"key":"", "value":""}}'
+        ResponseEthGetStorageAt expected = new ResponseEthGetStorageAt("", "")
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthGetStorageAt response = serviceHttp.getResponseHandler(ResponseEthGetStorageAt.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.value == ''
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_sendTransaction"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"call_data":{"callee":"3F2F648518AE519964315B9B54ECD8FE23E6075F", "caller":"37236DF251AB70022B1DA351F08A20FB52443E37", "data":"606060", "gas":208, "value":0}, "exception":"", "origin":"37236DF251AB70022B1DA351F08A20FB52443E37", "return":"606060", "tx_id":"619DB1BBEC212208EF9949D5F341722B0312219C"}}'
+        ResponseEthSendTransaction expected = new ResponseEthSendTransaction("3F2F648518AE519964315B9B54ECD8FE23E6075F", "37236DF251AB70022B1DA351F08A20FB52443E37", "606060", "619DB1BBEC212208EF9949D5F341722B0312219C", 208)
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthSendTransaction response = serviceHttp.getResponseHandler(ResponseEthSendTransaction.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.txId == '619DB1BBEC212208EF9949D5F341722B0312219C'
-        response.result.callData.contractAddress == '3F2F648518AE519964315B9B54ECD8FE23E6075F'
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_call"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"gas_used":49, "return":""}}'
+        ResponseEthCall expected = new ResponseEthCall(49 as long, "")
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthCall response = serviceHttp.getResponseHandler(ResponseEthCall.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.ret == ''
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_newFilter"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F"}}'
+        ResponseEthNewFilter expected = new ResponseEthNewFilter("E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F")
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthNewFilter response = serviceHttp.getResponseHandler(ResponseEthNewFilter.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.filterId == 'E8BD53B1A38F5C3A1A3C38640327A41677BC7759763150D5138F7CBE7A361E5F'
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_uninstallFilter"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
+        ResponseEthUninstallFilter expected = new ResponseEthUninstallFilter(true)
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthUninstallFilter response = serviceHttp.getResponseHandler(ResponseEthUninstallFilter.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.isRemoved
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 
     def "test eth_getFilterChanges"() {
         given: 'a valid JSON-RPC response'
-        content '{"id":42, "jsonrpc":"2.0", "result":{events:[{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
-                                                             '{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]},' +
-                                                             '{"address":"00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "data":"0000000000000000000000000000000000000000000000000000000000000001", "height":30, "topics":["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"]}]}}'
+        ResponseEthGetFilterChanges.Log logEvent = new ResponseEthGetFilterChanges.Log("00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE", "0000000000000000000000000000000000000000000000000000000000000001", 30, ["88C4F556FDC50387EC6B6FC4E8250FECC56FF50E873DF06DADEEB84C0287CA90", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "6861686100000000000000000000000000000000000000000000000000000000"])
+        ResponseEthGetFilterChanges expected = new ResponseEthGetFilterChanges([logEvent, logEvent, logEvent])
+        content expected.toString()
 
         when: 'the response is received'
         ResponseEthGetFilterChanges response = serviceHttp.getResponseHandler(ResponseEthGetFilterChanges.class).handleResponse(closeableHttpResponse)
 
         then: 'the response type values are set to the expected values'
-        response.error == null
-        response.result.events.get(1).address == '00000000000000000000000033F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        response.result.events.get(1).data == '0000000000000000000000000000000000000000000000000000000000000001'
-        response.result.events.get(1).height == 30
-        response.result.events.get(1).topics.size() == 3
+        response.hashCode() == expected.hashCode()
+        response == expected
     }
 }
 

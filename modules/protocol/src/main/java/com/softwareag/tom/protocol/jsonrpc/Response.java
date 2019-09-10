@@ -8,6 +8,8 @@ package com.softwareag.tom.protocol.jsonrpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 /**
  * JSON-RPC base response implementation.
  * @param <T> The expected result type of this response
@@ -19,6 +21,15 @@ public abstract class Response<T, M> {
     @JsonProperty("error") protected Error error;
     @JsonProperty("id") protected long id;
 
+    protected Response() {
+        this.jsonrpc = Service.JSONRPC_VERSION;
+    }
+
+    protected Response(int errorCode, String errorMessage) {
+        this();
+        this.error = new Error(errorCode, errorMessage, null);
+    }
+
     public boolean hasError() {
         return error != null;
     }
@@ -28,16 +39,22 @@ public abstract class Response<T, M> {
 
     public abstract M getResponse();
 
-    public static class Error {
+    public final static class Error {
         @JsonProperty("code") public int code;
         @JsonProperty("message") public String message;
         @JsonProperty("data") public String data;
 
-        @Override public int hashCode() {
-            int result = code;
-            result = 31 * result + (message != null ? message.hashCode() : 0);
-            result = 31 * result + (data != null ? data.hashCode() : 0);
-            return result;
+        private Error() {}
+
+        private Error(int code, String message, String data) {
+            this();
+            this.code = code;
+            this.message = message;
+            this.data = data;
+        }
+
+        @Override public String toString() {
+            return "{\"code\":" + code + ", \"message\":\"" + message + '\"' + (data == null ? "" : ", \"data:\"" + data + '\"') + '}';
         }
 
         @Override public boolean equals(Object o) {
@@ -47,17 +64,20 @@ public abstract class Response<T, M> {
             Error error = (Error) o;
 
             if (code != error.code) return false;
-            if (message != null ? !message.equals(error.message) : error.message != null) return false;
-            return data != null ? data.equals(error.data) : error.data == null;
+            if (!Objects.equals(message, error.message)) return false;
+            return Objects.equals(data, error.data);
+        }
+
+        @Override public int hashCode() {
+            int result = code;
+            result = 31 * result + (message != null ? message.hashCode() : 0);
+            result = 31 * result + (data != null ? data.hashCode() : 0);
+            return result;
         }
     }
 
-    @Override public int hashCode() {
-        int result1 = jsonrpc != null ? jsonrpc.hashCode() : 0;
-        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
-        result1 = 31 * result1 + (error != null ? error.hashCode() : 0);
-        result1 = 31 * result1 + (int) (id ^ (id >>> 32));
-        return result1;
+    @Override public String toString() {
+        return "{\"jsonrpc\":\"" + jsonrpc + '\"' + (error == null ? ", \"result\":" + result : ", \"error\":" + error) + ", \"id\":" + id + "}";
     }
 
     @Override public boolean equals(Object o) {
@@ -67,8 +87,17 @@ public abstract class Response<T, M> {
         Response<?, ?> response = (Response<?, ?>) o;
 
         if (id != response.id) return false;
-        if (jsonrpc != null ? !jsonrpc.equals(response.jsonrpc) : response.jsonrpc != null) return false;
-        if (result != null ? !result.equals(response.result) : response.result != null) return false;
-        return error != null ? error.equals(response.error) : response.error == null;
+        if (!jsonrpc.equals(response.jsonrpc)) return false;
+        if (!Objects.equals(result, response.result)) return false;
+        return Objects.equals(error, response.error);
+
+    }
+
+    @Override public int hashCode() {
+        int result1 = jsonrpc.hashCode();
+        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
+        result1 = 31 * result1 + (error != null ? error.hashCode() : 0);
+        result1 = 31 * result1 + (int) (id ^ (id >>> 32));
+        return result1;
     }
 }
