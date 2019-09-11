@@ -68,7 +68,12 @@ task jacocoMergeReport(type:JacocoReport, group:'verification') {
     description = "Generates a consolidated code coverage report."
     dependsOn project.tasks.jacocoMerge
     executionData project.tasks.jacocoMerge.destinationFile
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/jacoco/jacocoMergetReport.xml")
+    }
 }
+project.tasks.sonarqube.dependsOn project.tasks.jacocoMergeReport
 /*
  * Configure code quality reporting
  */
@@ -80,12 +85,17 @@ sonarqube.properties {
             'sonar.password' : project.hasProperty('sonar.password') ? project.property('sonar.password') : 'sonarLocal',
             'sonar.issuesReport.html.enable' : 'true',
             'sonar.issuesReport.console.enable' : 'true',
-            'sonar.jacoco.reportPaths' : project.tasks.jacocoMerge.destinationFile.absolutePath,
+            'sonar.coverage.jacoco.xmlReportPaths' : project.tasks.jacocoMergeReport.reports.xml.destination,
             'sonar.analysis.mode' : project.gradle.startParameter.offline ? 'preview' : 'publish',
             'sonar.exclusions' : "**/com/softwareag/tom/protocol/abi/**",
     )
 }
 project.tasks['sonarqube'].dependsOn project.tasks.jacocoMerge
+subprojects { Project p ->
+    p.sonarqube.properties {
+        property 'sonar.coverage.jacoco.xmlReportPaths', p.rootProject.tasks.jacocoMergeReport.reports.xml.destination
+    }
+}
 /*
  * Helper classes.
  */

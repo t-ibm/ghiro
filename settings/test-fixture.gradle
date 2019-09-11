@@ -65,7 +65,10 @@ task jacocoTestFixtureTestReport(type:JacocoReport, group:'verification') {
     dependsOn project.tasks.testFixtureTest
     executionData project.tasks.testFixtureTest.jacoco.destinationFile
     sourceSets project.sourceSets.testFixture
-    reports.xml.enabled = true
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/jacoco/testFixtureTest/jacocoTestFixtureTestReport.xml")
+    }
 }
 project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoTestFixtureTestReport
 /*
