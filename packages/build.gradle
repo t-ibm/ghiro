@@ -75,6 +75,7 @@ subprojects {
         jacocoTestReport {
             reports.xml.enabled true
         }
+        project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoTestReport
     }
 }
 /*

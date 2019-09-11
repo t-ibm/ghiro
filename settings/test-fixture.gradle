@@ -67,6 +67,7 @@ task jacocoTestFixtureTestReport(type:JacocoReport, group:'verification') {
     sourceSets project.sourceSets.testFixture
     reports.xml.enabled = true
 }
+project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoTestFixtureTestReport
 /*
  * Add to the code quality configuration
  */
