@@ -90,12 +90,6 @@ sonarqube.properties {
             'sonar.exclusions' : "**/com/softwareag/tom/protocol/abi/**",
     )
 }
-project.tasks['sonarqube'].dependsOn project.tasks.jacocoMerge
-subprojects { Project p ->
-    p.sonarqube.properties {
-        property 'sonar.coverage.jacoco.xmlReportPaths', p.rootProject.tasks.jacocoMergeReport.reports.xml.destination
-    }
-}
 /*
  * Helper classes.
  */

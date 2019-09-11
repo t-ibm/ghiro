@@ -58,26 +58,14 @@ project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.testFixtureTest
 project.rootProject.tasks.jacocoMerge.executionData files(project.tasks.testFixtureTest.jacoco.destinationFile as File).filter { f -> f.exists() }
 project.rootProject.tasks.jacocoMergeReport.sourceSets project.sourceSets.testFixture
 /*
- * Add test fixture test JaCoCo report
- */
-task jacocoTestFixtureTestReport(type:JacocoReport, group:'verification') {
-    description = "Generates code coverage report for the $project.tasks.testFixtureTest.name task."
-    dependsOn project.tasks.testFixtureTest
-    executionData project.tasks.testFixtureTest.jacoco.destinationFile
-    sourceSets project.sourceSets.testFixture
-    reports {
-        xml.enabled true
-        xml.destination file("${buildDir}/reports/jacoco/testFixtureTest/jacocoTestFixtureTestReport.xml")
-    }
-}
-project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoTestFixtureTestReport
-/*
  * Add to the code quality configuration
  */
 def testFixtureSrcDirs = project.sourceSets.testFixture.allSource.srcDirs.findAll { File f -> f.exists() }
 def testFixtureTestSrcDirs = project.sourceSets.testFixtureTest.allSource.srcDirs.findAll { File f -> f.exists() }
-apply plugin: "org.sonarqube"
 sonarqube.properties {
-    properties["sonar.sources"] = properties["sonar.sources"] == null ? testFixtureSrcDirs : properties["sonar.sources"] + testFixtureSrcDirs
-    properties["sonar.tests"] = properties["sonar.tests"] == null ? testFixtureTestSrcDirs : properties["sonar.tests"] + testFixtureTestSrcDirs
+    properties(
+        'sonar.sources' : properties['sonar.sources'] == null ? testFixtureSrcDirs : properties['sonar.sources'] + testFixtureSrcDirs,
+        'sonar.tests' : properties['sonar.tests'] == null ? testFixtureTestSrcDirs : properties['sonar.tests'] + testFixtureTestSrcDirs,
+        'sonar.coverage.jacoco.xmlReportPaths' : project.rootProject.tasks.jacocoMergeReport.reports.xml.destination,
+    )
 }

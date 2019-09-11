@@ -20,11 +20,10 @@ subprojects {
         project.rootProject.tasks.jacocoMerge.executionData files(project.tasks.test.jacoco.destinationFile as File).filter { f -> f.exists() }
         project.rootProject.tasks.jacocoMergeReport.sourceSets project.sourceSets.main
         /*
-         * Configure JaCoCo report
+         * Add to the code quality configuration
          */
-        jacocoTestReport {
-            reports.xml.enabled true
+        sonarqube.properties {
+            properties('sonar.coverage.jacoco.xmlReportPaths' : project.rootProject.tasks.jacocoMergeReport.reports.xml.destination)
         }
-        project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoTestReport
     }
 }
