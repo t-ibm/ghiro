@@ -4,7 +4,7 @@
 apply from: "$project.rootDir/settings/java-base.gradle"
 sourceSets {
     testFixture
-    testTestFixture
+    testFixtureTest
 }
 configurations {
     testFixtureImplementation.extendsFrom implementation
@@ -13,9 +13,9 @@ configurations {
     testImplementation.extendsFrom testFixtureImplementation
     testCompileOnly.extendsFrom testFixtureCompileOnly
     testRuntimeOnly.extendsFrom testFixtureRuntimeOnly
-    testTestFixtureImplementation.extendsFrom testFixtureImplementation
-    testTestFixtureCompileOnly.extendsFrom testFixtureCompileOnly
-    testTestFixtureRuntimeOnly.extendsFrom testFixtureRuntimeOnly
+    testFixtureTestImplementation.extendsFrom testFixtureImplementation
+    testFixtureTestCompileOnly.extendsFrom testFixtureCompileOnly
+    testFixtureTestRuntimeOnly.extendsFrom testFixtureRuntimeOnly
     testFixtureRuntimeElements {
         description = "Runtime elements for source set 'testFixture'."
         extendsFrom testFixtureImplementation, testFixtureRuntimeOnly
@@ -32,12 +32,12 @@ dependencies {
     )
     testFixtureImplementation sourceSets.main.output
     testImplementation sourceSets.testFixture.output
-    testTestFixtureImplementation sourceSets.testFixture.output
+    testFixtureTestImplementation sourceSets.testFixture.output
 }
 task testFixtureTest(type: Test) {
     description = "Testing the 'testFixture' source set."
-    testClassesDirs = project.sourceSets.testTestFixture.output.classesDirs
-    classpath = project.sourceSets.testTestFixture.runtimeClasspath
+    testClassesDirs = project.sourceSets.testFixtureTest.output.classesDirs
+    classpath = project.sourceSets.testFixtureTest.runtimeClasspath
 }
 project.tasks.build.dependsOn project.tasks.testFixtureTest
 task jarTestFixture(type:Jar, group:'build') {
@@ -71,9 +71,9 @@ task jacocoTestFixtureTestReport(type:JacocoReport, group:'verification') {
  * Add to the code quality configuration
  */
 def testFixtureSrcDirs = project.sourceSets.testFixture.allSource.srcDirs.findAll { File f -> f.exists() }
-def testTestFixtureSrcDirs = project.sourceSets.testTestFixture.allSource.srcDirs.findAll { File f -> f.exists() }
+def testFixtureTestSrcDirs = project.sourceSets.testFixtureTest.allSource.srcDirs.findAll { File f -> f.exists() }
 apply plugin: "org.sonarqube"
 sonarqube.properties {
     properties["sonar.sources"] = properties["sonar.sources"] == null ? testFixtureSrcDirs : properties["sonar.sources"] + testFixtureSrcDirs
-    properties["sonar.tests"] = properties["sonar.tests"] == null ? testTestFixtureSrcDirs : properties["sonar.tests"] + testTestFixtureSrcDirs
+    properties["sonar.tests"] = properties["sonar.tests"] == null ? testFixtureTestSrcDirs : properties["sonar.tests"] + testFixtureTestSrcDirs
 }
