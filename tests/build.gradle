@@ -70,23 +70,13 @@ subprojects {
     project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.integTest
     project.rootProject.tasks.jacocoMerge.executionData project.tasks.integTest.jacoco.destinationFile
     /*
-     * Add integration test JaCoCo report
-     */
-    task jacocoIntegTestReport(type:JacocoReport, group:'verification') {
-        description = "Generates code coverage report for the $project.tasks.integTest.name task."
-        dependsOn project.tasks.integTest
-        executionData project.tasks.integTest.jacoco.destinationFile
-        sourceDirectories.from project.rootProject.tasks.jacocoMergeReport.sourceDirectories
-        classDirectories.from project.rootProject.tasks.jacocoMergeReport.classDirectories
-        reports.xml.enabled true
-    }
-    project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoIntegTestReport
-    /*
      * Add to the code quality configuration
      */
-    apply plugin: "org.sonarqube"
     sonarqube.properties {
-        property 'sonar.tests', project.sourceSets.integTest.allSource.srcDirs.findAll { File f -> f.exists() }
+        properties(
+            'sonar.tests' : project.sourceSets.integTest.allSource.srcDirs.findAll { File f -> f.exists() },
+            'sonar.coverage.jacoco.xmlReportPaths' : project.rootProject.tasks.jacocoMergeReport.reports.xml.destination,
+        )
     }
 }
 /*
