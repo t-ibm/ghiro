@@ -78,7 +78,7 @@ subprojects {
         executionData project.tasks.integTest.jacoco.destinationFile
         sourceDirectories.from project.rootProject.tasks.jacocoMergeReport.sourceDirectories
         classDirectories.from project.rootProject.tasks.jacocoMergeReport.classDirectories
-        reports.xml.enabled = true
+        reports.xml.enabled true
     }
     /*
      * Add to the code quality configuration
