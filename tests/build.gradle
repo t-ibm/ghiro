@@ -80,6 +80,7 @@ subprojects {
         classDirectories.from project.rootProject.tasks.jacocoMergeReport.classDirectories
         reports.xml.enabled true
     }
+    project.rootProject.tasks.sonarqube.dependsOn project.tasks.jacocoIntegTestReport
     /*
      * Add to the code quality configuration
      */
