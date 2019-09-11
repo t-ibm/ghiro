@@ -25,7 +25,7 @@ class NodeTest extends Specification {
         node.host.ip == '127.0.0.1'
         node.key.private == '4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
         node.contract.registry.locationAsUri == Paths.get('../../modules/contract/build/solidity/test').toUri().normalize()
-        node.environments.size() == 1
+        node.size() == 1
 
         when: 'a non existing named node configuration instance is requested'
         node = Node.instance('does-not-exist')

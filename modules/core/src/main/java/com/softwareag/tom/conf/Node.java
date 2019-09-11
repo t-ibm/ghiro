@@ -27,7 +27,7 @@ public class Node {
     @JsonProperty("key") private Key key;
     @JsonProperty("config")  private Config config;
     @JsonProperty("contract")  private Contract contract;
-    public List<Node> getEnvironments() { return environments; }
+    int size() { return environments.size(); }
     public String getName() { return name; }
     public Host getHost() { return host; }
     public Key getKey() { return key; }
@@ -82,7 +82,7 @@ public class Node {
      */
     static Node instance(String name) throws IOException {
         Node defaultConf = getDefaultConf();
-        Node namedConf =  defaultConf.getEnvironments().stream().filter(o -> o.getName().equals(name)).findFirst().orElse(null);
+        Node namedConf =  defaultConf.environments.stream().filter(o -> o.getName().equals(name)).findFirst().orElse(null);
         ObjectMapperFactory.getYamlMapper().updateValue(defaultConf, namedConf);
         return  defaultConf;
     }
