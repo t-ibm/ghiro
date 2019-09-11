@@ -23,7 +23,7 @@ subprojects {
          * Configure JaCoCo report
          */
         jacocoTestReport {
-            reports.xml.enabled = true
+            reports.xml.enabled true
         }
     }
 }

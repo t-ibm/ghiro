@@ -62,6 +62,20 @@ subprojects {
             from zipTree( project.tasks.pkg.archivePath)
         }
     }
+    project.plugins.withType(JavaPlugin) {
+        /*
+         * Add to the consolidated JaCoCo report
+         */
+        project.rootProject.tasks.jacocoMerge.dependsOn project.tasks.test
+        project.rootProject.tasks.jacocoMerge.executionData files(project.tasks.test.jacoco.destinationFile as File).filter { f -> f.exists() }
+        project.rootProject.tasks.jacocoMergeReport.sourceSets project.sourceSets.main
+        /*
+         * Configure JaCoCo report
+         */
+        jacocoTestReport {
+            reports.xml.enabled true
+        }
+    }
 }
 /*
  * Additional plugin types
