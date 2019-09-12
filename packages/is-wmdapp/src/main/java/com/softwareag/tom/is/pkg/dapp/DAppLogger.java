@@ -6,39 +6,39 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
+import com.softwareag.is.log.Message;
 import com.wm.app.b2b.server.Server;
-import com.wm.util.JournalLogger;
 
 public final class DAppLogger {
 
     private DAppLogger() {}
 
     // Debug
-    public static void logDebug(int messageId) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC); }
-    public static void logDebug(int messageId, Object param) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC, param); }
-    public static void logDebug(int messageId, Object[] params) { JournalLogger.logDebugPlus(messageId, DAppMsgBundle.FAC, params); }
+    public static void logDebug(Message message) { message.logAsDebug(message); }
+    public static void logDebug(Message message, Object param) { message.logAsDebug(message, param); }
+    public static void logDebug(Message message, Object[] params) { message.logAsDebug(message, params); }
 
     // Info
-    public static void logInfo(int messageId) { JournalLogger.logInfo(messageId, DAppMsgBundle.FAC); }
-    public static void logInfo(int messageId, Object param) { JournalLogger.logInfo(messageId, DAppMsgBundle.FAC, param); }
-    public static void logInfo(int messageId, Object[] params) { JournalLogger.logInfo(messageId, DAppMsgBundle.FAC, params); }
+    public static void logInfo(Message message) { message.logtAsInfo(message); }
+    public static void logInfo(Message message, Object param) { message.logtAsInfo(message, param); }
+    public static void logInfo(Message message, Object[] params) { message.logtAsInfo(message, params); }
 
     // Warning
-    public static void logWarning(int messageId) { JournalLogger.logWarning(messageId, DAppMsgBundle.FAC); }
-    public static void logWarning(int messageId, Object param) { JournalLogger.logWarning(messageId, DAppMsgBundle.FAC, param); }
-    public static void logWarning(int messageId, Object[] params) { JournalLogger.logWarning(messageId, DAppMsgBundle.FAC, params); }
+    public static void logWarning(Message message) { message.logAsWarn(); }
+    public static void logWarning(Message message, Object param) { message.logAsWarn(param); }
+    public static void logWarning(Message message, Object[] params) { message.logAsWarn(params); }
 
     // Error
-    public static void logError(int messageId, Throwable e) {
-        JournalLogger.logError(messageId, DAppMsgBundle.FAC, e);
+    public static void logError(Message message, Throwable e) {
+        message.logAsError(e);
         Server.logError(e);
     }
-    public static void logError(int messageId, Object param, Throwable e) {
-        JournalLogger.logError(messageId, DAppMsgBundle.FAC, param, e);
+    public static void logError(Message message, Object param, Throwable e) {
+        message.logAsError(param, e);
         Server.logError(e);
     }
-    public static void logError(int messageId, Object[] params, Throwable e) {
-        JournalLogger.logError(messageId, DAppMsgBundle.FAC, params, e);
+    public static void logError(Message message, Object[] params, Throwable e) {
+        message.logAsError(params, e);
         Server.logError(e);
     }
 }

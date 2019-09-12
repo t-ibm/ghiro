@@ -6,46 +6,31 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
-import com.wm.util.B2BListResourceBundle;
+import com.softwareag.is.log.Message;
+import com.softwareag.is.log.MessageList;
+import com.softwareag.is.resources.MessageBundle;
 
-public class DAppMsgBundle extends B2BListResourceBundle {
+public class DAppMsgBundle extends MessageBundle {
+    private static MessageList messages = new MessageList();
+    // Log messages
+    public static final Message DAPP_METHOD_START = addMessage("ISP.0060.0001", "Entering method: {0}");
+    public static final Message DAPP_METHOD_END = addMessage("ISP.0060.0002", "Completing method: {0}");
+    static final Message DAPP_SERVICES_MKDIRS = addMessage("ISP.0060.0003", "Folder for the ns node {0} already exists.");
+    static final Message DAPP_CONTRACT_DEPLOY = addMessage("ISP.0060.0004", "Deployed contract {0} to contract address {1}.");
+    static final Message DAPP_CONTRACT_CALL = addMessage("ISP.0060.0005", "Called function {0}#{1} at contract address {2}.");
+    static final Message DAPP_OBSERVABLE_LOG = addMessage("ISP.0060.0006", "Registered log observable for contract {0} at contract address {1}.");
+    static final Message DAPP_EVENT_LOG = addMessage("ISP.0060.0007", "Received event {0}#{1} from contract address {2}.");
+    // Error messages
+    public static final Message DAPP_ERROR_INIT = addMessage("ISP.0060.9001", "Error during initialization: {0}");
+    public static final Message DAPP_ERROR_NOTIFICATION = addMessage("ISP.0060.9002", "Received error notification from observable: {0}");
+    public static final Message DAPP_ERROR_PUT = addMessage("ISP.0060.9003", "Unable to add received result to message queue: {0}");
+    public static final Message DAPP_ERROR_TRIGGEREXECUTION = addMessage("ISP.0060.9004", "Trigger {0} was unable to process message: Unable to start execution task: {1}");
 
-    static final int FAC = 60;//JournalLogger.FAC_DAPP; //TODO
+    private static Message addMessage(String id, String text) {
+        return messages.addMessage(id, text);
+    }
 
-    // Keys
-    public static final int DAPP_METHOD_START = 1;
-    public static final int DAPP_METHOD_END = 2;
-    static final int DAPP_SERVICES_MKDIRS = 3;
-    static final int DAPP_CONTRACT_DEPLOY = 4;
-    static final int DAPP_CONTRACT_CALL = 5;
-    static final int DAPP_OBSERVABLE_LOG = 6;
-    static final int DAPP_EVENT_LOG = 7;
-    public static final int DAPP_TRIGGER_WAITFORTHROTTLED = 8;
-
-    public static final int DAPP_ERROR_INIT = 9001;
-    public static final int DAPP_ERROR_NOTIFICATION = 9002;
-    public static final int DAPP_ERROR_PUT = 9003;
-    public static final int DAPP_ERROR_TRIGGEREXECUTION = 9004;
-
-    // Values
-    private static final Object[][] contents = new Object[][]{
-        // Log messages
-        {FAC + "." + DAPP_METHOD_START, "Entering method: {0}"},
-        {FAC + "." + DAPP_METHOD_END, "Completing method: (0)"},
-        {FAC + "." + DAPP_SERVICES_MKDIRS, "Folder for the ns node {0} already exists."},
-        {FAC + "." + DAPP_CONTRACT_DEPLOY, "Deployed contract {0} to contract address {1}."},
-        {FAC + "." + DAPP_CONTRACT_CALL, "Called function {0}#{1} at contract address {2}."},
-        {FAC + "." + DAPP_OBSERVABLE_LOG, "Registered log observable for contract {0} at contract address {1}."},
-        {FAC + "." + DAPP_EVENT_LOG, "Received event {0}#{1} from contract address {2}."},
-        {FAC + "." + DAPP_TRIGGER_WAITFORTHROTTLED, "Trigger {0} waiting for throttled queue capacity to become available."},
-        // Error messages
-        {FAC + "." + DAPP_ERROR_INIT, "Error during initialization: {0}"},
-        {FAC + "." + DAPP_ERROR_NOTIFICATION, "Received error notification from observable: {0}"},
-        {FAC + "." + DAPP_ERROR_PUT, "Unable to add received result to message queue: {0}"},
-        {FAC + "." + DAPP_ERROR_TRIGGEREXECUTION, "Trigger {0} was unable to process message: Unable to start execution task: {1}" },
-    };
-
-    @Override protected Object[][] getContents() {
-        return contents;
+    @Override public MessageList getMessages() {
+        return messages;
     }
 }
