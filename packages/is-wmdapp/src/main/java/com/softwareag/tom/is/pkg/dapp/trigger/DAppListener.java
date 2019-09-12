@@ -50,7 +50,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
         }
 
         try {
-            logObservable = Util.instance.getLogObservable(_trigger.getNSName());
+            logObservable = Util.instance().getLogObservable(_trigger.getNSName());
         } catch (IOException e) {
             DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_INIT, e);
             _messageListenerRunning = false;

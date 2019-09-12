@@ -33,7 +33,7 @@ public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType
     @Override protected IMessage preprocess() throws MessagingCoderException {
         NSName nsName = NSName.create(_pdtName);
         try {
-            Message<Types.FilterLogType> msg = Util.instance.decodeLogEvent(nsName, _event);
+            Message<Types.FilterLogType> msg = Util.instance().decodeLogEvent(nsName, _event);
             setup(msg);
             return msg;
         } catch (Exception e) {

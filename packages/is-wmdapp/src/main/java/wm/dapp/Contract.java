@@ -17,6 +17,7 @@ import java.io.IOException;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Contract {
+    static Util util = Util.instance();
     private Contract() {}
     /**
      * Calls the contract. To be used by stateless EVM contracts.
@@ -30,7 +31,7 @@ public final class Contract {
         // @sigtype java 3.5
         NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
         try {
-            Util.instance.call(nsName, pipeline);
+            util.call(nsName, pipeline);
         } catch (IOException e) {
             throw new ServiceException(e);
         }
@@ -48,7 +49,7 @@ public final class Contract {
         // @sigtype java 3.5
         NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
         try {
-            Util.instance.sendTransaction(nsName, pipeline);
+            util.sendTransaction(nsName, pipeline);
         } catch (IOException e) {
             throw new ServiceException(e);
         }

@@ -36,7 +36,7 @@ public class DAppMessageDispatcher extends AbstractMessageDispatcher<Types.Filte
             String pdtName = null;
             for (UMChannelFilterPair channelFilterPair : channelFilterPairs) {
                 pdtName = channelFilterPair.getPdtName();
-                if (Util.instance.isMatchingEvent(NSName.create(pdtName), consumerEvent)) {
+                if (Util.instance().isMatchingEvent(NSName.create(pdtName), consumerEvent)) {
                     break;
                 }
             }
