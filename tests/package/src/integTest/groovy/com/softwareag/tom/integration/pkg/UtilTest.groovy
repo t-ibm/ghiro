@@ -61,7 +61,7 @@ class UtilTest extends Specification {
         triggerDispatcherStrategy.register(triggerOutputControl)
 
         when: println '(1) The contract gets deployed'
-        String contractAddress = Util.instance.deployContract(pdt.getNSName())
+        String contractAddress = Util.instance().deployContract(pdt.getNSName())
 
         then: 'a valid response is received'
         contractAddress.size() == 42

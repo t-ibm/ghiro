@@ -73,12 +73,12 @@ import java.util.stream.Collectors;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public final class Util {
+public class Util {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_REP = "Rep";
 
-    public static final Util instance = new Util();
+    private static Util instance;
     public RuntimeConfiguration rt;
 
     private Package pkgWmDApp = PackageManager.getPackage("WmDApp");
@@ -94,7 +94,7 @@ public final class Util {
      * The default constructor.
      * @throws ExceptionInInitializerError if the node configuration is missing
      */
-    private Util() throws ExceptionInInitializerError {
+    public Util() throws ExceptionInInitializerError {
         functions = new HashMap<>();
         events = new HashMap<>();
         System.setProperty(Node.SYSTEM_PROPERTY_TOMCONFNODE, pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
@@ -106,6 +106,13 @@ public final class Util {
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
+    }
+
+    public static Util instance() {
+        if (instance == null) {
+            instance = new Util();
+        }
+        return instance;
     }
 
     /**

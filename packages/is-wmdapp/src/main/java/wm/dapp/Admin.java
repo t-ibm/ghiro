@@ -14,6 +14,8 @@
 package wm.dapp;
 
 // --- <<IS-START-IMPORTS>> ---
+import com.softwareag.tom.is.pkg.dapp.DAppLogger;
+import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Event;
 import com.softwareag.tom.is.pkg.dapp.Util;
 import com.wm.app.b2b.server.FlowSvcImpl;
@@ -30,8 +32,9 @@ import java.util.List;
 import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
 
-@SuppressWarnings("unused") public final class Admin {
-    private Admin() {}
+public final class Admin {
+    static Util util = Util.instance();
+    Admin() {}
     /**
      * Creates new DApp connection alias if not already existing.
      *
@@ -46,16 +49,17 @@ import java.util.Map;
         IDataCursor pc = pipeline.getCursor();
         String message;
         try {
-            if (Util.instance.getConnectionAlias() != null) {
+            if (util.getConnectionAlias() != null) {
                 message = "DApp connection alias already exists.";
             } else {
-                Util.instance.createConnectionAlias();
+                util.createConnectionAlias();
                 message = "Successfully created DApp connection alias.";
             }
             IDataUtil.put(pc,"message", message);
         } catch (Exception e) {
             message = "Failed to create DApp connection alias!";
             IDataUtil.put(pc,"message", message);
+            DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_SERVICE_ADMIN, message, e);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
@@ -77,7 +81,7 @@ import java.util.Map;
         boolean deployedOnly = IDataUtil.getBoolean(pc,"deployedOnly", false);
         String message;
         try {
-            Map<String,FlowSvcImpl> functions = Util.instance.getFunctions(deployedOnly);
+            Map<String,FlowSvcImpl> functions = util.getFunctions(deployedOnly);
             for (FlowSvcImpl function : functions.values()) {
                 if (NSFacade.getNSNode(function.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(function);
@@ -85,7 +89,7 @@ import java.util.Map;
                     NSFacade.updateNSNode(function);
                 }
             }
-            Map<String,Event> events = Util.instance.getEvents(deployedOnly);
+            Map<String,Event> events = util.getEvents(deployedOnly);
             for (Event event : events.values()) {
                 NSRecord nsRecord = event.getPdt();
                 if (NSFacade.getNSNode(nsRecord.getNSName().getFullName()) == null) {
@@ -100,7 +104,7 @@ import java.util.Map;
                     NSFacade.updateNSNode(service);
                 }
             }
-            List<Trigger> triggers = Util.instance.getTriggers(events);
+            List<Trigger> triggers = util.getTriggers(events);
             for (Trigger trigger : triggers) {
                 if (NSFacade.getNSNode(trigger.getNSName().getFullName()) == null) {
                     NSFacade.saveNewNSNode(trigger);
@@ -113,6 +117,7 @@ import java.util.Map;
         } catch (Exception e) {
             message = "Failed to synchronize contracts!";
             IDataUtil.put(pc,"message", message);
+            DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_SERVICE_ADMIN, message, e);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
@@ -134,7 +139,7 @@ import java.util.Map;
         IDataCursor pc = pipeline.getCursor();
         IData[]  contracts;
         try {
-            contracts = Util.instance.getContractAddresses();
+            contracts = util.getContractAddresses();
         } catch (IOException e) {
             throw new ServiceException(e);
         }
@@ -158,13 +163,14 @@ import java.util.Map;
         String uri = IDataUtil.getString(pc,"uri");
         String message;
         try {
-            String contractAddress = Util.instance.deployContract(uri);
-            Util.instance.storeContractAddress(uri, contractAddress);
+            String contractAddress = util.deployContract(uri);
+            util.storeContractAddress(uri, contractAddress);
             message = "Successfully deployed contract '" + uri + "'.";
             IDataUtil.put(pc,"message", message);
         } catch (IOException e) {
             message = "Failed to deploy contract '" + uri + "'!";
             IDataUtil.put(pc,"message", message);
+            DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_SERVICE_ADMIN, message, e);
             throw new ServiceException(e);
         }
         // --- <<IS-END>> ---
