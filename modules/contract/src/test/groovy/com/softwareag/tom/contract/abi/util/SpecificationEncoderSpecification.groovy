@@ -15,7 +15,7 @@ import spock.lang.Unroll
  * System under specification: {@link SpecificationEncoder}.
  * @author tglaeser
  */
-class SpecificationEncoderTest extends Specification {
+class SpecificationEncoderSpecification extends Specification {
 
     def "test an arbitrary contract function"() {
         given: 'an arbitrary contract specification'

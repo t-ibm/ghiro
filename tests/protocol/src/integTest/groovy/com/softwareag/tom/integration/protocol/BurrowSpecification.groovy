@@ -18,7 +18,7 @@ import groovyx.net.http.RESTClient
  * System under specification: Burrow endpoints.
  * @author tglaeser
  */
-class BurrowTest extends RestClientSpecification {
+class BurrowSpecification extends RestClientBaseSpecification {
 
     def setup() {
         given: 'a REST client'

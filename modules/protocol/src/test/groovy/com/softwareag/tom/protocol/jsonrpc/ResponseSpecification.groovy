@@ -30,7 +30,7 @@ import spock.lang.Unroll
  * System under specification: {@link Response}.
  * @author tglaeser
  */
-class ResponseTest extends ResponseSpecification {
+class ResponseSpecification extends ResponseBaseSpecification {
 
     @Unroll def "test error with #type"() {
         given: 'a valid JSON-RPC response'
@@ -169,7 +169,10 @@ class ResponseTest extends ResponseSpecification {
     }
 }
 
-abstract class ResponseSpecification extends Specification {
+/**
+ * A base specification providing support for common JSON-RPC responses.
+ */
+abstract class ResponseBaseSpecification extends Specification {
     String content
     @Shared CloseableHttpClient closeableHttpClient
     @Shared CloseableHttpResponse closeableHttpResponse

@@ -16,7 +16,10 @@ import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
 import spock.lang.Specification
 
-class RuntimeSpecification extends Specification {
+/**
+ * A base specification providing common IS messaging support.
+ */
+class RuntimeBaseSpecification extends Specification {
     def setupSpec() {
         // Inject IS package store into IS package
         Package pkg = Mock(Package)

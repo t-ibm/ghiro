@@ -33,7 +33,7 @@ import spock.lang.Specification
  * System under specification: {@link Util}.
  * @author tglaeser
  */
-class UtilTest extends Specification {
+class UtilSpecification extends Specification {
 
 
     def "test create solidity contract and listen to events"() {
@@ -79,7 +79,7 @@ class UtilTest extends Specification {
 
         when: println '(3) function "log" is executed 3 times'
         3.times {
-            Util.instance.call(logFuntion, IDataFactory.create())
+            Util.instance().call(logFuntion, IDataFactory.create())
         }
         sleep(10000)
 

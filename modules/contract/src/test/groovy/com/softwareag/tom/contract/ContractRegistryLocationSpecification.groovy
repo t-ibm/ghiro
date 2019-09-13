@@ -15,7 +15,7 @@ import spock.lang.Specification
  * System under specification: {@link ContractRegistryLocation}.
  * @author tglaeser
  */
-class ContractRegistryLocationTest extends Specification {
+class ContractRegistryLocationSpecification extends Specification {
 
     @Shared @Node protected ConfigObject config
     @Shared protected ContractRegistry contractRegistry

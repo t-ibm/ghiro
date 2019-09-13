@@ -14,7 +14,7 @@ import java.nio.file.Paths
  * System under specification: {@link Node}.
  * @author tglaeser
  */
-class NodeTest extends Specification {
+class NodeSpecification extends Specification {
 
     def "test configuration variants"() {
         when: 'a default node configuration instance is requested'

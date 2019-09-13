@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
  * System under specification: {@link Filter}.
  * @author tglaeser
  */
-class FilterTest extends FilterSpecification {
+class FilterSpecification extends FilterBaseSpecification {
 
     def "test log observable"() {
         given: 'a subscriber and a list of valid JSON-RPC response'
@@ -72,7 +72,7 @@ class FilterTest extends FilterSpecification {
     }
 }
 
-abstract class FilterSpecification extends Specification {
+abstract class FilterBaseSpecification extends Specification {
     @Shared Service service
     @Shared ResponseMock responseMock
 
