@@ -20,11 +20,8 @@ import spock.lang.Specification
  * @author tglaeser
  */
 class AdminSpecification extends Specification {
-    @Shared Admin admin = new Admin()
 
-//    def setup() {
-//        Admin.util = Mock(Util)
-//    }
+    @Shared Admin admin = new Admin()
 
     def 'test positive create connection alias'() {
         given: 'an input pipeline'
