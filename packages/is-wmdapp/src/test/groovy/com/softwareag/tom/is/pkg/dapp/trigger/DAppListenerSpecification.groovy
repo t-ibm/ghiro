@@ -7,7 +7,7 @@
  */
 package com.softwareag.tom.is.pkg.dapp.trigger
 
-import com.softwareag.tom.is.pkg.dapp.RuntimeSpecification
+import com.softwareag.tom.is.pkg.dapp.RuntimeBaseSpecification
 import com.softwareag.tom.is.pkg.dapp.Util
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
@@ -39,7 +39,7 @@ import spock.lang.Shared
  * System under specification: {@link DAppListener}.
  * @author tglaeser
  */
-class DAppListenerTest extends ListenerSpecification {
+class DAppListenerSpecification extends ListenerBaseSpecification {
 
     def "test log filter observable"() {
         given: 'the listener had some time to startup'
@@ -65,7 +65,10 @@ class DAppListenerTest extends ListenerSpecification {
     }
 }
 
-abstract class ListenerSpecification extends RuntimeSpecification {
+/**
+ * A base specification providing support for common IS trigger handling.
+ */
+abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
     @Shared ControlledTriggerSvcThreadPool threadPool
     @Shared DAppListener listener
     @Shared String pdtName
@@ -77,17 +80,17 @@ abstract class ListenerSpecification extends RuntimeSpecification {
         String serviceName = 'pub.flow:debugLog'
         // Create publishable document type
         NSName pdtNsName = NSName.create(pdtName)
-        NSRecord pdt = Util.instance.getPublishableDocumentType(pdtNsName)
+        NSRecord pdt = Util.instance().getPublishableDocumentType(pdtNsName)
         assert pdt.isPublishable()
         Namespace.current().putNode(pdt)
         // Create service to invoke
         NSName svcNsName = NSName.create(serviceName)
-        FlowSvcImpl svc = Util.instance.getResponseService(svcNsName)
+        FlowSvcImpl svc = Util.instance().getResponseService(svcNsName)
         Namespace.current().putNode(svc)
         // Create trigger
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Trigger trigger = Util.instance.createTrigger(NSName.create(triggerName))
-        Util.instance.addCondition(trigger, Condition.create(pdtNsName, svcNsName,'contractAddress != null').asCondition())
+        Trigger trigger = Util.instance().createTrigger(NSName.create(triggerName))
+        Util.instance().addCondition(trigger, Condition.create(pdtNsName, svcNsName,'contractAddress != null').asCondition())
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager
@@ -110,9 +113,9 @@ abstract class ListenerSpecification extends RuntimeSpecification {
             response
         }
         // Inject mock service into Util
-        Util.instance.web3Service = Web3Service.build(jsonRpcService)
+        Util.instance().web3Service = Web3Service.build(jsonRpcService)
         // Remember the contract address; implies the contract was deployed
-        Util.instance.storeContractAddress(pdt.getNSName(), filterResponseMock.contractAddress)
+        Util.instance().storeContractAddress(pdt.getNSName(), filterResponseMock.contractAddress)
         // Run the listener
         listener = new DAppListenerMock(trigger, threadPool)
         threadPool.runTarget(listener)

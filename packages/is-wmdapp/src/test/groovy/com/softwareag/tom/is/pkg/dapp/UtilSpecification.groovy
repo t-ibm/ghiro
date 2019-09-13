@@ -37,11 +37,11 @@ import static Util.SUFFIX_REP
  * System under specification: {@link Util}.
  * @author tglaeser
  */
-class UtilTest extends RuntimeSpecification {
+class UtilSpecification extends RuntimeBaseSpecification {
 
     def "test contract function to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
-        Map<String, FlowSvcImpl> functions = Util.instance.getFunctions(false)
+        Map<String, FlowSvcImpl> functions = Util.instance().getFunctions(false)
 
         expect: 'to retrieve a populated map of ns nodes'
         functions.size() == 6
@@ -74,7 +74,7 @@ class UtilTest extends RuntimeSpecification {
     def "test contract event to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Map<String,Event> events = Util.instance.getEvents(false)
+        Map<String,Event> events = Util.instance().getEvents(false)
 
         expect: 'to retrieve a populated map of ns nodes'
         events.size() == 4
@@ -122,7 +122,7 @@ class UtilTest extends RuntimeSpecification {
 
     def "test contract address mapping"() {
         given: 'the contracts can be retrieved from the contract registry'
-        IData[] contractAddresses = Util.instance.getContractAddresses()
+        IData[] contractAddresses = Util.instance().getContractAddresses()
 
         expect: 'to retrieve a populated list of contract address mappings'
         contractAddresses.length == 2
@@ -146,16 +146,16 @@ class UtilTest extends RuntimeSpecification {
             println "<<< $response"
             response
         }
-        Util.instance.web3Service = Web3Service.build(service)
+        Util.instance().web3Service = Web3Service.build(service)
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        if (!Util.instance.isContractDeployed(nsName)) {
-            Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        if (!Util.instance().isContractDeployed(nsName)) {
+            Util.instance().storeContractAddress(nsName, responseMock.contractAddress)
         }
 
         and: 'we attempt to get the log observable'
         IData pipeline = IDataFactory.create()
-        Util.instance.call(nsName, pipeline)
+        Util.instance().call(nsName, pipeline)
 
         then: 'a valid instance is retrieved'
         pipeline == IDataFactory.create()
@@ -172,15 +172,15 @@ class UtilTest extends RuntimeSpecification {
             println "<<< $response"
             response
         }
-        Util.instance.web3Service = Web3Service.build(service, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()))
+        Util.instance().web3Service = Web3Service.build(service, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()))
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        if (!Util.instance.isContractDeployed(nsName)) {
-            Util.instance.storeContractAddress(nsName, responseMock.contractAddress)
+        if (!Util.instance().isContractDeployed(nsName)) {
+            Util.instance().storeContractAddress(nsName, responseMock.contractAddress)
         }
 
         and: 'we attempt to get the log observable'
-        Observable<Types.FilterLogType> logObservable = Util.instance.getLogObservable(nsName)
+        Observable<Types.FilterLogType> logObservable = Util.instance().getLogObservable(nsName)
 
         then: 'a valid instance is retrieved'
         logObservable != null
@@ -189,7 +189,7 @@ class UtilTest extends RuntimeSpecification {
         List<Types.FilterLogType> filterChanges = responseMock.getExpectedFilterChanges()
 
         and: 'the first log event is being decoded'
-        Message<Types.FilterLogType> msg = Util.instance.decodeLogEvent(nsName, filterChanges[0])
+        Message<Types.FilterLogType> msg = Util.instance().decodeLogEvent(nsName, filterChanges[0])
 
         then: 'the resulting pipeline has the expected values'
         msg.getIData() == IDataFactory.create((Object[][])[

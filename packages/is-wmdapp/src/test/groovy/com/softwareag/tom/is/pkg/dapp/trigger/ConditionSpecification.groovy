@@ -15,7 +15,7 @@ import spock.lang.Specification
  * System under specification: {@link Condition}.
  * @author tglaeser
  */
-class ConditionTest extends Specification {
+class ConditionSpecification extends Specification {
 
     def "test simple condition"() {
         given: 'a simple condition definition'

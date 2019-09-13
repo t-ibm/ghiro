@@ -18,8 +18,8 @@ import spock.lang.Specification
 /**
  * A base specification providing support for common REST client handling.
  */
-abstract class RestClientSpecification extends Specification {
-    protected static final Logger logger = LoggerFactory.getLogger(BurrowTest.class);
+abstract class RestClientBaseSpecification extends Specification {
+    protected static final Logger logger = LoggerFactory.getLogger(BurrowSpecification.class)
 
     @Shared @Node protected ConfigObject config
     @Shared protected RESTClient client
@@ -31,7 +31,7 @@ abstract class RestClientSpecification extends Specification {
             resp = client.get(path: httpRequest, contentType: ContentType.JSON.toString()) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
-            logger.error("Unable to send the request, got exception: " + e);
+            logger.error("Unable to send the request, got exception: " + e)
         }
         resp
     }
@@ -42,7 +42,7 @@ abstract class RestClientSpecification extends Specification {
             resp = client.post(path: '/rpc', contentType: ContentType.JSON.toString(), body: jsonRequest) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
-            logger.error("Unable to send the request, got exception: " + e);
+            logger.error("Unable to send the request, got exception: " + e)
         }
         resp
     }

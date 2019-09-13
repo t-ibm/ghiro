@@ -15,7 +15,7 @@ import spock.lang.Unroll
  * System under specification: {@link ReturnDecoder}.
  * @author tglaeser
  */
-class ReturnDecoderTest extends Specification {
+class ReturnDecoderSpecification extends Specification {
 
     @Unroll def "test contract function with single return #javaValues"() {
         given: 'a valid contract specification'

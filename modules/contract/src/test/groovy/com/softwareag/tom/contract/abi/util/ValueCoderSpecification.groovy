@@ -16,7 +16,7 @@ import spock.lang.Unroll
  * Systems under specification: {@link ValueEncoder} and {@link ValueDecoder}.
  * @author tglaeser
  */
-class ValueCoderTest extends Specification {
+class ValueCoderSpecification extends Specification {
 
     @Unroll def "test negative encode value #value"() {
         given: 'a parameter of type "bool"'

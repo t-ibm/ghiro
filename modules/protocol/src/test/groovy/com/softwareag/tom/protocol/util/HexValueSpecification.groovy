@@ -12,7 +12,7 @@ import spock.lang.Specification
  * System under specification: {@link HexValue}.
  * @author tglaeser
  */
-class HexValueTest extends Specification {
+class HexValueSpecification extends Specification {
 
     def 'test unformatted byte string data'() {
         expect:

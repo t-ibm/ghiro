@@ -12,7 +12,7 @@ import groovyx.net.http.RESTClient
  * System under specification: Tendermint endpoints.
  * @author tglaeser
  */
-class TendermintTest extends RestClientSpecification {
+class TendermintSpecification extends RestClientBaseSpecification {
 
     def setup() {
         given: 'a REST client'

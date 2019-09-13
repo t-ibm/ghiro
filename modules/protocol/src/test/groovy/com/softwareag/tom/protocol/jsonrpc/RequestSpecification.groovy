@@ -33,7 +33,7 @@ import spock.lang.Specification
  * System under specification: {@link Request}.
  * @author tglaeser
  */
-class RequestTest extends RequestSpecification {
+class RequestSpecification extends RequestBaseSpecification {
 
     def "test request base"() {
         given: 'a valid request type'
@@ -243,7 +243,10 @@ class RequestTest extends RequestSpecification {
     }
 }
 
-abstract class RequestSpecification extends Specification {
+/**
+ * A base specification providing support for common JSON-RPC requests.
+ */
+abstract class RequestBaseSpecification extends Specification {
     @Shared CloseableHttpClient closeableHttpClient
     @Shared ServiceHttp serviceHttp
     @Shared Response response

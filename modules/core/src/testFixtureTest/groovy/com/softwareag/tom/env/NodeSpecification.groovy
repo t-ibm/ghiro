@@ -4,7 +4,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class NodeTest extends Specification {
+class NodeSpecification extends Specification {
 
     @com.softwareag.tom.extension.Node ConfigObject defaultConfig
 

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
  * System under specification: {@link Web3Service}.
  * @author tglaeser
  */
-class BurrowTest extends Specification {
+class BurrowSpecification extends Specification {
 
     @Shared @Node protected ConfigObject config
     @Shared protected Web3Service web3Service

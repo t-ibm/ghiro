@@ -12,7 +12,7 @@ import spock.lang.Specification
  * System under specification: {@link HexValueBase}.
  * @author tglaeser
  */
-class HexValueBaseTest extends Specification {
+class HexValueBaseSpecification extends Specification {
 
     def 'test strip prefix'() {
         expect:
