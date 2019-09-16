@@ -16,13 +16,18 @@ import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
+import rx.Observable;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-public abstract class UtilBase {
+/**
+ * @param <N> The contract's unique constructor, function, or event representation.
+ */
+public abstract class UtilBase<N> {
     private ContractRegistry contractRegistry;
     private Map<String, Contract> contracts;
     Web3Service web3Service;
@@ -88,6 +93,65 @@ public abstract class UtilBase {
             return response.getBalance().equals(HexValue.toByteString(0)) ? contract.setValid(true) : contract;
         } else {
             return contract;
+        }
+    }
+
+    /**
+     * @param name The contract's constructor, function, or event name
+     * @return the contract's URI
+     */
+    abstract String getContractUri(N name);
+
+    /**
+     * @param name The contract's event name
+     * @return the corresponding log observable
+     */
+    public Observable<Types.FilterLogType> getLogObservable(N name) throws IOException {
+        String uri = getContractUri(name);
+        Contract contract = validateContract(uri);
+        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
+            Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build()
+        ).build();
+        Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
+        return ethLogObservable;
+    }
+
+    /**
+     * @param contract The contract
+     * @param data The request data
+     * @return the response's return value
+     */
+    String call(Contract contract, String data) throws IOException {
+        Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
+            Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(data)).build()
+        ).build();
+        Types.ResponseEthCall response = web3Service.ethCall(request);
+        return HexValue.toString(response.getReturn());
+    }
+
+    /**
+     * @param contract The contract
+     * @param data The request data
+     */
+    void sendTransaction(Contract contract, String data) throws IOException {
+        String contractAddress = contract.getContractAddress();
+        // eth_sendTransaction
+        Types.TxType.Builder txBuilder = Types.TxType.newBuilder();
+        if (contractAddress != null) {
+            txBuilder.setTo(HexValue.toByteString(contractAddress));
+        }
+        txBuilder.setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(contract.getGasLimit())).setGasPrice(HexValue.toByteString(contract.getGasPrice()));
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(txBuilder.build()).build();
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction);
+        // eth_getTransactionReceipt
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build();
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt);
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
+        if (contract.getContractAddress() == null && contractAddress != null) {
+            contract.setContractAddress(contractAddress);
+        } else if (!Objects.equals(contract.getContractAddress(), contractAddress)) {
+            throw new IllegalStateException("Returned contract address is different from known contract address!");
         }
     }
 }
