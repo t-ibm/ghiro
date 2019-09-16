@@ -194,7 +194,7 @@ public class Util extends UtilBase<NSName> {
      * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
     public IData[] getContractAddresses() throws IOException {
-        return loadContracts().stream().map(entry -> IDataFactory.create(new Object[][]{
+        return loadContracts().entrySet().stream().map(entry -> IDataFactory.create(new Object[][]{
             {"uri", entry.getKey()},
             {"address", entry.getValue().getContractAddress()},
         })).toArray(IData[]::new);
@@ -205,7 +205,7 @@ public class Util extends UtilBase<NSName> {
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
     public Map<String,FlowSvcImpl> getFunctions(boolean deployedOnly) throws IOException {
-        for (Map.Entry<String,Contract> entry : loadContracts()) {
+        for (Map.Entry<String,Contract> entry : loadContracts().entrySet()) {
             // Add the functions as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
             Contract contract = entry.getValue();
@@ -240,7 +240,7 @@ public class Util extends UtilBase<NSName> {
      * @return the contract events as a {@link Trigger}/{@link NSRecord} map
      */
     public Map<String,Event> getEvents(boolean deployedOnly) throws Exception {
-        for (Map.Entry<String,Contract> entry : loadContracts()) {
+        for (Map.Entry<String,Contract> entry : loadContracts().entrySet()) {
             // Add the events as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
             Contract contract = entry.getValue();

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
@@ -116,9 +115,9 @@ public abstract class UtilBase<N> {
      * @return all contracts known by this machine node
      * @throws IOException if loading of the contracts fails
      */
-    Set<Map.Entry<String,Contract>> loadContracts() throws IOException {
+    Map<String,Contract> loadContracts() throws IOException {
         contracts = contractRegistry.load();
-        return contracts.entrySet();
+        return contracts;
     }
 
     /**
