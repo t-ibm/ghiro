@@ -80,7 +80,7 @@ public class Node {
      * @return a named configuration instance as specified in the {@code environments} section of file {@code Node.yaml}
      * @throws IOException if file {@code Node.yaml} cannot be decoded
      */
-    static Node instance(String name) throws IOException {
+    public static Node instance(String name) throws IOException {
         Node defaultConf = getDefaultConf();
         Node namedConf =  defaultConf.environments.stream().filter(o -> o.getName().equals(name)).findFirst().orElse(null);
         ObjectMapperFactory.getYamlMapper().updateValue(defaultConf, namedConf);
