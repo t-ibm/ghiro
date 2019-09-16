@@ -51,7 +51,6 @@ import com.wm.msg.Header;
 import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Values;
-import rx.Observable;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -61,12 +60,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public class Util extends UtilBase {
+public class Util extends UtilBase<NSName> {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_REP = "Rep";
@@ -107,11 +105,7 @@ public class Util extends UtilBase {
         String uri = getContractUri(nsName);
         Contract contract = validateContract(uri);
         ContractInterface.Specification<?> function = getFunction(nsName);
-        Types.RequestEthCall request = Types.RequestEthCall.newBuilder().setTx(
-            Types.TxType.newBuilder().setTo(HexValue.toByteString(contract.getContractAddress())).setData(HexValue.toByteString(encodeInput(function, pipeline))).build()
-        ).build();
-        Types.ResponseEthCall response = web3Service.ethCall(request);
-        decodeFunctionOutput(function, pipeline, HexValue.toString(response.getReturn()));
+        decodeFunctionOutput(function, pipeline, call(contract, encodeInput(function, pipeline)));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
     }
 
@@ -125,21 +119,6 @@ public class Util extends UtilBase {
         ContractInterface.Specification<?> function = getFunction(nsName);
         sendTransaction(contract, encodeInput(function, pipeline));
         DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
-    }
-
-    /**
-     * @param nsName The contract's filter ns name
-     * @return the corresponding log observable
-     */
-    public Observable<Types.FilterLogType> getLogObservable(NSName nsName) throws IOException {
-        String uri = getContractUri(nsName);
-        Contract contract = validateContract(uri);
-        Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
-            Types.FilterOptionType.newBuilder().setAddress(HexValue.toByteString(contract.getContractAddress())).build()
-        ).build();
-        Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
-        return ethLogObservable;
     }
 
     public boolean isMatchingEvent(NSName nsName, Types.FilterLogType logEvent) {
@@ -438,32 +417,11 @@ public class Util extends UtilBase {
         }
     }
 
-    private void sendTransaction(Contract contract, String data) throws IOException {
-        String contractAddress = contract.getContractAddress();
-        // eth_sendTransaction
-        Types.TxType.Builder txBuilder = Types.TxType.newBuilder();
-        if (contractAddress != null) {
-            txBuilder.setTo(HexValue.toByteString(contractAddress));
-        }
-        txBuilder.setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(contract.getGasLimit())).setGasPrice(HexValue.toByteString(contract.getGasPrice()));
-        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(txBuilder.build()).build();
-        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction);
-        // eth_getTransactionReceipt
-        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build();
-        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt);
-        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().getContractAddress());
-        if (contract.getContractAddress() == null && contractAddress != null) {
-            contract.setContractAddress(contractAddress);
-        } else if (!Objects.equals(contract.getContractAddress(), contractAddress)) {
-            throw new IllegalStateException("Returned contract address is different from known contract address!");
-        }
-    }
-
     private String getInterfaceName(String uri) {
         return uri.replace('/', '.');
     }
 
-    private String getContractUri(NSName nsName) {
+    @Override String getContractUri(NSName nsName) {
         return nsName.getInterfaceName().toString().replace('.', '/');
     }
 
