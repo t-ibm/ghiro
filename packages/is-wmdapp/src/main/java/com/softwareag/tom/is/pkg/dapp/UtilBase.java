@@ -49,6 +49,58 @@ public abstract class UtilBase<N> {
     }
 
     /**
+     * @param name The contract's constructor, function, or event name
+     * @return the contract's URI
+     */
+    abstract String getContractUri(N name);
+
+    /**
+     * @param name The contract's function name
+     * @return the contract's function URI
+     */
+    abstract String getFunctionUri(N name);
+
+    /**
+     * @param name The contract's event name
+     * @return the contract's event URI
+     */
+    abstract String getEventUri(N name);
+
+    /**
+     * @param name The contract's constructor, function, or event name
+     * @return the contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public String deployContract(N name) throws IOException {
+        return deployContract(getContractUri(name));
+    }
+
+    /**
+     * @param uri The contract's local location
+     * @return the contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public String deployContract(String uri) throws IOException {
+        loadContracts();
+        Contract contract = getContract(uri);
+        if (contract.getContractAddress() != null) {
+            throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
+        } else {
+            sendTransaction(contract, contract.getBinary());
+        }
+        return contract.getContractAddress();
+    }
+
+    /**
+     * @param name The contract's constructor, function, or event name
+     * @param contractAddress The contract's address in the distributed ledger
+     * @throws IOException if loading/storing of the contract-address mapping fails
+     */
+    public void storeContractAddress(N name, String contractAddress) throws IOException {
+        storeContractAddress(getContractUri(name), contractAddress);
+    }
+
+    /**
      * @param uri The contract's local location
      * @param contractAddress The contract's address in the distributed ledger
      * @throws IOException if loading/storing of the contract-address mapping fails
@@ -95,12 +147,6 @@ public abstract class UtilBase<N> {
             return contract;
         }
     }
-
-    /**
-     * @param name The contract's constructor, function, or event name
-     * @return the contract's URI
-     */
-    abstract String getContractUri(N name);
 
     /**
      * @param name The contract's event name
