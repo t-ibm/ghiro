@@ -402,8 +402,7 @@ public class Util extends UtilBase<NSName> {
     private ContractInterface.Specification<?> getFunction(NSName nsName) {
         String uri = getContractUri(nsName);
         String functionName = getFunctionUri(nsName);
-        Contract contract = getContract(uri);
-        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
+        ContractInterface.Specification<?> function = getContract(uri).getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
         assert function != null;
         return function;
     }
@@ -415,8 +414,7 @@ public class Util extends UtilBase<NSName> {
     private ContractInterface.Specification<?> getEvent(NSName nsName) {
         String uri = getContractUri(nsName);
         String eventName = getEventUri(nsName);
-        Contract contract = getContract(uri);
-        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
+        ContractInterface.Specification<?> event = getContract(uri).getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
         assert event != null;
         return event;
     }
