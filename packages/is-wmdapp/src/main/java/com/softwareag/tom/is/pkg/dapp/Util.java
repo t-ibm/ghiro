@@ -116,11 +116,8 @@ public class Util extends UtilBase<NSName> {
      * @param pipeline The input pipeline
      */
     public void call(NSName nsName, IData pipeline) throws IOException {
-        String uri = getContractUri(nsName);
-        Contract contract = validateContract(uri);
         ContractInterface.Specification<?> function = getFunction(nsName);
-        decodeFunctionOutput(function, pipeline, call(contract, encodeInput(function, pipeline)));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(nsName), contract.getContractAddress()});
+        decodeFunctionOutput(function, pipeline, call(nsName, encodeInput(function, pipeline)));
     }
 
     /**
@@ -128,11 +125,8 @@ public class Util extends UtilBase<NSName> {
      * @param pipeline The input pipeline
      */
     public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
-        String uri = getContractUri(nsName);
-        Contract contract = validateContract(uri);
         ContractInterface.Specification<?> function = getFunction(nsName);
-        sendTransaction(contract, encodeInput(function, pipeline));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(nsName), contract.getContractAddress()});
+        sendTransaction(nsName, encodeInput(function, pipeline));
     }
 
     public boolean isMatchingEvent(NSName nsName, Types.FilterLogType logEvent) {
