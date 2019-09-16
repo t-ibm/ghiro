@@ -97,6 +97,20 @@ public class Util extends UtilBase<NSName> {
         return instance;
     }
 
+    @Override String getContractUri(NSName nsName) {
+        return nsName.getInterfaceName().toString().replace('.', '/');
+    }
+
+    @Override String getFunctionUri(NSName nsName) {
+        String name = nsName.getNodeName().toString();
+        return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
+    }
+
+    @Override String getEventUri(NSName nsName) {
+        String name = nsName.getNodeName().toString();
+        return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
+    }
+
     /**
      * @param nsName The contract's function ns name
      * @param pipeline The input pipeline
@@ -106,7 +120,7 @@ public class Util extends UtilBase<NSName> {
         Contract contract = validateContract(uri);
         ContractInterface.Specification<?> function = getFunction(nsName);
         decodeFunctionOutput(function, pipeline, call(contract, encodeInput(function, pipeline)));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(nsName), contract.getContractAddress()});
     }
 
     /**
@@ -118,7 +132,7 @@ public class Util extends UtilBase<NSName> {
         Contract contract = validateContract(uri);
         ContractInterface.Specification<?> function = getFunction(nsName);
         sendTransaction(contract, encodeInput(function, pipeline));
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionName(nsName), contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(nsName), contract.getContractAddress()});
     }
 
     public boolean isMatchingEvent(NSName nsName, Types.FilterLogType logEvent) {
@@ -141,7 +155,7 @@ public class Util extends UtilBase<NSName> {
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
         decodeEventInput(event, pipeline, HexValue.toString(logEvent.getData()), topics);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventName(nsName), getContract(uri).getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(nsName), getContract(uri).getContractAddress()});
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;
@@ -177,31 +191,6 @@ public class Util extends UtilBase<NSName> {
     }
 
     /**
-     * @param uri The contract's local location
-     * @return the contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public String deployContract(String uri) throws IOException {
-        loadContracts();
-        Contract contract = getContract(uri);
-        if (contract.getContractAddress() != null) {
-            throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
-        } else {
-            sendTransaction(contract, contract.getBinary());
-        }
-        return contract.getContractAddress();
-    }
-
-    /**
-     * @param nsName The contract's function/filter ns name
-     * @return the contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public String deployContract(NSName nsName) throws IOException {
-        return deployContract(getContractUri(nsName));
-    }
-
-    /**
      * @return the contracts-address mapping as a {@link IData} list with fields {@code uri} and {@code contractAddress}
      */
     public IData[] getContractAddresses() throws IOException {
@@ -209,15 +198,6 @@ public class Util extends UtilBase<NSName> {
             {"uri", entry.getKey()},
             {"address", entry.getValue().getContractAddress()},
         })).toArray(IData[]::new);
-    }
-
-    /**
-     * @param nsName The contract's function/filter ns name
-     * @param contractAddress The contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public void storeContractAddress(NSName nsName, String contractAddress) throws IOException {
-        storeContractAddress(getContractUri(nsName), contractAddress);
     }
 
     /**
@@ -421,32 +401,26 @@ public class Util extends UtilBase<NSName> {
         return uri.replace('/', '.');
     }
 
-    @Override String getContractUri(NSName nsName) {
-        return nsName.getInterfaceName().toString().replace('.', '/');
-    }
-
-    private String getFunctionName(NSName nsName) {
-        String name = nsName.getNodeName().toString();
-        return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
-    }
-
-    private String getEventName(NSName nsName) {
-        String name = nsName.getNodeName().toString();
-        return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
-    }
-
+    /**
+     * @param nsName The contract's function name
+     * @return the contract's function specification
+     */
     private ContractInterface.Specification<?> getFunction(NSName nsName) {
         String uri = getContractUri(nsName);
-        String functionName = getFunctionName(nsName);
+        String functionName = getFunctionUri(nsName);
         Contract contract = getContract(uri);
         ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
         assert function != null;
         return function;
     }
 
+    /**
+     * @param nsName The contract's event name
+     * @return the contract's event specification
+     */
     private ContractInterface.Specification<?> getEvent(NSName nsName) {
         String uri = getContractUri(nsName);
-        String eventName = getEventName(nsName);
+        String eventName = getEventUri(nsName);
         Contract contract = getContract(uri);
         ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
         assert event != null;
