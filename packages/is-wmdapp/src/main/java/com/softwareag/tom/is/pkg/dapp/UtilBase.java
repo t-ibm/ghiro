@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
@@ -120,6 +121,17 @@ public abstract class UtilBase<N> {
         return contracts;
     }
 
+    /**
+     * @param deployedOnly If set to {@code true} returns only events from deployed contracts, otherwise returns all defined
+     * @return all contracts known by this machine node
+     * @throws IOException if loading of the contracts fails
+     */
+    Map<String,Contract> loadContracts(boolean deployedOnly) throws IOException {
+        contracts = contractRegistry.load();
+        return contracts.entrySet().stream().filter(o -> !deployedOnly || o.getValue().getContractAddress() != null).collect(
+            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
+        );
+    }
     /**
      * @param uri The contract's location
      * @return the contract

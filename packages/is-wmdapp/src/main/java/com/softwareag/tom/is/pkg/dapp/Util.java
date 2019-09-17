@@ -199,15 +199,10 @@ public class Util extends UtilBase<NSName> {
      * @return the contract functions as a {@link NSName}/{@link FlowSvcImpl} map
      */
     public Map<String,FlowSvcImpl> getFunctions(boolean deployedOnly) throws IOException {
-        for (Map.Entry<String,Contract> entry : loadContracts().entrySet()) {
+        for (Map.Entry<String,Contract> entry : loadContracts(deployedOnly).entrySet()) {
             // Add the functions as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
-            Contract contract = entry.getValue();
-            if (deployedOnly && contract.getContractAddress() == null) {
-                continue;
-            }
-            ContractInterface contractInterface = contract.getAbi();
-            List<ContractInterface.Specification> functions = contractInterface.getFunctions();
+            List<ContractInterface.Specification> functions = entry.getValue().getAbi().getFunctions();
             for (ContractInterface.Specification<?> function : functions) {
                 String functionName = interfaceName + ':' + function.getName();
                 NSName nsName = NSName.create(functionName + SUFFIX_REQ);
@@ -234,15 +229,10 @@ public class Util extends UtilBase<NSName> {
      * @return the contract events as a {@link Trigger}/{@link NSRecord} map
      */
     public Map<String,Event> getEvents(boolean deployedOnly) throws Exception {
-        for (Map.Entry<String,Contract> entry : loadContracts().entrySet()) {
+        for (Map.Entry<String,Contract> entry : loadContracts(deployedOnly).entrySet()) {
             // Add the events as defined in the ABI
             String interfaceName = getInterfaceName(entry.getKey());
-            Contract contract = entry.getValue();
-            if (deployedOnly && contract.getContractAddress() == null) {
-                continue;
-            }
-            ContractInterface contractInterface = contract.getAbi();
-            List<ContractInterface.Specification> events = contractInterface.getEvents();
+            List<ContractInterface.Specification> events = entry.getValue().getAbi().getEvents();
             // The trigger
             NSName triggerNsName = NSName.create(interfaceName, "trigger");
             Trigger trigger = createTrigger(triggerNsName);
