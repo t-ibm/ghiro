@@ -5,9 +5,9 @@ description = 'Inter-module level integration tests'
 project.sag.startActionBurrow = {
     workingDir project.tasks.initBurrow.destinationDir
     if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        commandLine 'cmd', '/c', 'burrow', 'serve'
+        commandLine 'cmd', '/c', 'burrow', 'start', '--validator=0'
     } else {
-        commandLine 'burrow', 'serve'
+        commandLine 'burrow', 'start', '--validator=0'
     }
     standardOutput new FileOutputStream("$project.tasks.initBurrow.destinationDir/std.out")
     errorOutput new FileOutputStream("$project.tasks.initBurrow.destinationDir/err.out")
@@ -24,6 +24,7 @@ task initBurrow(type:Sync, group:'test fixture') {
     description = 'Initializes a new Burrow node.'
     from 'src/integTest/fixture/burrow'
     into file("$project.buildDir/workingDir")
+    doLast { new File( destinationDir, '.burrow/config').mkdirs() }
 }
 task runBurrow(type:Exec, group:'test fixture', dependsOn:project.tasks.initBurrow) {
     description = 'Starts a new Burrow process.'
