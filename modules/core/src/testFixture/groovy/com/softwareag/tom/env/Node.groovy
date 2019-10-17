@@ -6,9 +6,17 @@ node {
     name = 'default'
     host {
         ip = '127.0.0.1'
-        port = 1337
+        grpc {
+            port = 10997
+        }
+        info {
+            port = 26658
+        }
+        web3 {
+            port = 26660
+        }
         tendermint {
-            port = 36657
+            port = 26656
         }
     }
     config {

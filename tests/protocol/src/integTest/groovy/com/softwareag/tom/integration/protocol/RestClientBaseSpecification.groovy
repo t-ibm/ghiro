@@ -39,7 +39,7 @@ abstract class RestClientBaseSpecification extends Specification {
     protected HttpResponseDecorator send(Map jsonRequest) {
         try {
             println ">>> $jsonRequest"
-            resp = client.post(path: '/rpc', contentType: ContentType.JSON.toString(), body: jsonRequest) as HttpResponseDecorator
+            resp = client.post(contentType: ContentType.JSON.toString(), body: jsonRequest) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
             logger.error("Unable to send the request, got exception: " + e)
