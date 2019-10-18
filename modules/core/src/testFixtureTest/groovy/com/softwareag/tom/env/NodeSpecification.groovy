@@ -17,7 +17,9 @@ class NodeSpecification extends Specification {
         expect: 'the default configuration'
         defaultConfig.node.name == 'default'
         defaultConfig.node.host.ip == '127.0.0.1'
-        defaultConfig.node.host.port == 1337
+        defaultConfig.node.host.grpc.port == 10997
+        defaultConfig.node.host.info.port == 26658
+        defaultConfig.node.host.web3.port == 26660
     }
 
     @Unroll def "test node '#node' configuration"(String node, String name) {
