@@ -3,7 +3,14 @@ description = "The $project.name module"
 apply from: "$project.rootDir/settings/test-fixture.gradle"
 apply from: "$project.rootDir/settings/proto.gradle"
 
-sourceSets.main.java.srcDirs += project.file("$project.protobuf.generatedFilesBaseDir/main/java")
+sourceSets {
+    main {
+        java {
+            srcDirs "$project.protobuf.generatedFilesBaseDir/main/grpc"
+            srcDirs "$project.protobuf.generatedFilesBaseDir/main/java"
+        }
+    }
+}
 
 dependencies {
     implementation(
@@ -12,6 +19,7 @@ dependencies {
     )
     compileOnly(
         project.sag.module.httpcomponents,
+        project.sag.module.grpc,
         project.sag.module.jackson,
         project.sag.module.log.api,
         project.sag.module.protobuf,
