@@ -8,6 +8,12 @@ protobuf {
         // The artifact spec for the Protobuf Compiler
         artifact = project.sag.module.protoc
     }
+    plugins {
+        grpc {
+            // The artifact spec for the gRPC plugin
+            artifact = project.sag.module.grpcplugin
+        }
+    }
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -15,6 +21,7 @@ protobuf {
                     option 'annotate_code=true'
                 }
             }
+            task.plugins { grpc {} }
         }
     }
 }
