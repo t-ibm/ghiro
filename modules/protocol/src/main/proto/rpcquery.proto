@@ -2,6 +2,8 @@ syntax = 'proto3';
 
 package rpcquery;
 
+option java_package = "org.hyperledger.burrow.rpc";
+option java_outer_classname = "RpcQuery";
 option go_package = "github.com/hyperledger/burrow/rpc/rpcquery";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";

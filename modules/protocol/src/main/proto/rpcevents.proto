@@ -1,5 +1,7 @@
 syntax = 'proto3';
 
+option java_package = "org.hyperledger.burrow.rpc";
+option java_outer_classname = "RpcEvents";
 option go_package = "github.com/hyperledger/burrow/rpc/rpcevents";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";

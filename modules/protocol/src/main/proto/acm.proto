@@ -2,6 +2,7 @@ syntax = 'proto3';
 
 package acm;
 
+option java_package = "org.hyperledger.burrow";
 option go_package = "github.com/hyperledger/burrow/acm";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";

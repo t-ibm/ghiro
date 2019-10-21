@@ -186,7 +186,7 @@ message ResponseEthGetTransactionReceipt {
 /*
  * Service Definition.
  */
-service AbiService {
+service Service {
     rpc web3ClientVersion(RequestWeb3ClientVersion) returns (ResponseWeb3ClientVersion);
     rpc netListening(RequestNetListening) returns (ResponseNetListening);
     rpc ethGetBalance(RequestEthGetBalance) returns (ResponseEthGetBalance);

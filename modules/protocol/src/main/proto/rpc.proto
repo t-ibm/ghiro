@@ -1,6 +1,7 @@
 // Needed to proto2 rather than proto3 to get pointer field for PermArg
 syntax = 'proto3';
 
+option java_package = "org.hyperledger.burrow";
 option go_package = "github.com/hyperledger/burrow/rpc";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
