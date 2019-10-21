@@ -2,6 +2,7 @@ syntax = 'proto2';
 
 package permission;
 
+option java_package = "org.hyperledger.burrow";
 option go_package = "github.com/hyperledger/burrow/permission";
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";

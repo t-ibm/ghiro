@@ -1,6 +1,9 @@
 syntax = "proto3";
 package common;
 
+option java_package = "com.tendermint.common";
+option go_package = "github.com/tendermint/tendermint/libs/common";
+
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 option (gogoproto.stable_marshaler_all) = true;
