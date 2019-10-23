@@ -60,8 +60,11 @@ sag.module.is = [
     ]
 ]
 sag.module.grpc = [
-    "io.grpc:grpc-protobuf:$project.sag.grpc.version",
-    "io.grpc:grpc-stub:$project.sag.grpc.version",
+    implementation : [
+        "io.grpc:grpc-protobuf:$project.sag.grpc.version",
+        "io.grpc:grpc-stub:$project.sag.grpc.version",
+    ],
+    runtime : "io.grpc:grpc-netty-shaded:$project.sag.grpc.version",
 ]
 sag.module.jackson = [
     'com.fasterxml.jackson.core:jackson-annotations:2.9.2@jar',

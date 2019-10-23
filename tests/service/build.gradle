@@ -6,5 +6,9 @@ dependencies {
         project(path:":modules:$project.rootProject.name-protocol", configuration:'runtimeElements'),
         project.sag.module.protobuf,
     )
-    integTestRuntimeOnly project.sag.module.httpcomponents
+    integTestRuntimeOnly(
+        project.sag.module.httpcomponents,
+        project.sag.module.grpc.implementation,
+        project.sag.module.grpc.runtime,
+    )
 }

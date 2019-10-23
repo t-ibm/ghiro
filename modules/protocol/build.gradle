@@ -12,6 +12,10 @@ sourceSets {
     }
 }
 
+javadoc {
+    exclude '**/*Grpc.java', 'org/hyperledger/**', 'com/tendermint/**', 'com/softwareag/tom/protocol/abi/Types.java'
+}
+
 dependencies {
     implementation(
         project(path:":modules:$project.rootProject.name-core", configuration:'runtimeElements'),
@@ -19,7 +23,7 @@ dependencies {
     )
     compileOnly(
         project.sag.module.httpcomponents,
-        project.sag.module.grpc,
+        project.sag.module.grpc.implementation,
         project.sag.module.jackson,
         project.sag.module.log.api,
         project.sag.module.protobuf,
