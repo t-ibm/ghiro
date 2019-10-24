@@ -12,14 +12,8 @@ import com.softwareag.tom.protocol.api.BurrowTransact;
 /**
  * Burrow transact services over gRPC implementation.
  */
-public class BurrowTransactService implements BurrowTransact {
-    private final ServiceTransact gRpcService;
-
+public class BurrowTransactService extends BurrowBaseService<ServiceTransact> implements BurrowTransact {
     public BurrowTransactService(ServiceTransact gRpcService) {
-        this.gRpcService = gRpcService;
-    }
-
-    @Override public void shutdown() throws InterruptedException {
-        gRpcService.shutdown();
+        super(gRpcService);
     }
 }

@@ -15,16 +15,9 @@ import org.hyperledger.burrow.rpc.RpcQuery;
 /**
  * Burrow query services over gRPC implementation.
  */
-public class BurrowQueryService implements BurrowQuery {
-
-    private final ServiceQuery gRpcService;
-
+public class BurrowQueryService extends BurrowBaseService<ServiceQuery> implements BurrowQuery {
     public BurrowQueryService(ServiceQuery gRpcService) {
-        this.gRpcService = gRpcService;
-    }
-
-    @Override public void shutdown() throws InterruptedException {
-        gRpcService.shutdown();
+        super(gRpcService);
     }
 
     @Override public Acm.Account getAccount(RpcQuery.GetAccountParam req) {
