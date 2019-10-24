@@ -5,15 +5,17 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically
  * provided for in your License Agreement with Software AG.
  */
-package com.softwareag.tom.protocol.grpc;
+package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.BurrowTransact;
+import com.softwareag.tom.protocol.grpc.ServiceTransact;
 
 /**
  * Burrow transact services over gRPC implementation.
  */
-public class BurrowTransactService extends BurrowBaseService<ServiceTransact> implements BurrowTransact {
-    public BurrowTransactService(ServiceTransact gRpcService) {
+public class BurrowServiceTransact extends BurrowServiceBase<ServiceTransact> implements BurrowTransact {
+
+    BurrowServiceTransact(ServiceTransact gRpcService) {
         super(gRpcService);
     }
 }

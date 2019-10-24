@@ -5,9 +5,10 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically
  * provided for in your License Agreement with Software AG.
  */
-package com.softwareag.tom.protocol.grpc;
+package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.BurrowQuery;
+import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import org.hyperledger.burrow.Acm;
 import org.hyperledger.burrow.rpc.QueryGrpc;
 import org.hyperledger.burrow.rpc.RpcQuery;
@@ -15,8 +16,9 @@ import org.hyperledger.burrow.rpc.RpcQuery;
 /**
  * Burrow query services over gRPC implementation.
  */
-public class BurrowQueryService extends BurrowBaseService<ServiceQuery> implements BurrowQuery {
-    public BurrowQueryService(ServiceQuery gRpcService) {
+public class BurrowServiceQuery extends BurrowServiceBase<ServiceQuery> implements BurrowQuery {
+
+    BurrowServiceQuery(ServiceQuery gRpcService) {
         super(gRpcService);
     }
 

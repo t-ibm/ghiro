@@ -7,11 +7,11 @@
  */
 package com.softwareag.tom.protocol.api;
 
-import com.softwareag.tom.protocol.grpc.Burrow;
+import com.softwareag.tom.protocol.BurrowService;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
 
 /**
  * The transact portion of the Burrow gRPC API. See the protocol buffers IDL file <a href="https://github.com/hyperledger/burrow/blob/master/protobuf/rpctransact.proto">rpcquery.proto</a> for more info.
  */
-public interface BurrowTransact extends Burrow<ServiceTransact> {
+public interface BurrowTransact extends BurrowService<ServiceTransact> {
 }
