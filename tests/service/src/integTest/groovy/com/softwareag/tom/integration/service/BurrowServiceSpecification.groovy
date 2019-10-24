@@ -49,4 +49,16 @@ class BurrowServiceSpecification extends Specification {
         response.getPermissions().getBase().getPerms() == 262143
         response.getPermissions().getBase().getSetBit() == 262143
     }
+
+    def "test 'burrow.query.ListAccounts' service"() {
+        when: 'we make a get request'
+        String query = 'Balance > 1000000'
+        RpcQuery.ListAccountsParam request = RpcQuery.ListAccountsParam.newBuilder().setQuery(query).build()
+        Iterator<Acm.Account> response = burrowQuery.listAccounts(request)
+        println ">>> $request.descriptorForType.fullName....$request"
+        List<Acm.Account> accounts = response.collect { println "<<< $it.descriptorForType.fullName...$it" }
+
+        then: 'a valid response is received'
+        accounts.size() == 2
+    }
 }

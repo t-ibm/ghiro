@@ -10,8 +10,9 @@ package com.softwareag.tom.protocol;
 import com.softwareag.tom.protocol.api.BurrowQuery;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import org.hyperledger.burrow.Acm;
-import org.hyperledger.burrow.rpc.QueryGrpc;
 import org.hyperledger.burrow.rpc.RpcQuery;
+
+import java.util.Iterator;
 
 /**
  * Burrow query services over gRPC implementation.
@@ -23,7 +24,10 @@ public class BurrowServiceQuery extends BurrowServiceBase<ServiceQuery> implemen
     }
 
     @Override public Acm.Account getAccount(RpcQuery.GetAccountParam req) {
-        QueryGrpc.QueryBlockingStub stub = gRpcService.newBlockingStub();
-        return stub.getAccount(req);
+        return gRpcService.newBlockingStub().getAccount(req);
+    }
+
+    @Override public Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam req) {
+        return gRpcService.newBlockingStub().listAccounts(req);
     }
 }
