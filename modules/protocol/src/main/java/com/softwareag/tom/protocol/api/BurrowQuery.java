@@ -7,12 +7,14 @@
  */
 package com.softwareag.tom.protocol.api;
 
+import com.softwareag.tom.protocol.grpc.Burrow;
+import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import org.hyperledger.burrow.Acm;
 import org.hyperledger.burrow.rpc.RpcQuery;
 
 /**
  * The query portion of the Burrow gRPC API. See the protocol buffers IDL file <a href="https://github.com/hyperledger/burrow/blob/master/protobuf/rpcquery.proto">rpcquery.proto</a> for more info.
  */
-public interface BurrowQuery extends Burrow {
+public interface BurrowQuery extends Burrow<ServiceQuery> {
     Acm.Account getAccount(RpcQuery.GetAccountParam req);
 }

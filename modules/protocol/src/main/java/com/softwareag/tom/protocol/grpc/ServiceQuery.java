@@ -12,7 +12,7 @@ import org.hyperledger.burrow.rpc.QueryGrpc;
 /**
  * gRPC query service.
  */
-public class ServiceQuery extends ServiceBase implements Service<QueryGrpc.QueryStub,QueryGrpc.QueryBlockingStub> {
+public class ServiceQuery extends ServiceBase<QueryGrpc.QueryStub,QueryGrpc.QueryBlockingStub> implements Service<QueryGrpc.QueryStub,QueryGrpc.QueryBlockingStub> {
 
     public ServiceQuery(String host, int port) {
         super(host, port);

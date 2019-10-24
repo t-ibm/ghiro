@@ -32,7 +32,7 @@ class BurrowServiceSpecification extends Specification {
     }
 
     def cleanup() {
-        burrowQuery.shutdown()
+        burrowQuery.getService().shutdown()
     }
 
     def "test 'burrow.query.GetAccount' service"() {

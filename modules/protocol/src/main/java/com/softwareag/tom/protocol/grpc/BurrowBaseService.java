@@ -7,12 +7,10 @@
  */
 package com.softwareag.tom.protocol.grpc;
 
-import com.softwareag.tom.protocol.api.Burrow;
-
 /**
  * Burrow base services over gRPC implementation.
  */
-public class BurrowBaseService<T extends Service> implements Burrow {
+public class BurrowBaseService<T extends Service> implements Burrow<T> {
 
     final T gRpcService;
 
@@ -24,11 +22,7 @@ public class BurrowBaseService<T extends Service> implements Burrow {
         return new BurrowBaseService<>(supplier);
     }
 
-    public T get() {
+    @Override public T getService() {
         return gRpcService;
-    }
-
-    @Override public void shutdown() throws InterruptedException {
-        gRpcService.shutdown();
     }
 }
