@@ -9,21 +9,22 @@ package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.BurrowQuery;
 import com.softwareag.tom.protocol.api.BurrowTransact;
-import com.softwareag.tom.protocol.grpc.BurrowQueryService;
-import com.softwareag.tom.protocol.grpc.BurrowTransactService;
+import com.softwareag.tom.protocol.grpc.Service;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
 
 /**
  * Burrow service API.
  */
-public interface BurrowService {
+public interface BurrowService<T extends Service> {
 
     static BurrowQuery query(ServiceQuery gRpcService) {
-        return new BurrowQueryService(gRpcService);
+        return new BurrowServiceQuery(gRpcService);
     }
 
     static BurrowTransact transact(ServiceTransact gRpcService) {
-        return new BurrowTransactService(gRpcService);
+        return new BurrowServiceTransact(gRpcService);
     }
+
+    T getService();
 }

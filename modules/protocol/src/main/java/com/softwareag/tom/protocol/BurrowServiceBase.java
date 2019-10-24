@@ -5,21 +5,23 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically
  * provided for in your License Agreement with Software AG.
  */
-package com.softwareag.tom.protocol.grpc;
+package com.softwareag.tom.protocol;
+
+import com.softwareag.tom.protocol.grpc.Service;
 
 /**
  * Burrow base services over gRPC implementation.
  */
-public class BurrowBaseService<T extends Service> implements Burrow<T> {
+public class BurrowServiceBase<T extends Service> implements BurrowService<T> {
 
     final T gRpcService;
 
-    BurrowBaseService(final T gRpcService) {
+    BurrowServiceBase(final T gRpcService) {
         this.gRpcService = gRpcService;
     }
 
-    public static <T extends Service> BurrowBaseService<T> build(final T supplier) {
-        return new BurrowBaseService<>(supplier);
+    public static <T extends Service> BurrowServiceBase<T> build(final T supplier) {
+        return new BurrowServiceBase<>(supplier);
     }
 
     @Override public T getService() {
