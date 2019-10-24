@@ -12,9 +12,12 @@ import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import org.hyperledger.burrow.Acm;
 import org.hyperledger.burrow.rpc.RpcQuery;
 
+import java.util.Iterator;
+
 /**
  * The query portion of the Burrow gRPC API. See the protocol buffers IDL file <a href="https://github.com/hyperledger/burrow/blob/master/protobuf/rpcquery.proto">rpcquery.proto</a> for more info.
  */
 public interface BurrowQuery extends BurrowService<ServiceQuery> {
     Acm.Account getAccount(RpcQuery.GetAccountParam req);
+    Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam req);
 }
