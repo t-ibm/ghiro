@@ -12,7 +12,7 @@ import org.hyperledger.burrow.rpc.TransactGrpc;
 /**
  * gRPC transact service.
  */
-public class ServiceTransact extends ServiceBase implements Service<TransactGrpc.TransactStub, TransactGrpc.TransactBlockingStub> {
+public class ServiceTransact extends ServiceBase<TransactGrpc.TransactStub, TransactGrpc.TransactBlockingStub> implements Service<TransactGrpc.TransactStub, TransactGrpc.TransactBlockingStub> {
 
     ServiceTransact(String host, int port) {
         super(host, port);

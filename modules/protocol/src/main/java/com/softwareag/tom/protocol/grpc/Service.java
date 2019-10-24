@@ -7,13 +7,13 @@
  */
 package com.softwareag.tom.protocol.grpc;
 
-import com.softwareag.tom.protocol.api.Burrow;
 import io.grpc.stub.AbstractStub;
 
 /**
  * gRPC service API.
  */
-public interface Service<S extends AbstractStub<S>, B extends AbstractStub<B>> extends Burrow {
+public interface Service<S extends AbstractStub<S>, B extends AbstractStub<B>> {
     S newStub();
     B newBlockingStub();
+    void shutdown() throws InterruptedException;
 }

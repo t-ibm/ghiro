@@ -7,16 +7,16 @@
  */
 package com.softwareag.tom.protocol.grpc;
 
-import com.softwareag.tom.protocol.api.Burrow;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.AbstractStub;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * gRPC base service.
  */
-abstract class ServiceBase implements Burrow {
+abstract class ServiceBase<S extends AbstractStub<S>, B extends AbstractStub<B>> implements Service<S,B> {
     final ManagedChannel channel;
 
     private ServiceBase(ManagedChannelBuilder<?> channelBuilder) {

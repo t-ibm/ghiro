@@ -5,11 +5,11 @@
  * Use, reproduction, transfer, publication or disclosure is prohibited except as specifically
  * provided for in your License Agreement with Software AG.
  */
-package com.softwareag.tom.protocol.api;
+package com.softwareag.tom.protocol.grpc;
 
 /**
  * The base Burrow gRPC API.
  */
-public interface Burrow {
-    void shutdown() throws InterruptedException;
+public interface Burrow<T extends Service> {
+    T getService();
 }
