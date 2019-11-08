@@ -13,10 +13,14 @@ import com.softwareag.tom.protocol.BurrowService
 import com.softwareag.tom.protocol.api.BurrowQuery
 import com.softwareag.tom.protocol.grpc.ServiceQuery
 import com.softwareag.tom.protocol.util.HexValue
+import io.grpc.stub.StreamObserver
 import org.hyperledger.burrow.Acm
 import org.hyperledger.burrow.rpc.RpcQuery
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * System under specification: {@link BurrowService}.
@@ -36,7 +40,7 @@ class BurrowServiceSpecification extends Specification {
     }
 
     def "test 'burrow.query.GetAccount' service"() {
-        when: 'we make a get request'
+        when: 'we send a request'
         String address = "0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19"
         ByteString byteString = ByteString.copyFrom(HexValue.toByteArray(address))
         RpcQuery.GetAccountParam request = RpcQuery.GetAccountParam.newBuilder().setAddress(byteString).build()
@@ -50,8 +54,8 @@ class BurrowServiceSpecification extends Specification {
         response.getPermissions().getBase().getSetBit() == 262143
     }
 
-    def "test 'burrow.query.ListAccounts' service"() {
-        when: 'we make a get request'
+    def "test sync 'burrow.query.ListAccounts' service"() {
+        when: 'we send a request'
         String query = 'Balance > 1000000'
         RpcQuery.ListAccountsParam request = RpcQuery.ListAccountsParam.newBuilder().setQuery(query).build()
         Iterator<Acm.Account> response = burrowQuery.listAccounts(request)
@@ -60,5 +64,40 @@ class BurrowServiceSpecification extends Specification {
 
         then: 'a valid response is received'
         accounts.size() == 2
+    }
+
+    def "test async 'burrow.query.ListAccounts' service"() {
+        given: 'a stream observer'
+        List<Integer> balances = [99999999999999, 9999999999]
+        List<Acm.Account> actual = []
+        CountDownLatch stream = new CountDownLatch(balances.size())
+        CountDownLatch done = new CountDownLatch(1)
+        StreamObserver<Acm.Account> observer = [
+            onCompleted: {
+                done.countDown()
+            },
+            onError    : { Throwable e ->
+                throw e
+            },
+            onNext     : { Acm.Account result ->
+                actual.add(result)
+                stream.countDown()
+            }
+        ] as StreamObserver<Acm.Account>
+
+        when: 'we send a request'
+        String query = 'Balance > 1000000'
+        RpcQuery.ListAccountsParam request = RpcQuery.ListAccountsParam.newBuilder().setQuery(query).build()
+        burrowQuery.listAccounts(request, observer)
+        println ">>> $request.descriptorForType.fullName....$request"
+
+        and: 'the stream is received'
+        stream.await(1, TimeUnit.SECONDS)
+        done.await(1, TimeUnit.SECONDS)
+
+        then: 'the stream match the expectation'
+        actual.iterator().collect { println "<<< $it.descriptorForType.fullName...$it" }
+        notThrown Throwable
+        actual*.getBalance() == balances
     }
 }
