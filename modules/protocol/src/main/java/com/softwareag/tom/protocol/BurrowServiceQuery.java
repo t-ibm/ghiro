@@ -9,6 +9,7 @@ package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.BurrowQuery;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
+import io.grpc.stub.StreamObserver;
 import org.hyperledger.burrow.Acm;
 import org.hyperledger.burrow.rpc.RpcQuery;
 
@@ -29,5 +30,9 @@ public class BurrowServiceQuery extends BurrowServiceBase<ServiceQuery> implemen
 
     @Override public Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam req) {
         return gRpcService.newBlockingStub().listAccounts(req);
+    }
+
+    @Override public void listAccounts(RpcQuery.ListAccountsParam req, StreamObserver<Acm.Account> observer) {
+        gRpcService.newStub().listAccounts(req, observer);
     }
 }
