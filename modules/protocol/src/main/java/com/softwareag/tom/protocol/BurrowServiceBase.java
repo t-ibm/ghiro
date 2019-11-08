@@ -20,10 +20,6 @@ public class BurrowServiceBase<T extends Service> implements BurrowService<T> {
         this.gRpcService = gRpcService;
     }
 
-    public static <T extends Service> BurrowServiceBase<T> build(final T supplier) {
-        return new BurrowServiceBase<>(supplier);
-    }
-
     @Override public T getService() {
         return gRpcService;
     }
