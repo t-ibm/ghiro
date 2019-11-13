@@ -36,8 +36,34 @@ public class Node {
 
     public static class Host {
         @JsonProperty("ip") String ip;
-        @JsonProperty("port") int port;
+        @JsonProperty("grpc") GRpc grpc;
+        @JsonProperty("info") Info info;
+        @JsonProperty("web3") Web3 web3;
+        @JsonProperty("tendermint") Tendermint tendermint;
         public String getIp() { return ip; }
+        public GRpc getGRpc() { return grpc; }
+        public Info getInfo() { return info; }
+        public Web3 getWeb3() { return web3; }
+        public Tendermint getTendermint() { return tendermint; }
+    }
+
+    public static class GRpc {
+        @JsonProperty("port") int port;
+        public int getPort() { return port; }
+    }
+
+    public static class Info {
+        @JsonProperty("port") int port;
+        public int getPort() { return port; }
+    }
+
+    public static class Web3 {
+        @JsonProperty("port") int port;
+        public int getPort() { return port; }
+    }
+
+    public static class Tendermint {
+        @JsonProperty("port") int port;
         public int getPort() { return port; }
     }
 

@@ -42,7 +42,7 @@ public abstract class UtilBase<N> {
             URI contractRegistryLocation = node.getContract().getRegistry().getLocationAsUri();
             URI configLocation = node.getConfig().getLocationAsUri();
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-            web3Service = Web3Service.build(new ServiceHttp("http://" + node.getHost().getIp() + ':' + node.getHost().getPort() + "/rpc"));
+            web3Service = Web3Service.build(new ServiceHttp("http://" + node.getHost().getIp() + ':' + node.getHost().getWeb3().getPort()));
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
