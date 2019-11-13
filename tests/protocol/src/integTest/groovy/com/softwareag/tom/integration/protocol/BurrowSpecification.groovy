@@ -22,7 +22,7 @@ class BurrowSpecification extends RestClientBaseSpecification {
 
     def setup() {
         given: 'a REST client'
-        client = new RESTClient("http://${config.node.host.ip}:${config.node.host.port}")
+        client = new RESTClient("http://${config.node.host.ip}:${config.node.host.web3.port}")
     }
 
     def "test 'genPrivAccount' via rpc"() {
