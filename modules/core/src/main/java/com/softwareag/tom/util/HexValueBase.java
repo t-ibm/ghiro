@@ -113,7 +113,7 @@ public class HexValueBase {
         return data;
     }
 
-    protected static String toString(BigInteger value) {
+    public static String toString(BigInteger value) {
         if (value.signum() != -1) {
             return PREFIX + value.toString(16);
         } else {

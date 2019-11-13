@@ -47,7 +47,7 @@ public class ResponseNetListening extends Response<ResponseNetListening.Result, 
         }
 
         @Override public String toString() {
-            return "{\"listening\":" + listening + '}';
+            return "" + listening;
         }
 
         @Override public boolean equals(Object o) {

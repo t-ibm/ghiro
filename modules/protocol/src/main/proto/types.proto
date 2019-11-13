@@ -26,8 +26,8 @@ message BlockHeightType {
     }
 }
 enum BlockStateType {
-    earliest = 0;
-    latest = 1;
+    latest = 0;
+    earliest = 1;
     pending = 2;
 }
 /*

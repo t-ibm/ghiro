@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
+import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
@@ -16,6 +17,6 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance;
  */
 public class RequestEthGetBalance extends Request<ParamsAddress, ResponseEthGetBalance> {
     public RequestEthGetBalance(Service jsonRpcService, Types.RequestEthGetBalance msg) {
-        super(jsonRpcService, "burrow.getAccount", new ParamsAddress(msg.getAddress()));
+        super(jsonRpcService, "eth_getBalance", new ParamsAddress(msg.getAddress(), msg.getBlock().getHeight() != ByteString.EMPTY ? msg.getBlock().getHeight().toStringUtf8() : msg.getBlock().getState().name()));
     }
 }

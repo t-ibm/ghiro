@@ -6,6 +6,7 @@
  */
 package com.softwareag.tom.integration.service
 
+import com.google.protobuf.ByteString
 import com.google.protobuf.Message
 import com.softwareag.tom.contract.ConfigLocationFileSystem
 import com.softwareag.tom.contract.Contract
@@ -37,7 +38,7 @@ class BurrowSpecification extends Specification {
 
     def setup() {
         given: 'a JSON-RPC client'
-        web3Service = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.port}/rpc"))
+        web3Service = Web3Service.build(new ServiceHttp("http://${config.node.host.ip}:${config.node.host.web3.port}"))
     }
 
     def "test 'web3ClientVersion' service"() {
@@ -49,7 +50,7 @@ class BurrowSpecification extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseWeb3ClientVersion
-        ((Types.ResponseWeb3ClientVersion)response).version == '0.8.0'
+        ((Types.ResponseWeb3ClientVersion)response).version.startsWith '0.29.1'
     }
 
     def "test 'netListening' service"() {
@@ -66,13 +67,13 @@ class BurrowSpecification extends Specification {
 
     def "test 'ethGetBalance' service"() {
         when: 'we make a get request'
-        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("F60D30722E7B497FA532FB3207C3FB29C31B1992")).build()
+        Types.RequestEthGetBalance request = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString("0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19")).build()
         Message response = web3Service.ethGetBalance(request)
         println ">>> $request.descriptorForType.fullName....$request<<< $response.descriptorForType.fullName...$response"
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
-        ((Types.ResponseEthGetBalance) response).getBalance() == HexValue.toByteString(200000000)
+        HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) == 99999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
     }
 
     def "test 'ethNewBlockFilter' service"() {

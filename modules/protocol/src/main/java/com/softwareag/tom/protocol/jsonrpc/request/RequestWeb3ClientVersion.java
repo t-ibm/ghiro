@@ -11,13 +11,13 @@ import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseWeb3ClientVersion;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 /**
  * {@code web3_clientVersion}.
  */
-public class RequestWeb3ClientVersion extends Request<Map, ResponseWeb3ClientVersion> {
+public class RequestWeb3ClientVersion extends Request<List, ResponseWeb3ClientVersion> {
     public RequestWeb3ClientVersion(Service jsonRpcService) {
-        super(jsonRpcService, "burrow.getClientVersion", Collections.emptyMap());
+        super(jsonRpcService, "web3_clientVersion", Collections.emptyList());
     }
 }
