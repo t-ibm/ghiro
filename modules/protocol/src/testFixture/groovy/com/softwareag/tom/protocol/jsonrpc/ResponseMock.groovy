@@ -61,7 +61,7 @@ class ResponseMock {
     Response getResponse(Request request) {
         String responseEthNewFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"sub_id":"' + filterId + '"}}'
         String responseEthUninstallFilterContent = '{"id":42, "jsonrpc":"2.0", "result":{"result":"true"}}'
-        String responseEthGetBalanceContent = '{"id":42, "jsonrpc":"2.0", "result":{"address":"' + contractAddress + '", "balance":200000000, "code":"", "pub_key":null, "sequence":0, "storage_root":""}}'
+        String responseEthGetBalanceContent = '{"id":42, "jsonrpc":"2.0", "result":"0x0234c8a3397aab58"}'
         String responseEthCallContent = '{"id":42, "jsonrpc":"2.0", "result":{"return":"", "gas_used":84}}'
 
         ResponseEthNewFilter responseEthNewFilter = ObjectMapperFactory.getJsonMapper().readValue(responseEthNewFilterContent, ResponseEthNewFilter.class)

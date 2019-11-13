@@ -33,6 +33,17 @@ class BurrowWeb3Specification extends RestClientBaseSpecification {
         resp.data.result.startsWith '0.29.1'
     }
 
+    def "test 'eth_getBalance'"() {
+        given: 'a valid JSON-RPC request'
+        def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'eth_getBalance', 'params': ['0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19','latest']]
+
+        when: 'the request is send'
+        resp = send request
+
+        then: 'a valid response is received'
+        HexValueBase.toBigInteger(resp.data.result as String) == 99999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
+    }
+
     def "test 'eth_blockNumber'"() {
         given: 'a valid JSON-RPC request'
         def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'eth_blockNumber']

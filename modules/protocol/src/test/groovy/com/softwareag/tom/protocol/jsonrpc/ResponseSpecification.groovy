@@ -78,7 +78,7 @@ class ResponseSpecification extends ResponseBaseSpecification {
 
     def "test eth_getBalance"() {
         given: 'a valid JSON-RPC response'
-        ResponseEthGetBalance expected = new ResponseEthGetBalance("E9B5D87313356465FAE33C406CE2C2979DE60BCB", 200000000)
+        ResponseEthGetBalance expected = new ResponseEthGetBalance('0xbebc200')
         content expected.toString()
 
         when: 'the response is received'
@@ -91,7 +91,7 @@ class ResponseSpecification extends ResponseBaseSpecification {
 
     def "test eth_getStorageAt"() {
         given: 'a valid JSON-RPC response'
-        ResponseEthGetStorageAt expected = new ResponseEthGetStorageAt("", "")
+        ResponseEthGetStorageAt expected = new ResponseEthGetStorageAt("0x00000000000000000000000000000000000000000000000000000000000004d2")
         content expected.toString()
 
         when: 'the response is received'

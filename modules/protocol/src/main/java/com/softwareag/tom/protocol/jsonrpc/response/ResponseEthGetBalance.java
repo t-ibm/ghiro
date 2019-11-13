@@ -6,12 +6,12 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
+import com.softwareag.tom.util.HexValueBase;
 
-import java.util.Objects;
+import java.math.BigInteger;
 
 /**
  * {@code eth_getBalance}.
@@ -26,9 +26,9 @@ public class ResponseEthGetBalance extends Response<ResponseEthGetBalance.Result
         super(errorCode, errorMessage);
     }
 
-    public ResponseEthGetBalance(String address, long balance) {
+    public ResponseEthGetBalance(String balance) {
         super();
-        this.result = new Result(address, balance);
+        this.result = new Result(balance);
     }
 
     public Types.ResponseEthGetBalance getResponse() {
@@ -40,49 +40,30 @@ public class ResponseEthGetBalance extends Response<ResponseEthGetBalance.Result
     }
 
     final static class Result {
-        @JsonProperty("address") String address;
-        @JsonProperty("balance") long balance;
-        @JsonProperty("code") String code;
-        @JsonProperty("pub_key") String pubKey;
-        @JsonProperty("sequence") long sequence;
-        @JsonProperty("storage_root") String storageRoot;
+        BigInteger balance;
 
         private Result() {}
 
-        private Result(String address, long balance) {
+        private Result(String balance) {
             this();
-            this.address = address;
-            this.balance = balance;
-            this.code = "";
-            this.storageRoot = "";
+            this.balance = HexValueBase.toBigInteger(balance);
         }
 
         @Override public String toString() {
-            return "{\"address\":\"" + address + "\", \"balance\":" + balance + ", \"code\":\"" + code + "\", \"pub_key\":" + pubKey + ", \"sequence\":" + sequence + ", \"storage_root\":\"" + storageRoot + "\"}";
+            return '"' + HexValueBase.toString(balance) + '"';
         }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof Result)) return false;
 
             Result result = (Result) o;
 
-            if (balance != result.balance) return false;
-            if (sequence != result.sequence) return false;
-            if (!address.equals(result.address)) return false;
-            if (!code.equals(result.code)) return false;
-            if (!Objects.equals(pubKey, result.pubKey)) return false;
-            return storageRoot.equals(result.storageRoot);
+            return balance.equals(result.balance);
         }
 
         @Override public int hashCode() {
-            int result = address.hashCode();
-            result = 31 * result + (int) (balance ^ (balance >>> 32));
-            result = 31 * result + code.hashCode();
-            result = 31 * result + (pubKey != null ? pubKey.hashCode() : 0);
-            result = 31 * result + (int) (sequence ^ (sequence >>> 32));
-            result = 31 * result + storageRoot.hashCode();
-            return result;
+            return balance.hashCode();
         }
     }
 }

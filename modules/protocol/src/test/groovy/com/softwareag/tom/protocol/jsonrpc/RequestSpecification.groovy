@@ -42,8 +42,8 @@ class RequestSpecification extends RequestBaseSpecification {
 
         when: 'the base fields are accessible and set to their default values'
         request.jsonrpc = Service.JSONRPC_VERSION
-        request.method = 'burrow.getClientVersion'
-        request.params = [:]
+        request.method = 'web3_clientVersion'
+        request.params = []
         request.id = 1
 
         then: 'the two instances are identical'
@@ -80,14 +80,16 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_getBalance"() {
         given: 'a text fixture'
         String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
-        ParamsAddress params = new ParamsAddress(address)
+        ParamsAddress params = new ParamsAddress(address, 'pending')
 
         when: 'a valid request type is created'
-        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
+        RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(address)).setBlock(
+            Types.BlockHeightType.newBuilder().setState(Types.BlockStateType.pending)
+        ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -99,14 +101,14 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_getStorageAt"() {
         given: 'a text fixture'
         String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
-        ParamsAddress params = new ParamsAddress(address)
+        ParamsAddress params = new ParamsAddress(address, 'latest')
 
         when: 'a valid request type is created'
         RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()

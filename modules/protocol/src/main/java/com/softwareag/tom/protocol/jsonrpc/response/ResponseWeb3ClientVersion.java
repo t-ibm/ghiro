@@ -47,7 +47,7 @@ public class ResponseWeb3ClientVersion extends Response<ResponseWeb3ClientVersio
         }
 
         @Override public String toString() {
-            return "{\"client_version\":\"" + clientVersion + "\"}";
+            return '"' + clientVersion + '"';
         }
 
         @Override public boolean equals(Object o) {

@@ -11,13 +11,13 @@ import com.softwareag.tom.protocol.jsonrpc.Service;
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseNetListening;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 /**
  * {@code net_listening}.
  */
-public class RequestNetListening extends Request<Map, ResponseNetListening> {
+public class RequestNetListening extends Request<List, ResponseNetListening> {
     public RequestNetListening(Service jsonRpcService) {
-        super(jsonRpcService, "burrow.isListening", Collections.emptyMap());
+        super(jsonRpcService, "net_listening", Collections.emptyList());
     }
 }
