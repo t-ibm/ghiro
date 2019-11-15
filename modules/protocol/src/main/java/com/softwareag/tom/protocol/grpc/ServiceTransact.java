@@ -14,7 +14,7 @@ import org.hyperledger.burrow.rpc.TransactGrpc;
  */
 public class ServiceTransact extends ServiceBase<TransactGrpc.TransactStub, TransactGrpc.TransactBlockingStub> implements Service<TransactGrpc.TransactStub, TransactGrpc.TransactBlockingStub> {
 
-    ServiceTransact(String host, int port) {
+    public ServiceTransact(String host, int port) {
         super(host, port);
     }
 

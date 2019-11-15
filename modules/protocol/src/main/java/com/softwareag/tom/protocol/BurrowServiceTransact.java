@@ -9,6 +9,8 @@ package com.softwareag.tom.protocol;
 
 import com.softwareag.tom.protocol.api.BurrowTransact;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
+import org.hyperledger.burrow.execution.Exec;
+import org.hyperledger.burrow.txs.Payload;
 
 /**
  * Burrow transact services over gRPC implementation.
@@ -17,5 +19,9 @@ public class BurrowServiceTransact extends BurrowServiceBase<ServiceTransact> im
 
     BurrowServiceTransact(ServiceTransact gRpcService) {
         super(gRpcService);
+    }
+
+    @Override public Exec.TxExecution sendTx(Payload.SendTx req) {
+        return gRpcService.newBlockingStub().sendTxSync(req);
     }
 }
