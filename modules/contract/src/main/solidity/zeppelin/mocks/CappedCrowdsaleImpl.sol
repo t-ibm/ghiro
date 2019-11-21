@@ -1,22 +1,14 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.5.0;
 
-
-import "../crowdsale/CappedCrowdsale.sol";
-
+import "../token/ERC20/IERC20.sol";
+import "../crowdsale/validation/CappedCrowdsale.sol";
 
 contract CappedCrowdsaleImpl is CappedCrowdsale {
-
-  function CappedCrowdsaleImpl (
-    uint256 _startTime,
-    uint256 _endTime,
-    uint256 _rate,
-    address _wallet,
-    uint256 _cap,
-    MintableToken _token
-  ) public
-    Crowdsale(_startTime, _endTime, _rate, _wallet, _token)
-    CappedCrowdsale(_cap)
-  {
-  }
-
+    constructor (uint256 rate, address payable wallet, IERC20 token, uint256 cap)
+        public
+        Crowdsale(rate, wallet, token)
+        CappedCrowdsale(cap)
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

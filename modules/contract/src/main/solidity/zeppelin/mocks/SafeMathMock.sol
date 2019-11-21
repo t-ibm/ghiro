@@ -1,21 +1,25 @@
-pragma solidity ^0.4.18;
-
+pragma solidity ^0.5.0;
 
 import "../math/SafeMath.sol";
 
-
 contract SafeMathMock {
-  uint256 public result;
+    function mul(uint256 a, uint256 b) public pure returns (uint256) {
+        return SafeMath.mul(a, b);
+    }
 
-  function multiply(uint256 a, uint256 b) public {
-    result = SafeMath.mul(a, b);
-  }
+    function div(uint256 a, uint256 b) public pure returns (uint256) {
+        return SafeMath.div(a, b);
+    }
 
-  function subtract(uint256 a, uint256 b) public {
-    result = SafeMath.sub(a, b);
-  }
+    function sub(uint256 a, uint256 b) public pure returns (uint256) {
+        return SafeMath.sub(a, b);
+    }
 
-  function add(uint256 a, uint256 b) public {
-    result = SafeMath.add(a, b);
-  }
+    function add(uint256 a, uint256 b) public pure returns (uint256) {
+        return SafeMath.add(a, b);
+    }
+
+    function mod(uint256 a, uint256 b) public pure returns (uint256) {
+        return SafeMath.mod(a, b);
+    }
 }
