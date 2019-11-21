@@ -31,8 +31,8 @@ class ContractRegistryLocationSpecification extends Specification {
 
         then: 'the contracts are accessible'
         contracts.size() > 0
-        contracts['sample/util/Console'].binary.startsWith('6060604052341561000f57600080')
-        contracts['sample/SimpleStorage'].binary.startsWith('6060604052341561000f57600080')
+        contracts['sample/util/Console'].binary.startsWith('6080604052348015610010576000')
+        contracts['sample/SimpleStorage'].binary.startsWith('6080604052348015610010576000')
 
         when: 'the list of specifications are queried'
         ContractInterface contractInterface = contracts['sample/util/Console'].abi
