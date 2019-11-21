@@ -22,4 +22,5 @@ public interface BurrowQuery extends BurrowService<ServiceQuery> {
     Acm.Account getAccount(RpcQuery.GetAccountParam req);
     Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam req);
     void listAccounts(RpcQuery.ListAccountsParam req, StreamObserver<Acm.Account> observer);
+    RpcQuery.StorageValue getStorage(RpcQuery.GetStorageParam req);
 }

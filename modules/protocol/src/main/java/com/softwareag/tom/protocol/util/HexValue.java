@@ -36,7 +36,13 @@ public final class HexValue extends HexValueBase {
         return ByteString.copyFromUtf8(toString(bytes));
     }
 
-    public static ByteString toByteString(String value) { return ByteString.copyFromUtf8(addPrefix(value)); }
+    public static ByteString toByteString(String value) {
+        return ByteString.copyFromUtf8(addPrefix(value));
+    }
+
+    public static ByteString copyFrom(String hexStr) {
+        return ByteString.copyFrom(HexValue.toByteArray(hexStr));
+    }
 
     public static ByteString toByteString(BigInteger value) {
         return ByteString.copyFromUtf8(toString(value));
