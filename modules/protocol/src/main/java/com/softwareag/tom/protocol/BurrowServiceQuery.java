@@ -35,4 +35,8 @@ public class BurrowServiceQuery extends BurrowServiceBase<ServiceQuery> implemen
     @Override public void listAccounts(RpcQuery.ListAccountsParam req, StreamObserver<Acm.Account> observer) {
         gRpcService.newStub().listAccounts(req, observer);
     }
+
+    @Override public RpcQuery.StorageValue getStorage(RpcQuery.GetStorageParam req) {
+        return gRpcService.newBlockingStub().getStorage(req);
+    }
 }

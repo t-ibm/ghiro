@@ -17,4 +17,5 @@ import org.hyperledger.burrow.txs.Payload;
  */
 public interface BurrowTransact extends BurrowService<ServiceTransact> {
     Exec.TxExecution sendTx(Payload.SendTx req);
+    Exec.TxExecution callTx(Payload.CallTx req);
 }

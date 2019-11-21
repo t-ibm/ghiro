@@ -24,4 +24,8 @@ public class BurrowServiceTransact extends BurrowServiceBase<ServiceTransact> im
     @Override public Exec.TxExecution sendTx(Payload.SendTx req) {
         return gRpcService.newBlockingStub().sendTxSync(req);
     }
+
+    @Override public Exec.TxExecution callTx(Payload.CallTx req) {
+        return gRpcService.newBlockingStub().callTxSync(req);
+    }
 }
