@@ -1,4 +1,4 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.5.0;
 
 import "./util/Console.sol";
 
@@ -10,7 +10,7 @@ contract SimpleStorage is Console {
     /**
      * @notice A newly deployed contract of this type will result in contract storage being set to value 5.
      */
-    function SimpleStorage() public {
+    constructor() public {
         storedData = 5;
     }
     /**

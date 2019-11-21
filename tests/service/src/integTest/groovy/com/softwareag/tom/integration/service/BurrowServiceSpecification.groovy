@@ -157,7 +157,7 @@ class BurrowServiceSpecification extends Specification {
 
         then: 'a valid response is received'
         contractAddress.size() == 42
-        responseTxExecution.result.gasUsed == 21
+        responseTxExecution.result.gasUsed == 24
 
         when: println '(2) the newly created contract account is verified'
         RpcQuery.GetAccountParam requestGetAccountParam = RpcQuery.GetAccountParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()

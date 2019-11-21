@@ -1,4 +1,4 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.5.0;
 
 /**
  * @title A contract providing convenient interfaces with the EVM logging facilities.
@@ -8,14 +8,14 @@ contract Console {
      * @notice Triggering logging of this contract's address.
      */
     function log() public {
-        LogAddress(address(this));
+        emit LogAddress(address(this));
     }
     event LogAddress(address contractAddress);
     /**
      * @notice Triggering logging of an arbitrary unsigned integer value.
      */
     function log(uint x) public {
-        LogUint(uintToBytes(x));
+        emit LogUint(uintToBytes(x));
     }
     function uintToBytes(uint v) public pure returns (bytes32 ret) {
         if (v == 0) {
