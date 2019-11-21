@@ -13,7 +13,6 @@ gradlePlugin {
 }
 
 dependencies {
-//    compile name:'ethereumj-core', version:'1.7.0-SNAPSHOT'
     compile 'org.ethereum:ethereumj-core:1.7.2-RELEASE@jar'
     runtime(
         'org.ethereum:solcJ-all:0.5.7@jar',
