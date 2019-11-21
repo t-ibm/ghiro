@@ -36,7 +36,11 @@ class SolidityCompileTask extends DefaultTask {
                 sourceFiles.each { file ->
                     SolidityCompiler.Result res = SolidityCompiler.compile(file, true, enumOptions)
                     if (res.errors != null && res.errors.length() > 0) {
-                        throw new GradleException(res.errors)
+                        if (res.errors.contains(': Warning:')) {
+                            project.logger.warn("$path::errors == $res.errors")
+                        } else {
+                            throw new GradleException(res.errors)
+                        }
                     } else {
                         project.logger.info("$path::result == $res.output")
                     }
