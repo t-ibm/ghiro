@@ -13,10 +13,10 @@ gradlePlugin {
 }
 
 dependencies {
-    compile name:'ethereumj-core', version:'1.7.0-SNAPSHOT'
-//    compile 'org.ethereum:ethereumj-core:1.5.0-RELEASE@jar'
+//    compile name:'ethereumj-core', version:'1.7.0-SNAPSHOT'
+    compile 'org.ethereum:ethereumj-core:1.7.2-RELEASE@jar'
     runtime(
-        'org.ethereum:solcJ-all:0.4.19@jar',
+        'org.ethereum:solcJ-all:0.5.7@jar',
         'com.fasterxml.jackson.core:jackson-databind:2.8.5',
         'com.google.guava:guava-jdk5:17.0@jar',
         'com.madgag.spongycastle:core:1.53.0.0@jar',
