@@ -32,6 +32,10 @@ public final class HexValue extends HexValueBase {
         return toBigInteger(value.toStringUtf8());
     }
 
+    public static BigInteger asBigInteger(ByteString value) {
+        return toBigInteger(value.toByteArray());
+    }
+
     public static ByteString toByteString(byte[] bytes) {
         return ByteString.copyFromUtf8(toString(bytes));
     }
