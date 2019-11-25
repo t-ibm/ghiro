@@ -7,9 +7,11 @@
  */
 package com.softwareag.tom.protocol;
 
+import com.softwareag.tom.protocol.api.BurrowEvents;
 import com.softwareag.tom.protocol.api.BurrowQuery;
 import com.softwareag.tom.protocol.api.BurrowTransact;
 import com.softwareag.tom.protocol.grpc.Service;
+import com.softwareag.tom.protocol.grpc.ServiceEvents;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
 
@@ -24,6 +26,10 @@ public interface BurrowService<T extends Service> {
 
     static BurrowTransact transact(ServiceTransact gRpcService) {
         return new BurrowServiceTransact(gRpcService);
+    }
+
+    static BurrowEvents events(ServiceEvents gRpcService) {
+        return new BurrowServiceEvents(gRpcService);
     }
 
     T getService();

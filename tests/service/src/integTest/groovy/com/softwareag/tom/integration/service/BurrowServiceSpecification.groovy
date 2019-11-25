@@ -14,14 +14,17 @@ import com.softwareag.tom.contract.SolidityLocationFileSystem
 import com.softwareag.tom.contract.abi.ContractInterface
 import com.softwareag.tom.extension.Node
 import com.softwareag.tom.protocol.BurrowService
+import com.softwareag.tom.protocol.api.BurrowEvents
 import com.softwareag.tom.protocol.api.BurrowQuery
 import com.softwareag.tom.protocol.api.BurrowTransact
+import com.softwareag.tom.protocol.grpc.ServiceEvents
 import com.softwareag.tom.protocol.grpc.ServiceQuery
 import com.softwareag.tom.protocol.grpc.ServiceTransact
 import com.softwareag.tom.protocol.util.HexValue
 import io.grpc.stub.StreamObserver
 import org.hyperledger.burrow.Acm
 import org.hyperledger.burrow.execution.Exec
+import org.hyperledger.burrow.rpc.RpcEvents
 import org.hyperledger.burrow.rpc.RpcQuery
 import org.hyperledger.burrow.txs.Payload
 import spock.lang.Shared
@@ -39,15 +42,18 @@ class BurrowServiceSpecification extends Specification {
     @Shared @Node protected ConfigObject config
     @Shared protected BurrowQuery burrowQuery
     @Shared protected BurrowTransact burrowTransact
+    @Shared protected BurrowEvents burrowEvents
 
     def setup() {
         burrowQuery = BurrowService.query(new ServiceQuery(config.node.host.ip, config.node.host.grpc.port))
         burrowTransact = BurrowService.transact(new ServiceTransact(config.node.host.ip, config.node.host.grpc.port))
+        burrowEvents = BurrowService.events(new ServiceEvents(config.node.host.ip, config.node.host.grpc.port))
     }
 
     def cleanup() {
         burrowQuery.getService().shutdown()
         burrowTransact.getService().shutdown()
+        burrowEvents.getService().shutdown()
     }
 
     def "test 'burrow.transact.SendTxSync' service"() {
@@ -187,6 +193,98 @@ class BurrowServiceSpecification extends Specification {
 
         then: 'a valid response is received'
         responseTxExecution.result.gasUsed == 82
+    }
+
+    def "test create solidity contract and listen to events"() {
+        given: 'a valid Solidity contract'
+        Map contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
+        Contract contract = contracts['sample/util/Console']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification functionLog = functions.get(0)
+        assert functionLog.name == 'log'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventLogAddress = events.get(0)
+        assert eventLogAddress.name == 'LogAddress'
+
+        String contractAddress
+
+        when: println '(1) contract "sample/util/Console" gets deployed'
+        String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
+        Payload.TxInput txInput = Payload.TxInput.newBuilder().setAddress(HexValue.copyFrom(caller)).setAmount(20).build()
+        Payload.CallTx requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(contract.binary)).build()
+        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
+        Exec.TxExecution responseTxExecution = burrowTransact.callTx(requestCallTx)
+        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
+
+        and: 'the contract address is remembered'
+        contractAddress = HexValue.toString(responseTxExecution.receipt.contractAddress.toByteArray())
+
+        then: 'a valid response is received'
+        contractAddress.size() == 42
+        responseTxExecution.result.gasUsed == 24
+
+        when: println '(2) we register for events with the new contract account'
+        List<RpcEvents.EventsResponse> results = []
+        CountDownLatch stream = new CountDownLatch(3)
+        CountDownLatch done = new CountDownLatch(1)
+        StreamObserver<RpcEvents.EventsResponse> observer = [
+            onCompleted: {
+                done.countDown()
+            },
+            onError    : { Throwable e ->
+                throw e
+            },
+            onNext     : { RpcEvents.EventsResponse eventsResponse ->
+                results.add(eventsResponse)
+                stream.countDown()
+            }
+        ] as StreamObserver<RpcEvents.EventsResponse>
+
+        and: 'subscribe to events'
+        contractAddress = HexValue.stripPrefix(contractAddress).toUpperCase() //TODO :: Fix contract address
+        String query = "EventType = 'LogEvent' AND Address = '$contractAddress'"
+        RpcEvents.BlocksRequest request = RpcEvents.BlocksRequest.newBuilder().setBlockRange(
+            RpcEvents.BlockRange.newBuilder()
+                .setStart(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.LATEST))
+                .setEnd(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.STREAM))
+        ).setQuery(query).build()
+        burrowEvents.getEvents(request, observer)
+        println ">>> $request.descriptorForType.fullName....$request"
+
+        then: 'the event system gets properly initialized'
+        stream != null
+        done != null
+
+        when: println '(3) we listen for events'
+        stream.await(1, TimeUnit.SECONDS)
+        done.await(1, TimeUnit.SECONDS)
+        println "results <<< $results\n"
+
+        then: 'a valid response is received'
+        results.size() == 0
+
+        when: println '(4) function "log" is executed 3 times'
+        requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionLog.encode())).build()
+        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
+        3.times {
+            responseTxExecution = burrowTransact.callTx(requestCallTx)
+            println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
+        }
+
+        then: 'a valid response is received'
+        responseTxExecution.result.gasUsed == 82
+
+        when: println '(5) we wait a little while continuously listening for events'
+        stream.await(15, TimeUnit.SECONDS)
+        done.await(1, TimeUnit.SECONDS)
+        println "results <<< $results\n"
+
+        then: 'a valid response is received'
+        notThrown Throwable
+        results.size() == 3
+        results.each { eventsResponse ->
+            HexValue.toString(eventsResponse.getEvents(0).log.address) == contractAddress
+        }
     }
 
     def "test create solidity contract and store/update data"() {
