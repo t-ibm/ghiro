@@ -324,7 +324,7 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         responseStorageValue.getValue().size() == 0 //TODO
 
-        when: println '(6) function "get" is executed'
+        when: println '(4) function "get" is executed'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionGet.encode())).build()
         println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
@@ -333,7 +333,7 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(5)
 
-        when: println '(7) function "set" is executed'
+        when: println '(5) function "set" is executed'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionSet.encode([BigInteger.valueOf(7)]))).build()
         println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
@@ -342,7 +342,7 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         responseTxExecution.result.gasUsed == 257
 
-        when: println '(8) function "get" is executed again'
+        when: println '(6) function "get" is executed again'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionGet.encode())).build()
         println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
@@ -351,7 +351,7 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(7)
 
-        when: println '(9) the storage of the contract is retrieved'
+        when: println '(7) the storage of the contract is retrieved'
         requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
         responseStorageValue = burrowQuery.getStorage()
         println ">>> $requestGetStorageParam.descriptorForType.fullName....$requestGetStorageParam"
