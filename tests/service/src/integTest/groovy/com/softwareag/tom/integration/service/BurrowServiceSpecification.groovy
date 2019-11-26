@@ -137,7 +137,7 @@ class BurrowServiceSpecification extends Specification {
         }
     }
 
-    def "test create solidity contract and call event services"() {
+    def "test create solidity contract"() {
         given: 'a valid Solidity contract'
         Map contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
         Contract contract = contracts['sample/util/Console']
@@ -182,17 +182,6 @@ class BurrowServiceSpecification extends Specification {
 
         then: 'a valid response is received'
         responseStorageValue.getValue().size() == 0 //TODO
-
-        when: println '(6) function "log" is executed 2 times'
-        requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionLog.encode())).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
-        2.times {
-            responseTxExecution = burrowTransact.callTx(requestCallTx)
-            println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
-        }
-
-        then: 'a valid response is received'
-        responseTxExecution.result.gasUsed == 82
     }
 
     def "test create solidity contract and listen to events"() {
@@ -241,8 +230,8 @@ class BurrowServiceSpecification extends Specification {
         ] as StreamObserver<RpcEvents.EventsResponse>
 
         and: 'subscribe to events'
-        contractAddress = HexValue.stripPrefix(contractAddress).toUpperCase() //TODO :: Fix contract address
-        String query = "EventType = 'LogEvent' AND Address = '$contractAddress'"
+        String contractAddressUpperCase = HexValue.stripPrefix(contractAddress).toUpperCase() //TODO :: Fix contract address
+        String query = "EventType = 'LogEvent' AND Address = '$contractAddressUpperCase'"
         RpcEvents.BlocksRequest request = RpcEvents.BlocksRequest.newBuilder().setBlockRange(
             RpcEvents.BlockRange.newBuilder()
                 .setStart(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.LATEST))
@@ -282,9 +271,9 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         notThrown Throwable
         results.size() == 3
-        results.each { eventsResponse ->
-            HexValue.toString(eventsResponse.getEvents(0).log.address) == contractAddress
-        }
+        HexValue.toString(results[1].getEvents(0).log.address.toByteArray()) == contractAddress
+        results[1].getEvents(0).log.topicsCount == 1
+        HexValue.stripPrefix(HexValue.toString(results[1].getEvents(0).log.getTopics(0).toByteArray())).equalsIgnoreCase(eventLogAddress.encode()) //TODO :: Strip prefix
     }
 
     def "test create solidity contract and store/update data"() {
