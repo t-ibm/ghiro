@@ -15,8 +15,8 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetStorageAt;
 /**
  * {@code eth_getStorageAt}.
  */
-public class RequestEthGetStorageAt extends Request<ParamsAddress, ResponseEthGetStorageAt> {
+public class RequestEthGetStorageAt extends Request<ParamsAddress<String>, ResponseEthGetStorageAt> {
     public RequestEthGetStorageAt(Service jsonRpcService, Types.RequestEthGetStorageAt msg) {
-        super(jsonRpcService, "eth_getStorageAt", new ParamsAddress(msg.getAddress(), msg.getBlock().getHeight() != ByteString.EMPTY ? msg.getBlock().getHeight().toStringUtf8() : msg.getBlock().getState().name()));
+        super(jsonRpcService, "eth_getStorageAt", new ParamsAddress<>(msg.getAddress(), msg.getBlock().getHeight().isEmpty() ? msg.getBlock().getState().name() : msg.getBlock().getHeight().toStringUtf8()));
     }
 }

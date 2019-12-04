@@ -27,7 +27,7 @@ class NodeSpecification extends Specification {
         node.host.info.port == 26658
         node.host.web3.port == 26660
         node.host.tendermint.port == 26656
-        node.key.private == '4487A3ED876CE4BB95C5E4982E5EB64BA4FADE2E7F1125F80F910EB9BE78DB48CEE962D85B97CA3334AC95399F9A0A8563375A98712EE79320018BCFFA3AAA20'
+        node.key.private == '9505E4785FF66E23D8B1ECB47A1E49AA01D81C19' //TODO :: Retrieve from burrow.toml instead
         node.contract.registry.locationAsUri == Paths.get('../../modules/contract/build/solidity/test').toUri().normalize()
         node.size() == 1
 

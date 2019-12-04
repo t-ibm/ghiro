@@ -7,6 +7,7 @@
 package com.softwareag.tom.integration.protocol
 
 import com.softwareag.tom.extension.Node
+import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
@@ -37,9 +38,10 @@ abstract class RestClientBaseSpecification extends Specification {
     }
 
     protected HttpResponseDecorator send(Map jsonRequest) {
+        String request = JsonOutput.toJson(jsonRequest)
         try {
-            println ">>> $jsonRequest"
-            resp = client.post(contentType: ContentType.JSON.toString(), body: jsonRequest) as HttpResponseDecorator
+            println ">>> $request"
+            resp = client.post(contentType: ContentType.JSON.toString(), body: request) as HttpResponseDecorator
             assertResponse()
         } catch (IOException e) {
             logger.error("Unable to send the request, got exception: " + e)
@@ -51,6 +53,7 @@ abstract class RestClientBaseSpecification extends Specification {
         assert resp.success
         assert resp.status == 200
         assert (resp.contentType == ContentType.JSON.toString() || resp.contentType == ContentType.TEXT.toString())
-        println "<<< $resp.data\n"
+        String response = JsonOutput.toJson(resp.data)
+        println "<<< $response\n"
     }
 }

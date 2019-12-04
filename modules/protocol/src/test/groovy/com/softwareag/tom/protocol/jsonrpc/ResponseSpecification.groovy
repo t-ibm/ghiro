@@ -11,6 +11,7 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetStorageAt
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetTransactionReceipt
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction
 import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthUninstallFilter
@@ -102,9 +103,22 @@ class ResponseSpecification extends ResponseBaseSpecification {
         response == expected
     }
 
+    def "test eth_getTransactionReceipt"() {
+        given: 'a valid JSON-RPC response'
+        ResponseEthGetTransactionReceipt expected = new ResponseEthGetTransactionReceipt('0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238', '0x1', '9505e4785ff66e23d8b1ecb47a1e49aa01d81c19','', 1244)
+        content expected.toString()
+
+        when: 'the response is received'
+        ResponseEthGetTransactionReceipt response = serviceHttp.getResponseHandler(ResponseEthGetTransactionReceipt.class).handleResponse(closeableHttpResponse)
+
+        then: 'the response type values are set to the expected values'
+        response == expected
+        response.hashCode() == expected.hashCode()
+    }
+
     def "test eth_sendTransaction"() {
         given: 'a valid JSON-RPC response'
-        ResponseEthSendTransaction expected = new ResponseEthSendTransaction("3F2F648518AE519964315B9B54ECD8FE23E6075F", "37236DF251AB70022B1DA351F08A20FB52443E37", "606060", "619DB1BBEC212208EF9949D5F341722B0312219C", 208)
+        ResponseEthSendTransaction expected = new ResponseEthSendTransaction("619DB1BBEC212208EF9949D5F341722B0312219C")
         content expected.toString()
 
         when: 'the response is received'
@@ -117,7 +131,7 @@ class ResponseSpecification extends ResponseBaseSpecification {
 
     def "test eth_call"() {
         given: 'a valid JSON-RPC response'
-        ResponseEthCall expected = new ResponseEthCall(49 as long, "")
+        ResponseEthCall expected = new ResponseEthCall("")
         content expected.toString()
 
         when: 'the response is received'

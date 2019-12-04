@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Response;
 import com.softwareag.tom.protocol.util.HexValue;
@@ -24,9 +23,9 @@ public class ResponseEthCall extends Response<ResponseEthCall.Result, Types.Resp
         super(errorCode, errorMessage);
     }
 
-    public ResponseEthCall(long gasUsed, String ret) {
+    public ResponseEthCall(String ret) {
         super();
-        this.result = new Result(gasUsed, ret);
+        this.result = new Result(ret);
     }
 
     public Types.ResponseEthCall getResponse() {
@@ -38,35 +37,30 @@ public class ResponseEthCall extends Response<ResponseEthCall.Result, Types.Resp
     }
 
     final static class Result {
-        @JsonProperty("gas_used") long gasUsed;
-        @JsonProperty("return") String ret;
+        String ret;
 
         private Result() {}
 
-        private Result(long gasUsed, String ret) {
+        private Result(String ret) {
             this();
-            this.gasUsed = gasUsed;
             this.ret = ret;
         }
 
         @Override public String toString() {
-            return "{\"gas_used\":" + gasUsed + ", \"return\":\"" + ret + "\"}";
+            return '"' + ret + '"';
         }
 
         @Override public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof Result)) return false;
 
             Result result = (Result) o;
 
-            if (gasUsed != result.gasUsed) return false;
             return ret.equals(result.ret);
         }
 
         @Override public int hashCode() {
-            int result = (int) (gasUsed ^ (gasUsed >>> 32));
-            result = 31 * result + ret.hashCode();
-            return result;
+            return ret.hashCode();
         }
     }
 }

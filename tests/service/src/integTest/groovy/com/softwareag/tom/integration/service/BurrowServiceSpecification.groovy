@@ -172,7 +172,7 @@ class BurrowServiceSpecification extends Specification {
         println "<<< $responseAccount.descriptorForType.fullName...$responseAccount"
 
         then: 'a valid response is received'
-        responseAccount.getEVMCode() != null
+        responseAccount.getEVMCode() != null //TODO :: Compare value instead
 
         when: println '(3) the storage of the contract is retrieved'
         RpcQuery.GetStorageParam requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()

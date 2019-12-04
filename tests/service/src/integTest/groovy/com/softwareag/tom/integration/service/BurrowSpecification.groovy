@@ -73,7 +73,8 @@ class BurrowSpecification extends Specification {
 
         then: 'a valid response is received'
         response instanceof Types.ResponseEthGetBalance
-        HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) == 99999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
+        HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) <= 99999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
+        HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) >= 9999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
     }
 
     def "test 'ethNewBlockFilter' service"() {
