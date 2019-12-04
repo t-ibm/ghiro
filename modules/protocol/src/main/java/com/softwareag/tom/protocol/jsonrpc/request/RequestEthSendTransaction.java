@@ -14,8 +14,8 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthSendTransaction;
 /**
  * {@code eth_sendTransaction}.
  */
-public class RequestEthSendTransaction extends Request<ParamsAddressDataTx, ResponseEthSendTransaction> {
+public class RequestEthSendTransaction extends Request<ParamsAddress<ParamsAddressDataTx>, ResponseEthSendTransaction> {
     public RequestEthSendTransaction(Service jsonRpcService, Types.RequestEthSendTransaction msg) {
-        super(jsonRpcService, "burrow.transactAndHold", new ParamsAddressDataTx(msg.getTx()));
+        super(jsonRpcService, "eth_sendTransaction", new ParamsAddress<>(new ParamsAddressDataTx(msg.getTx())));
     }
 }

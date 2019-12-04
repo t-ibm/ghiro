@@ -8,7 +8,6 @@ package com.softwareag.tom.protocol.jsonrpc
 
 import com.softwareag.tom.protocol.abi.Types
 import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddress
-import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddressData
 import com.softwareag.tom.protocol.jsonrpc.request.ParamsAddressDataTx
 import com.softwareag.tom.protocol.jsonrpc.request.ParamsEvent
 import com.softwareag.tom.protocol.jsonrpc.request.ParamsFilter
@@ -16,6 +15,7 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetTransactionReceipt
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewBlockFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction
@@ -51,8 +51,8 @@ class RequestSpecification extends RequestBaseSpecification {
         request.method == defaultRequest.method
         request.params == defaultRequest.params
         request.id == defaultRequest.id
-        request.hashCode() == defaultRequest.hashCode()
         request == defaultRequest
+        request.hashCode() == defaultRequest.hashCode()
     }
 
     def "test web3_clientVersion"() {
@@ -80,7 +80,7 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_getBalance"() {
         given: 'a text fixture'
         String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
-        ParamsAddress params = new ParamsAddress(address, 'pending')
+        ParamsAddress<String> params = new ParamsAddress<>(address, 'pending')
 
         when: 'a valid request type is created'
         RequestEthGetBalance request = new RequestEthGetBalance(serviceHttp, Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(address)).setBlock(
@@ -101,10 +101,29 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_getStorageAt"() {
         given: 'a text fixture'
         String address = "E9B5D87313356465FAE33C406CE2C2979DE60BCB"
-        ParamsAddress params = new ParamsAddress(address, 'latest')
+        ParamsAddress<String> params = new ParamsAddress<>(address, 'latest')
 
         when: 'a valid request type is created'
         RequestEthGetStorageAt request = new RequestEthGetStorageAt(serviceHttp, Types.RequestEthGetStorageAt.newBuilder().setAddress(HexValue.toByteString(address)).build()) {}
+
+        then: 'the expected request object is created'
+        request.params == params
+        request.params.hashCode() == params.hashCode()
+
+        when: 'the request is send'
+        request.send()
+
+        then: 'the expected JSON-RPC request is created'
+        actual == request.toString()
+    }
+
+    def "test eth_getTransactionReceipt"() {
+        given: 'a text fixture'
+        String txHash = '2339d8c40819aaa00fa4e97ecdab172137ee896a34fb59daa317690d1beecb0d'
+        ParamsAddress<String> params = new ParamsAddress<>(txHash)
+
+        when: 'a valid request type is created'
+        RequestEthGetTransactionReceipt request = new RequestEthGetTransactionReceipt(serviceHttp, Types.RequestEthGetTransactionReceipt.newBuilder().setHash(HexValue.toByteString(txHash)).build()) {}
 
         then: 'the expected request object is created'
         request.params == params
@@ -123,7 +142,7 @@ class RequestSpecification extends RequestBaseSpecification {
         String data = '606060'
         long fee = 12
         long gasLimit = 223
-        ParamsAddressDataTx params = new ParamsAddressDataTx(address, data, fee, gasLimit)
+        ParamsAddress<ParamsAddressDataTx> params = new ParamsAddress(new ParamsAddressDataTx(address, data, fee, gasLimit))
 
         when: 'a valid request type is created'
         RequestEthSendTransaction request = new RequestEthSendTransaction(serviceHttp, Types.RequestEthSendTransaction.newBuilder().setTx(
@@ -131,8 +150,8 @@ class RequestSpecification extends RequestBaseSpecification {
         ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -145,16 +164,18 @@ class RequestSpecification extends RequestBaseSpecification {
         given: 'a text fixture'
         String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
         String data = '606060'
-        ParamsAddressData params = new ParamsAddressData(address, data)
+        long fee = 12
+        long gasLimit = 223
+        ParamsAddress<ParamsAddressDataTx> params = new ParamsAddress(new ParamsAddressDataTx(address, data, fee, gasLimit), 'latest')
 
         when: 'a valid request type is created'
         RequestEthCall request = new RequestEthCall(serviceHttp, Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(gasLimit)).setGasPrice(HexValue.toByteString(fee)).build()
         ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -174,8 +195,8 @@ class RequestSpecification extends RequestBaseSpecification {
         ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -192,8 +213,8 @@ class RequestSpecification extends RequestBaseSpecification {
         RequestEthNewBlockFilter request = new RequestEthNewBlockFilter(serviceHttp) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -213,8 +234,8 @@ class RequestSpecification extends RequestBaseSpecification {
         ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()
@@ -234,8 +255,8 @@ class RequestSpecification extends RequestBaseSpecification {
         ).build()) {}
 
         then: 'the expected request object is created'
-        request.params.hashCode() == params.hashCode()
         request.params == params
+        request.params.hashCode() == params.hashCode()
 
         when: 'the request is send'
         request.send()

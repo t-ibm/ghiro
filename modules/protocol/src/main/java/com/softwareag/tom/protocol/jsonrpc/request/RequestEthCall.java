@@ -14,8 +14,8 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthCall;
 /**
  * {@code eth_call}.
  */
-public class RequestEthCall extends Request<ParamsAddressData, ResponseEthCall> {
+public class RequestEthCall extends Request<ParamsAddress<ParamsAddressDataTx>, ResponseEthCall> {
     public RequestEthCall(Service jsonRpcService, Types.RequestEthCall msg) {
-        super(jsonRpcService, "burrow.call", new ParamsAddressData(msg.getTx()));
+        super(jsonRpcService, "eth_call", new ParamsAddress<>(new ParamsAddressDataTx(msg.getTx()), msg.getBlock().getHeight().isEmpty() ? msg.getBlock().getState().name() : msg.getBlock().getHeight().toStringUtf8()));
     }
 }

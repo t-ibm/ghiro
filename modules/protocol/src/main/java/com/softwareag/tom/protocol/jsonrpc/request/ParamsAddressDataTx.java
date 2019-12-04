@@ -9,34 +9,34 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class ParamsAddressDataTx extends ParamsAddressData {
-    @JsonProperty("priv_key") private String privKey;
-    @JsonProperty("fee") private long fee;
-    @JsonProperty("gas_limit") private long gasLimit;
+    @JsonProperty("from") private String from;
+    @JsonProperty("gasPrice") private long gasPrice;
+    @JsonProperty("gas") private long gas;
 
-    public ParamsAddressDataTx(String address, String data, long fee, long gasLimit) {
-        super(address, data);
+    public ParamsAddressDataTx(String to, String data, long gasPrice, long gas) {
+        super(to, data);
         setPrivKey();
-        this.fee = fee;
-        this.gasLimit = gasLimit;
+        this.gasPrice = gasPrice;
+        this.gas = gas;
     }
 
     ParamsAddressDataTx(Types.TxType tx) {
         super(tx);
         setPrivKey();
-        this.fee = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
-        this.gasLimit = HexValue.toBigInteger(tx.getGas()).longValueExact();
+        this.gasPrice = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
+        this.gas = HexValue.toBigInteger(tx.getGas()).longValueExact();
     }
 
     private void setPrivKey() {
         try {
-            this.privKey = Node.instance().getKey().getPrivate(); //TODO :: Replace with client-side cryptographic support for transaction signing
+            this.from = Node.instance().getKey().getPrivate(); //TODO :: Get this from burrow.toml or similar instead
         } catch (IOException e) {
             logger.error("Failed to retrieve private key.", e);
         }
     }
 
     @Override public String toString() {
-        return "{\"address\":\"" + address + "\",\"data\":\"" + data + "\",\"priv_key\":\"" + privKey + "\",\"fee\":" + fee + ",\"gas_limit\":" + gasLimit + '}';
+        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\",\"from\":\"" + from + "\",\"gasPrice\":" + gasPrice + ",\"gas\":" + gas + '}';
     }
 
     @Override public boolean equals(Object o) {
@@ -46,17 +46,17 @@ public class ParamsAddressDataTx extends ParamsAddressData {
 
         ParamsAddressDataTx that = (ParamsAddressDataTx) o;
 
-        if (fee != that.fee) return false;
-        if (gasLimit != that.gasLimit) return false;
-        return Objects.equals(privKey, that.privKey);
+        if (gasPrice != that.gasPrice) return false;
+        if (gas != that.gas) return false;
+        return Objects.equals(from, that.from);
 
     }
 
     @Override public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (privKey != null ? privKey.hashCode() : 0);
-        result = 31 * result + (int) (fee ^ (fee >>> 32));
-        result = 31 * result + (int) (gasLimit ^ (gasLimit >>> 32));
+        result = 31 * result + (from != null ? from.hashCode() : 0);
+        result = 31 * result + (int) (gasPrice ^ (gasPrice >>> 32));
+        result = 31 * result + (int) (gas ^ (gas >>> 32));
         return result;
     }
 }

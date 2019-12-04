@@ -9,21 +9,21 @@ import org.slf4j.LoggerFactory;
 public class ParamsAddressData {
     static final Logger logger = LoggerFactory.getLogger(ParamsAddressData.class);
 
-    @JsonProperty("address") String address;
+    @JsonProperty("to") String to;
     @JsonProperty("data") String data;
 
     public ParamsAddressData(String address, String data) {
-        this.address = address;
+        this.to = address;
         this.data = data;
     }
 
     ParamsAddressData(Types.TxType tx) {
-        this.address = ParamsAddress.validate(tx.getTo());
+        this.to = ParamsAddress.validate(tx.getTo());
         this.data = HexValue.stripPrefix(tx.getData());
     }
 
     @Override public String toString() {
-        return "{\"address\":\"" + address + "\",\"data\":\"" + data + "\"}";
+        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\"}";
     }
 
     @Override public boolean equals(Object o) {
@@ -32,12 +32,12 @@ public class ParamsAddressData {
 
         ParamsAddressData that = (ParamsAddressData) o;
 
-        if (!address.equals(that.address)) return false;
+        if (!to.equals(that.to)) return false;
         return data.equals(that.data);
     }
 
     @Override public int hashCode() {
-        int result = address.hashCode();
+        int result = to.hashCode();
         result = 31 * result + data.hashCode();
         return result;
     }

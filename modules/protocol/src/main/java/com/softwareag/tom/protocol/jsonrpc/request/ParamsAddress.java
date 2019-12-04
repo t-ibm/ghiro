@@ -10,25 +10,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ParamsAddress extends AbstractList<String> implements List<String> {
+public class ParamsAddress<T> extends AbstractList<Object> implements List<Object> {
     private static final Logger logger = LoggerFactory.getLogger(ParamsAddress.class);
 
-    private List<String> address = new ArrayList<>();
+    private List<Object> address = new ArrayList<>();
+
+    public ParamsAddress(T param) {
+        this.address.add(param);
+    }
+
+    public ParamsAddress(T param, String defaultBlock) {
+        this.address.add(param);
+        this.address.add(defaultBlock);
+    }
 
     public ParamsAddress(String address, String defaultBlock) {
         this.address.add(address);
         this.address.add(defaultBlock);
     }
 
+    public ParamsAddress(String address) {
+        this.address.add(address);
+    }
+
     ParamsAddress(ByteString address, String defaultBlock) {
         this(validate(address), defaultBlock);
+    }
+
+    ParamsAddress(ByteString address) {
+        this(validate(address));
     }
 
     static String validate(ByteString immutableByteArray) {
         if (immutableByteArray == null || immutableByteArray.size() == 0) {
             return "";
-        } else if (immutableByteArray.size() != 20 * 2 + 2) {
-            logger.warn("Address size is {} bytes while it should be 20.", immutableByteArray.size() / 2 - 2);
+        } else if (immutableByteArray.size() == 20 * 2 + 2 && immutableByteArray.size() == 32 * 2 + 2) {
+            logger.warn("Address/Hash size is {} bytes while it should be 20/32.", immutableByteArray.size() / 2 - 2);
         } else if (!immutableByteArray.isValidUtf8()) {
             logger.warn("Address is not a valid UTF-8 encoded string.");
         } else {
@@ -41,12 +58,12 @@ public class ParamsAddress extends AbstractList<String> implements List<String> 
         return address.size();
     }
 
-    @Override public String get(int i) {
+    @Override public Object get(int i) {
         return address.get(i);
     }
 
     @Override public String toString() {
-        return '[' + address.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(",")) + ']';
+        return '[' + address.stream().map(s -> s instanceof String ? "\"" + s + "\"" : "" + s).collect(Collectors.joining(",")) + ']';
     }
 
     @Override public boolean equals(Object o) {
