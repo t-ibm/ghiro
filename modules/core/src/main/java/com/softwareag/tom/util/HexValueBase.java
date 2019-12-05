@@ -56,7 +56,11 @@ public class HexValueBase {
     }
 
     public static BigInteger toBigInteger(String value) {
-        return new BigInteger(validate(value).substring(2), 16);
+        if (PREFIX.equalsIgnoreCase(value)) {
+            return BigInteger.ZERO;
+        } else {
+            return new BigInteger(validate(value).substring(2), 16);
+        }
     }
 
     protected static BigInteger toBigInteger(byte[] value) {

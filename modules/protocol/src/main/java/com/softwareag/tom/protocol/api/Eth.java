@@ -82,5 +82,5 @@ interface Eth {
      * @param req A request object containing the hash of a transaction
      * @return an object of type {@link Types.TxReceiptType}
      */
-    Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req);
+    Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) throws IOException;
 }

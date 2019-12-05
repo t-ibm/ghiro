@@ -10,12 +10,12 @@ package com.softwareag.tom.protocol.jsonrpc.request;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;
-import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetBalance;
+import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthGetTransactionReceipt;
 
 /**
  * {@code eth_getTransactionReceipt}.
  */
-public class RequestEthGetTransactionReceipt extends Request<ParamsAddress<String>, ResponseEthGetBalance> {
+public class RequestEthGetTransactionReceipt extends Request<ParamsAddress<String>, ResponseEthGetTransactionReceipt> {
     public RequestEthGetTransactionReceipt(Service jsonRpcService, Types.RequestEthGetTransactionReceipt msg) {
         super(jsonRpcService, "eth_getTransactionReceipt", new ParamsAddress<>(msg.getHash()));
     }

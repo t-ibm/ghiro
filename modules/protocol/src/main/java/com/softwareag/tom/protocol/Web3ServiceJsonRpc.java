@@ -13,13 +13,13 @@ import com.softwareag.tom.protocol.jsonrpc.request.RequestEthCall;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetBalance;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetFilterChanges;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetStorageAt;
+import com.softwareag.tom.protocol.jsonrpc.request.RequestEthGetTransactionReceipt;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewBlockFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthNewFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthSendTransaction;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestEthUninstallFilter;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestNetListening;
 import com.softwareag.tom.protocol.jsonrpc.request.RequestWeb3ClientVersion;
-import com.softwareag.tom.protocol.tx.TransactionManager;
 import rx.Observable;
 
 import java.io.IOException;
@@ -96,8 +96,9 @@ class Web3ServiceJsonRpc implements Web3Service {
         return jsonRpcRequest.send().getResponse();
     }
 
-    @Override public Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) {
-        return Types.ResponseEthGetTransactionReceipt.newBuilder().setTxReceipt(TransactionManager.instance.getTransactionReceipt(req.getHash())).build();
+    @Override public Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) throws IOException {
+        RequestEthGetTransactionReceipt jsonRpcRequest = new RequestEthGetTransactionReceipt(jsonRpcService, req) {};
+        return jsonRpcRequest.send().getResponse();
     }
 
     @Override public Observable<Types.FilterLogType> ethLogObservable(Types.RequestEthNewFilter ethFilter) {
