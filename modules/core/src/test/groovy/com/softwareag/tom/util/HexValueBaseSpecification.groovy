@@ -58,7 +58,7 @@ class HexValueBaseSpecification extends Specification {
         thrown NumberFormatException
 
         where:
-        source << [null, '0x']
+        source << [null, '']
     }
 
     def 'test positive long to string'() {

@@ -105,7 +105,7 @@ class ResponseSpecification extends ResponseBaseSpecification {
 
     def "test eth_getTransactionReceipt"() {
         given: 'a valid JSON-RPC response'
-        ResponseEthGetTransactionReceipt expected = new ResponseEthGetTransactionReceipt('0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238', '0x1', '9505e4785ff66e23d8b1ecb47a1e49aa01d81c19','', 1244)
+        ResponseEthGetTransactionReceipt expected = new ResponseEthGetTransactionReceipt('0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238', '0x1', '9505e4785ff66e23d8b1ecb47a1e49aa01d81c19','', '9505e4785ff66e23d8b1ecb47a1e49aa01d81c19', 1244)
         content expected.toString()
 
         when: 'the response is received'

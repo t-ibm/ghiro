@@ -6,25 +6,25 @@ import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.util.HexValue;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.math.BigInteger;
 
 public class ParamsAddressDataTx extends ParamsAddressData {
     @JsonProperty("from") private String from;
-    @JsonProperty("gasPrice") private long gasPrice;
-    @JsonProperty("gas") private long gas;
+    @JsonProperty("gasPrice") private String gasPrice;
+    @JsonProperty("gas") private String gas;
 
     public ParamsAddressDataTx(String to, String data, long gasPrice, long gas) {
         super(to, data);
         setPrivKey();
-        this.gasPrice = gasPrice;
-        this.gas = gas;
+        this.gasPrice = HexValue.toString(BigInteger.valueOf(gasPrice));
+        this.gas = HexValue.toString(BigInteger.valueOf(gas));
     }
 
     ParamsAddressDataTx(Types.TxType tx) {
         super(tx);
         setPrivKey();
-        this.gasPrice = HexValue.toBigInteger(tx.getGasPrice()).longValueExact();
-        this.gas = HexValue.toBigInteger(tx.getGas()).longValueExact();
+        this.gasPrice = HexValue.toString(tx.getGasPrice());
+        this.gas = HexValue.toString(tx.getGas());
     }
 
     private void setPrivKey() {
@@ -36,27 +36,27 @@ public class ParamsAddressDataTx extends ParamsAddressData {
     }
 
     @Override public String toString() {
-        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\",\"from\":\"" + from + "\",\"gasPrice\":" + gasPrice + ",\"gas\":" + gas + '}';
+        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\",\"from\":\"" + from + "\",\"gasPrice\":\"" + gasPrice + "\",\"gas\":\"" + gas + "\"}";
     }
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ParamsAddressDataTx)) return false;
         if (!super.equals(o)) return false;
 
         ParamsAddressDataTx that = (ParamsAddressDataTx) o;
 
-        if (gasPrice != that.gasPrice) return false;
-        if (gas != that.gas) return false;
-        return Objects.equals(from, that.from);
+        if (!from.equals(that.from)) return false;
+        if (!gasPrice.equals(that.gasPrice)) return false;
+        return gas.equals(that.gas);
 
     }
 
     @Override public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (from != null ? from.hashCode() : 0);
-        result = 31 * result + (int) (gasPrice ^ (gasPrice >>> 32));
-        result = 31 * result + (int) (gas ^ (gas >>> 32));
+        result = 31 * result + from.hashCode();
+        result = 31 * result + gasPrice.hashCode();
+        result = 31 * result + gas.hashCode();
         return result;
     }
 }

@@ -356,7 +356,7 @@ class BurrowSpecification extends Specification {
 
         when: println '(7) function "set" is executed'
         requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionSet.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(12)).setGasPrice(HexValue.toByteString(223)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(functionSet.encode([BigInteger.valueOf(7)]))).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
         ).build()
         responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
         println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
