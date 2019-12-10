@@ -18,7 +18,7 @@ import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.trigger.control.ControlledTriggerSvcThreadPool;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias;
 import com.wm.app.b2b.server.resources.MessagingBundle;
-import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 
 import java.io.IOException;
@@ -27,7 +27,6 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
 
     public static final String IS_DAPP_CONNECTION = "IS_DAPP_CONNECTION";
 
-    private Observable<Types.FilterLogType> logObservable;
     private Subscription subscription;
 
     /**
@@ -50,42 +49,45 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
         }
 
         try {
-            logObservable = Util.instance().getLogObservable(_trigger.getNSName());
+            Observer<Types.FilterLogType> observer = new Observer<Types.FilterLogType>() {
+
+                @Override public void onCompleted() {
+                    stopProcessing();
+                }
+
+                @Override public void onError(Throwable throwable) {
+                    DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_NOTIFICATION, throwable);
+                }
+
+                @Override public void onNext(Types.FilterLogType result) {
+                    try {
+                        _messageQueue.put(result);
+                    } catch (InterruptedException e) {
+                        //  The put operation failed. This should not happen, but if the trigger is still running, then we will try again.
+                        if (isRunning()) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ignored) {}
+
+                            try {
+                                _messageQueue.put(result);
+                            } catch (InterruptedException e2) {
+                                // If we fail again, then we have a bigger problem, so log the error and roll back the message.
+                                DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_PUT, e2);
+                            }
+                        }
+                    }
+                    // If we are stopping the Listener, then we do not want to receive any new messages.
+                    // Note that the the latch should always get posted on shutdown, but we add the timeout just in case there is some odd exception.
+                    pauseProcessing();
+                }
+            };
+            subscription = (Subscription) Util.instance().getLogObservable(_trigger.getNSName(), observer);
         } catch (IOException e) {
             DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_INIT, e);
             _messageListenerRunning = false;
             throw new MessagingSubsystemException(e);
         }
-
-        subscription = logObservable.subscribe(
-            // On Next
-            result -> {
-                try {
-                    _messageQueue.put(result);
-                } catch (InterruptedException e) {
-                    //  The put operation failed. This should not happen, but if the trigger is still running, then we will try again.
-                    if (isRunning()) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ignored) {}
-
-                        try {
-                            _messageQueue.put(result);
-                        } catch (InterruptedException e2) {
-                            // If we fail again, then we have a bigger problem, so log the error and roll back the message.
-                            DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_PUT, e2);
-                        }
-                    }
-                }
-                // If we are stopping the Listener, then we do not want to receive any new messages.
-                // Note that the the latch should always get posted on shutdown, but we add the timeout just in case there is some odd exception.
-                pauseProcessing();
-            },
-            // On Error
-            throwable -> DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_NOTIFICATION, throwable),
-            // On Completed
-            this::stopProcessing
-        );
 
         _messageListenerRunning = true;
         DAppLogger.logDebug(DAppMsgBundle.DAPP_METHOD_END, "Listener#createListener");
@@ -104,11 +106,10 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
         messageDispatcher.consumeAndProcessMessages();
     }
 
-    @Override protected void stopListener(boolean deleteSubscription) throws Exception {
+    @Override protected void stopListener(boolean deleteSubscription) {
         if (subscription != null) {
             subscription.unsubscribe();
         }
-        logObservable = null;
         super.stopListener();
     }
 

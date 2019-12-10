@@ -51,6 +51,7 @@ import com.wm.msg.Header;
 import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Values;
+import org.hyperledger.burrow.rpc.RpcEvents;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -144,7 +145,7 @@ public class Util extends UtilBase<NSName> {
         ContractInterface.Specification<?> event = getEvent(nsName);
         IData pipeline = IDataFactory.create();
         IData envelope = IDataFactory.create();
-        String uuid = HexValue.toString(logEvent.getTransactionIndex());
+        String uuid = "" + HexValue.toBigInteger(logEvent.getBlockNumber());
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
@@ -156,7 +157,36 @@ public class Util extends UtilBase<NSName> {
                 _msgID = uuid;
                 _type = nsName.getFullName();
                 _data = pipeline;
+            }
 
+            @Override public Header getHeader(String name) { return null; }
+            @Override public Header[] getHeaders() { return new Header[0]; }
+            @Override public void setData(Object o) { _data = (IData)o; }
+            @Override public Values getValues() { return Values.use(_data); }
+        };
+    }
+
+    /**
+     * @param nsName The contract's event ns name
+     * @return the data pipeline wrapped as a {@link Message}
+     */
+    public Message<RpcEvents.EventsResponse> decodeLogEvent(NSName nsName, RpcEvents.EventsResponse logEvent) {
+        String uri = getContractUri(nsName);
+        ContractInterface.Specification<?> event = getEvent(nsName);
+        IData pipeline = IDataFactory.create();
+        IData envelope = IDataFactory.create();
+        String uuid = "" + logEvent.getEvents(0).getHeader().getHeight();
+        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
+        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
+        List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
+        decodeEventInput(event, pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(nsName), getContract(uri).getContractAddress()});
+        return new Message<RpcEvents.EventsResponse>() {
+            {
+                _event = logEvent;
+                _msgID = uuid;
+                _type = nsName.getFullName();
+                _data = pipeline;
             }
 
             @Override public Header getHeader(String name) { return null; }
