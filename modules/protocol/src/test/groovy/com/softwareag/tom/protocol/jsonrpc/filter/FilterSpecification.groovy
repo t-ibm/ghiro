@@ -37,7 +37,7 @@ class FilterSpecification extends FilterBaseSpecification {
         RequestEthNewFilter requestEthNewFilter = new RequestEthNewFilter(service, HexValue.toByteString(responseMock.contractAddress))
         Observable<Types.FilterLogType> logObservable = jsonRpcRx.ethLogObservable(requestEthNewFilter, 1000)
 
-        List<Types.FilterLogType> expected = responseMock.getExpectedFilterChanges()
+        List<Types.FilterLogType> expected = responseMock.getExpectedFilterChangesWeb3()
         List<Types.FilterLogType> actual = []
         CountDownLatch transactionLatch = new CountDownLatch(expected.size())
         CountDownLatch completedLatch = new CountDownLatch(1)

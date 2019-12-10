@@ -11,11 +11,13 @@ repositories {
 dependencies {
     integTestImplementation(
         project(path:":packages:is-$project.rootProject.name-wmdapp", configuration:'runtimeElements'),
+        project.sag.module.grpc.implementation,
         project.sag.module.is.compile,
         project.sag.module.jmx,
         project.sag.module.protobuf,
     )
     integTestRuntimeOnly(
+        project.sag.module.grpc.runtime,
         project.sag.module.httpcomponents,
         project.sag.module.is.runtime,
     )

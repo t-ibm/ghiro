@@ -8,6 +8,8 @@
 package com.softwareag.tom.is.pkg.dapp.trigger
 
 import com.softwareag.tom.is.pkg.dapp.RuntimeBaseSpecification
+import com.softwareag.tom.is.pkg.dapp.ServiceSupplier
+import com.softwareag.tom.is.pkg.dapp.ServiceSupplierWeb3
 import com.softwareag.tom.is.pkg.dapp.Util
 import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
@@ -63,6 +65,17 @@ class DAppListenerSpecification extends ListenerBaseSpecification {
         then: 'all messages were consumed'
         listener.queueSize == 0
     }
+
+    @Override ServiceSupplier getServiceSupplier() {
+        Service web3 = Mock(Service)
+        web3.send(_ as Request, _ as Class) >> { Request request, Class c ->
+            println ">>> $request"
+            Response response = responseMock.getResponse(request)
+            println "<<< $response"
+            response
+        }
+        return new ServiceSupplierWeb3(Web3Service.build(web3))
+    }
 }
 
 /**
@@ -72,6 +85,8 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
     @Shared ControlledTriggerSvcThreadPool threadPool
     @Shared DAppListener listener
     @Shared String pdtName
+
+    @Shared ResponseMock responseMock = new ResponseMock()
 
     def setup() {
         // Test fixture
@@ -98,28 +113,24 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
         TriggerDispatcherStrategy triggerDispatcherStrategy = TriggerDispatcherStrategy.getInstance()
         TriggerOutputControl triggerOutputControl = new TriggerOutputControl(trigger, 1, DispatcherManager.create(DispatcherManagerHelper.CODE_PATH_DEFAULT_NAME))
         triggerDispatcherStrategy.register(triggerOutputControl)
+        // Remember the contract address; implies the contract was deployed
+        Util.instance().storeContractAddress(pdt.getNSName(), responseMock.contractAddress)
+        // Inject mock service into Util
+        Util.instance().serviceSupplier = getServiceSupplier()
         // Inject the thread pool size ... we need at least 2 thread to process the incoming messages
         threadPool = ControlledTriggerSvcThreadPool.getInstance()
         threadPool.max = 2
         threadPool.min = 0
-        // Create needed instances
-        ResponseMock filterResponseMock = new ResponseMock()
-        Service jsonRpcService = Mock(Service)
-        // Handle service layer communications
-        jsonRpcService.send(_ as Request, _ as Class) >> { Request request, Class c ->
-            println ">>> $request"
-            Response response = filterResponseMock.getResponse(request)
-            println "<<< $response"
-            response
-        }
-        // Inject mock service into Util
-        Util.instance().web3Service = Web3Service.build(jsonRpcService)
-        // Remember the contract address; implies the contract was deployed
-        Util.instance().storeContractAddress(pdt.getNSName(), filterResponseMock.contractAddress)
         // Run the listener
         listener = new DAppListenerMock(trigger, threadPool)
         threadPool.runTarget(listener)
     }
+
+    /**
+     * Handle service layer communications.
+     * @return the service provider
+     */
+    abstract ServiceSupplier getServiceSupplier();
 
     def processMessage() {
         while (listener.queueSize > 0) {

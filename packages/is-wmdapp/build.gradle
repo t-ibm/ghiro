@@ -7,9 +7,13 @@ dependencies {
         project(path:":modules:$project.rootProject.name-contract", configuration:'runtimeElements'),
         project(path:":modules:$project.rootProject.name-protocol", configuration:'runtimeElements'),
     )
-    compileOnly project.sag.module.protobuf
+    compileOnly(
+        project.sag.module.grpc.implementation,
+        project.sag.module.protobuf,
+    )
     testImplementation project(path:":modules:$project.rootProject.name-protocol", configuration:'testFixtureRuntimeElements')
     testRuntimeOnly(
+        project.sag.module.grpc.runtime,
         project.sag.module.httpcomponents,
         project.sag.module.jmx,
     )
