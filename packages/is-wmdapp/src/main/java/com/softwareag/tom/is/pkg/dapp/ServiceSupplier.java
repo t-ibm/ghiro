@@ -8,10 +8,16 @@
 package com.softwareag.tom.is.pkg.dapp;
 
 import com.softwareag.tom.contract.Contract;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 
 import java.io.IOException;
 
-public interface ServiceSupplier<O,S> {
+/**
+ * @param <E> The event type
+ * @param <O> The observer type
+ * @param <S> The subscription type
+ */
+public interface ServiceSupplier<E,O,S> {
 
     /**
      * @param contract The contract
@@ -32,5 +38,26 @@ public interface ServiceSupplier<O,S> {
      */
     Contract validateContract(Contract contract) throws IOException;
 
+    /**
+     * @param contract The contract
+     * @param observer The event observer
+     * @return a subscription for the given observer, if any
+     */
     S subscribe(Contract contract, O observer);
+
+    /**
+     * @param contract The contract
+     * @param eventName The contract's event name
+     * @param logEvent The received log event
+     * @return the log event as a {@link Message}
+     */
+    Message<E> decodeLogEvent(Contract contract, String eventName, E logEvent);
+
+    /**
+     * @param contract The contract
+     * @param eventName The contract's event name
+     * @param logEvent The received log event
+     * @return {@code true} if the received log event matches the contract's event name, {@code false} otherwise
+     */
+    boolean isMatchingEvent(Contract contract, String eventName, E logEvent);
 }

@@ -12,6 +12,7 @@ import com.softwareag.tom.contract.ConfigLocationFileSystem;
 import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,10 +22,10 @@ import java.util.stream.Collectors;
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
  */
-public abstract class UtilBase<N> {
+public abstract class UtilBase<N,E,O,S> {
     private ContractRegistry contractRegistry;
     private Map<String, Contract> contracts;
-    public ServiceSupplier serviceSupplier;
+    public ServiceSupplier<E,O,S> serviceSupplier;
 
     /**
      * The default constructor.
@@ -36,7 +37,7 @@ public abstract class UtilBase<N> {
             URI contractRegistryLocation = node.getContract().getRegistry().getLocationAsUri();
             URI configLocation = node.getConfig().getLocationAsUri();
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-            serviceSupplier = new ServiceSupplierWeb3(node);
+            serviceSupplier = (ServiceSupplier<E,O,S>) new ServiceSupplierWeb3(node); //TODO :: Generify
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -138,12 +139,30 @@ public abstract class UtilBase<N> {
      * @param name The contract's event name
      * @return the corresponding log observable
      */
-    public Object getLogObservable(N name, Object observer) throws IOException {
+    public S getLogObservable(N name, O observer) throws IOException {
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
-        Object subscription = serviceSupplier.subscribe(contract, observer); //TODO :: Generify
+        S subscription = serviceSupplier.subscribe(contract, observer);
         DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
         return subscription;
+    }
+
+    /**
+     * @param name The contract's event ns name
+     * @return the data pipeline wrapped as a {@link Message}
+     */
+    public Message<E> decodeLogEvent(N name, E logEvent) {
+        String uri = getContractUri(name);
+        Contract contract = getContract(uri);
+        Message<E> message = serviceSupplier.decodeLogEvent(contract, getEventUri(name), logEvent);
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(name), getContract(uri).getContractAddress()});
+        return message;
+    }
+
+    public boolean isMatchingEvent(N name, E logEvent) {
+        String uri = getContractUri(name);
+        Contract contract = getContract(uri);
+        return serviceSupplier.isMatchingEvent(contract, getEventUri(name), logEvent);
     }
 
     /**

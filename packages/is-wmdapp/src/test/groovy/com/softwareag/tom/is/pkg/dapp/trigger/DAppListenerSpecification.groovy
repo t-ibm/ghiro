@@ -100,12 +100,12 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
         Namespace.current().putNode(pdt)
         // Create service to invoke
         NSName svcNsName = NSName.create(serviceName)
-        FlowSvcImpl svc = Util.instance().getResponseService(svcNsName)
+        FlowSvcImpl svc = Util.getResponseService(svcNsName)
         Namespace.current().putNode(svc)
         // Create trigger
         NodeMaster.registerFactory(NSTrigger.TYPE.getValue(), new TriggerFactory())
-        Trigger trigger = Util.instance().createTrigger(NSName.create(triggerName))
-        Util.instance().addCondition(trigger, Condition.create(pdtNsName, svcNsName,'contractAddress != null').asCondition())
+        Trigger trigger = Util.createTrigger(NSName.create(triggerName))
+        Util.addCondition(trigger, Condition.create(pdtNsName, svcNsName,'contractAddress != null').asCondition())
         // Inject mock invoke manager into Trigger
         trigger.invokeManager = Mock(InvokeManager)
         // Initialize trigger manager
