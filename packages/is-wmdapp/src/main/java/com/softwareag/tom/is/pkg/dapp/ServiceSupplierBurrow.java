@@ -17,6 +17,13 @@ import com.softwareag.tom.protocol.grpc.ServiceEvents;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
 import com.softwareag.tom.protocol.util.HexValue;
+import com.wm.app.b2b.server.dispatcher.Dispatcher;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
+import com.wm.data.IData;
+import com.wm.data.IDataFactory;
+import com.wm.data.IDataUtil;
+import com.wm.msg.Header;
+import com.wm.util.Values;
 import io.grpc.stub.StreamObserver;
 import org.hyperledger.burrow.Acm;
 import org.hyperledger.burrow.execution.Exec;
@@ -24,9 +31,11 @@ import org.hyperledger.burrow.rpc.RpcEvents;
 import org.hyperledger.burrow.rpc.RpcQuery;
 import org.hyperledger.burrow.txs.Payload;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class ServiceSupplierBurrow implements ServiceSupplier<StreamObserver<RpcEvents.EventsResponse>,Object> {
+public class ServiceSupplierBurrow implements ServiceSupplier<RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
     private BurrowTransact burrowTransact;
     private BurrowQuery burrowQuery;
     private BurrowEvents burrowEvents;
@@ -94,5 +103,34 @@ public class ServiceSupplierBurrow implements ServiceSupplier<StreamObserver<Rpc
         ).setQuery(query).build();
         burrowEvents.getEvents(request, observer);
         return null;
+    }
+
+    @Override public Message<RpcEvents.EventsResponse> decodeLogEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {
+        IData pipeline = IDataFactory.create();
+        IData envelope = IDataFactory.create();
+        String uuid = "" + logEvent.getEvents(0).getHeader().getHeight();
+        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
+        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
+        List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
+        Util.decodeEventInput(Util.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
+        return new Message<RpcEvents.EventsResponse>() {
+            {
+                _event = logEvent;
+                _msgID = uuid;
+                _type = eventName;
+                _data = pipeline;
+            }
+
+            @Override public Header getHeader(String name) { return null; }
+            @Override public Header[] getHeaders() { return new Header[0]; }
+            @Override public void setData(Object o) { _data = (IData)o; }
+            @Override public Values getValues() { return Values.use(_data); }
+        };
+    }
+
+    @Override public boolean isMatchingEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {
+        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getEvents(0).getLog().getTopics(0)));
+        String expected = Util.getEvent(contract, eventName).encode();
+        return actual.equalsIgnoreCase(expected);
     }
 }

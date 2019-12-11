@@ -10,7 +10,6 @@ import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
 import com.softwareag.tom.is.pkg.dapp.trigger.Condition;
-import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.util.HexValue;
 import com.wm.app.b2b.broker.conv.Transformer;
 import com.wm.app.b2b.broker.conv.TypeCoderException;
@@ -21,11 +20,9 @@ import com.wm.app.b2b.server.NodeMaster;
 import com.wm.app.b2b.server.Package;
 import com.wm.app.b2b.server.PackageManager;
 import com.wm.app.b2b.server.dispatcher.DispatchFacade;
-import com.wm.app.b2b.server.dispatcher.Dispatcher;
 import com.wm.app.b2b.server.dispatcher.exceptions.MessagingSubsystemException;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias;
-import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.RuntimeConfiguration;
 import com.wm.app.b2b.server.ns.Namespace;
 import com.wm.app.b2b.ws.codegen.FlowGenUtil;
@@ -47,11 +44,9 @@ import com.wm.lang.ns.NSService;
 import com.wm.lang.ns.NSServiceType;
 import com.wm.lang.ns.NSSignature;
 import com.wm.lang.ns.NSTrigger;
-import com.wm.msg.Header;
 import com.wm.msg.ICondition;
 import com.wm.util.JavaWrapperType;
 import com.wm.util.Values;
-import org.hyperledger.burrow.rpc.RpcEvents;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -65,7 +60,7 @@ import java.util.stream.Collectors;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public class Util extends UtilBase<NSName> {
+public class Util<E,O,S> extends UtilBase<NSName,E,O,S> {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_REP = "Rep";
@@ -128,72 +123,6 @@ public class Util extends UtilBase<NSName> {
     public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
         ContractInterface.Specification<?> function = getFunction(nsName);
         sendTransaction(nsName, encodeInput(function, pipeline));
-    }
-
-    public boolean isMatchingEvent(NSName nsName, Types.FilterLogType logEvent) {
-        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getTopic(0)));
-        String expected = getEvent(nsName).encode();
-        return actual.equalsIgnoreCase(expected);
-    }
-
-    /**
-     * @param nsName The contract's event ns name
-     * @return the data pipeline wrapped as a {@link Message}
-     */
-    public Message<Types.FilterLogType> decodeLogEvent(NSName nsName, Types.FilterLogType logEvent) {
-        String uri = getContractUri(nsName);
-        ContractInterface.Specification<?> event = getEvent(nsName);
-        IData pipeline = IDataFactory.create();
-        IData envelope = IDataFactory.create();
-        String uuid = "" + HexValue.toBigInteger(logEvent.getBlockNumber());
-        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
-        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
-        List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
-        decodeEventInput(event, pipeline, HexValue.toString(logEvent.getData()), topics);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(nsName), getContract(uri).getContractAddress()});
-        return new Message<Types.FilterLogType>() {
-            {
-                _event = logEvent;
-                _msgID = uuid;
-                _type = nsName.getFullName();
-                _data = pipeline;
-            }
-
-            @Override public Header getHeader(String name) { return null; }
-            @Override public Header[] getHeaders() { return new Header[0]; }
-            @Override public void setData(Object o) { _data = (IData)o; }
-            @Override public Values getValues() { return Values.use(_data); }
-        };
-    }
-
-    /**
-     * @param nsName The contract's event ns name
-     * @return the data pipeline wrapped as a {@link Message}
-     */
-    public Message<RpcEvents.EventsResponse> decodeLogEvent(NSName nsName, RpcEvents.EventsResponse logEvent) {
-        String uri = getContractUri(nsName);
-        ContractInterface.Specification<?> event = getEvent(nsName);
-        IData pipeline = IDataFactory.create();
-        IData envelope = IDataFactory.create();
-        String uuid = "" + logEvent.getEvents(0).getHeader().getHeight();
-        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
-        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
-        List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
-        decodeEventInput(event, pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(nsName), getContract(uri).getContractAddress()});
-        return new Message<RpcEvents.EventsResponse>() {
-            {
-                _event = logEvent;
-                _msgID = uuid;
-                _type = nsName.getFullName();
-                _data = pipeline;
-            }
-
-            @Override public Header getHeader(String name) { return null; }
-            @Override public Header[] getHeaders() { return new Header[0]; }
-            @Override public void setData(Object o) { _data = (IData)o; }
-            @Override public Values getValues() { return Values.use(_data); }
-        };
     }
 
     /**
@@ -348,11 +277,11 @@ public class Util extends UtilBase<NSName> {
         return nsRecord;
     }
 
-    public FlowSvcImpl getResponseService(NSName nsName) {
+    public static FlowSvcImpl getResponseService(NSName nsName) {
         return new FlowSvcImpl(pkgWmDAppContract, nsName, null);
     }
 
-    public Trigger createTrigger(NSName nsName) {
+    public static Trigger createTrigger(NSName nsName) {
         NodeFactory nf = NodeMaster.getFactory(NSTrigger.TYPE.getType());
         IData nodeDef = IDataFactory.create(new Object[][]{
             {NSNode.KEY_NSN_NSNAME, nsName.getFullName()},
@@ -363,14 +292,14 @@ public class Util extends UtilBase<NSName> {
         return trigger;
     }
 
-    public void addCondition(Trigger trigger, ICondition triggerCondition) {
+    public static void addCondition(Trigger trigger, ICondition triggerCondition) {
         ICondition[] c = trigger.getConditions() != null ? trigger.getConditions() : new ICondition[]{};
         List<ICondition> triggerConditions = new ArrayList<>(Arrays.asList(c));
         triggerConditions.add(triggerCondition);
         trigger.setConditions(triggerConditions.toArray(c));
     }
 
-    private <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
+    private static <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
         IDataCursor pc = pipeline.getCursor();
         List<T> values = new ArrayList<>();
         List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
@@ -382,7 +311,7 @@ public class Util extends UtilBase<NSName> {
         return function.encode(values);
     }
 
-    private <T> void decodeEventInput(ContractInterface.Specification<T> specification, IData pipeline, String data, List<String> topics) {
+    static <T> void decodeEventInput(ContractInterface.Specification<T> specification, IData pipeline, String data, List<String> topics) {
         List<? extends ContractInterface.Parameter<T>> nonIndexedParameters = specification.getInputParameters(false);
         List<T> nonIndexedValues = specification.decode(nonIndexedParameters, data);
         decodeParameters(pipeline, nonIndexedParameters, nonIndexedValues);
@@ -395,13 +324,13 @@ public class Util extends UtilBase<NSName> {
         decodeParameters(pipeline, indexedParameters, indexedValues);
     }
 
-    private <T> void decodeFunctionOutput(ContractInterface.Specification<T> specification, IData pipeline, String data) {
+    private static <T> void decodeFunctionOutput(ContractInterface.Specification<T> specification, IData pipeline, String data) {
         List<? extends ContractInterface.Parameter<T>> parameters = specification.getOutputParameters();
         List<T> values = specification.decode(parameters, data);
         decodeParameters(pipeline, parameters, values);
     }
 
-    private <T> void decodeParameters(IData pipeline, List<? extends ContractInterface.Parameter<T>> parameters, List<T> values) {
+    private static <T> void decodeParameters(IData pipeline, List<? extends ContractInterface.Parameter<T>> parameters, List<T> values) {
         assert values.size() == parameters.size();
         Iterator<? extends ContractInterface.Parameter<T>> parametersIterator = parameters.iterator();
         Iterator<T> valuesIterator = values.iterator();
@@ -411,7 +340,7 @@ public class Util extends UtilBase<NSName> {
         }
     }
 
-    private String getInterfaceName(String uri) {
+    private static String getInterfaceName(String uri) {
         return uri.replace('/', '.');
     }
 
@@ -422,24 +351,32 @@ public class Util extends UtilBase<NSName> {
     private ContractInterface.Specification<?> getFunction(NSName nsName) {
         String uri = getContractUri(nsName);
         String functionName = getFunctionUri(nsName);
-        ContractInterface.Specification<?> function = getContract(uri).getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
+        return getFunction(getContract(uri), functionName);
+    }
+
+    /**
+     * @param contract The contract
+     * @param functionName The contract's function name
+     * @return the contract's function specification
+     */
+    private static ContractInterface.Specification<?> getFunction(Contract contract, String functionName) {
+        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
         assert function != null;
         return function;
     }
 
     /**
-     * @param nsName The contract's event name
+     * @param contract The contract
+     * @param eventName The contract's event name
      * @return the contract's event specification
      */
-    private ContractInterface.Specification<?> getEvent(NSName nsName) {
-        String uri = getContractUri(nsName);
-        String eventName = getEventUri(nsName);
-        ContractInterface.Specification<?> event = getContract(uri).getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
+    static ContractInterface.Specification<?> getEvent(Contract contract, String eventName) {
+        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
         assert event != null;
         return event;
     }
 
-    private FlowSvcImpl createFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {
+    private static FlowSvcImpl createFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {
         mkdirs(nsName);
 
         FlowSvcImpl flowSvcImpl = new FlowSvcImpl(pkgWmDAppContract, nsName, null);
@@ -452,7 +389,6 @@ public class Util extends UtilBase<NSName> {
         } else {
             flowSvcImpl.setSignature(new NSSignature(new NSRecord(Namespace.current()), new NSRecord(Namespace.current())));
         }
-
 
         flowSvcImpl.getFlowRoot().addNode(flowInvoke);
         return flowSvcImpl;
@@ -495,13 +431,13 @@ public class Util extends UtilBase<NSName> {
         return nsSignature;
     }
 
-    private void mkdirs(NSName nsName) {
+    private static void mkdirs(NSName nsName) {
         if (pkgWmDAppContract != null && !pkgWmDAppContract.getStore().getNodePath(nsName).mkdirs()) {
             DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
         }
     }
 
-    private <T> NSRecord getNsRecord(List<? extends ContractInterface.Parameter<T>> parameters, boolean optional) {
+    private static <T> NSRecord getNsRecord(List<? extends ContractInterface.Parameter<T>> parameters, boolean optional) {
         NSRecord nsRecord = new NSRecord(Namespace.current());
         for (ContractInterface.Parameter parameter : parameters) {
             String parameterName = parameter.getName();
@@ -521,7 +457,7 @@ public class Util extends UtilBase<NSName> {
         return nsRecord;
     }
 
-    private int getJavaWrapperType(ParameterType parameterType) {
+    private static int getJavaWrapperType(ParameterType parameterType) {
         Class javaClass = parameterType.getType();
         int javaWrapperType = JavaWrapperType.JAVA_TYPE_UNKNOWN;
         if (javaClass.equals(Boolean.class)) {

@@ -13,14 +13,23 @@ import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.ServiceHttp;
 import com.softwareag.tom.protocol.util.HexValue;
+import com.wm.app.b2b.server.dispatcher.Dispatcher;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
+import com.wm.data.IData;
+import com.wm.data.IDataFactory;
+import com.wm.data.IDataUtil;
+import com.wm.msg.Header;
+import com.wm.util.Values;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class ServiceSupplierWeb3 implements ServiceSupplier<Observer<Types.FilterLogType>,Subscription> {
+public class ServiceSupplierWeb3 implements ServiceSupplier<Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
     private Web3Service web3Service;
 
     ServiceSupplierWeb3(Node node) {
@@ -79,5 +88,34 @@ public class ServiceSupplierWeb3 implements ServiceSupplier<Observer<Types.Filte
         ).build();
         Observable<Types.FilterLogType> ethLogObservable = web3Service.ethLogObservable(requestEthNewFilter); //TODO :: Make available with all service implementations
         return ethLogObservable.subscribe(observer);
+    }
+
+    @Override public Message<Types.FilterLogType> decodeLogEvent(Contract contract, String eventName, Types.FilterLogType logEvent) {
+        IData pipeline = IDataFactory.create();
+        IData envelope = IDataFactory.create();
+        String uuid = "" + HexValue.toBigInteger(logEvent.getBlockNumber());
+        IDataUtil.put(envelope.getCursor(),"uuid", uuid);
+        IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
+        List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
+        Util.decodeEventInput(Util.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
+        return new Message<Types.FilterLogType>() {
+            {
+                _event = logEvent;
+                _msgID = uuid;
+                _type = eventName;
+                _data = pipeline;
+            }
+
+            @Override public Header getHeader(String name) { return null; }
+            @Override public Header[] getHeaders() { return new Header[0]; }
+            @Override public void setData(Object o) { _data = (IData)o; }
+            @Override public Values getValues() { return Values.use(_data); }
+        };
+    }
+
+    @Override public boolean isMatchingEvent(Contract contract, String eventName, Types.FilterLogType logEvent) {
+        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getTopic(0)));
+        String expected = Util.getEvent(contract, eventName).encode();
+        return actual.equalsIgnoreCase(expected);
     }
 }
