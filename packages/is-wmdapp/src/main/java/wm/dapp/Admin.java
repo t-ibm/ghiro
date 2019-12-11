@@ -33,7 +33,7 @@ import java.util.Map;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class Admin {
-    static Util util = Util.instance();
+    static Util<?,?,?> util = Util.instance();
     Admin() {}
     /**
      * Creates new DApp connection alias if not already existing.

@@ -86,11 +86,11 @@ public class Util<E,O,S> extends UtilBase<NSName,E,O,S> {
     /**
      * @return an instance as a singleton
      */
-    public static Util instance() {
+    public static <E,O,S> Util<E,O,S> instance() {
         if (instance == null) {
-            instance = new Util(pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
+            instance = new Util<>(pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         }
-        return instance;
+        return instance; //TODO :: Generify
     }
 
     @Override String getContractUri(NSName nsName) {

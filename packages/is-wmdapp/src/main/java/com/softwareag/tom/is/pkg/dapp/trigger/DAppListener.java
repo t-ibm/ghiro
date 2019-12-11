@@ -10,7 +10,6 @@ package com.softwareag.tom.is.pkg.dapp.trigger;
 import com.softwareag.tom.is.pkg.dapp.DAppLogger;
 import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
-import com.softwareag.tom.protocol.abi.Types;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException;
 import com.wm.app.b2b.server.dispatcher.exceptions.MessagingSubsystemException;
@@ -23,7 +22,7 @@ import rx.Subscription;
 
 import java.io.IOException;
 
-public class DAppListener extends AbstractListener<Types.FilterLogType> {
+public class DAppListener<E> extends AbstractListener<E> {
 
     public static final String IS_DAPP_CONNECTION = "IS_DAPP_CONNECTION";
 
@@ -49,7 +48,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
         }
 
         try {
-            Observer<Types.FilterLogType> observer = new Observer<Types.FilterLogType>() {
+            Observer<E> observer = new Observer<E>() {
 
                 @Override public void onCompleted() {
                     stopProcessing();
@@ -59,7 +58,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
                     DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_NOTIFICATION, throwable);
                 }
 
-                @Override public void onNext(Types.FilterLogType result) {
+                @Override public void onNext(E result) {
                     try {
                         _messageQueue.put(result);
                     } catch (InterruptedException e) {
@@ -98,7 +97,7 @@ public class DAppListener extends AbstractListener<Types.FilterLogType> {
      * trigger's retrieval is suspended then start the TriggerQueueConsumer in suspended mode.
      */
     @Override protected void initMessageDispatcher() {
-        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", this);
+        DAppMessageDispatcher<E> messageDispatcher = new DAppMessageDispatcher<>("0", this);
 
         if (_trigger.isProcessingSuspended()) {
             suspendProcessing();
