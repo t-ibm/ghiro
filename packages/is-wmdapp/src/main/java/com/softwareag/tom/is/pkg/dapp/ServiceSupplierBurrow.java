@@ -34,16 +34,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierBurrow<N> extends ContractSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
+public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
+
     private BurrowTransact burrowTransact;
     private BurrowQuery burrowQuery;
     private BurrowEvents burrowEvents;
 
     ServiceSupplierBurrow(UtilBase<N> util) {
-        super(util);
-        burrowQuery = BurrowService.query(new ServiceQuery(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
-        burrowTransact = BurrowService.transact(new ServiceTransact(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
-        burrowEvents = BurrowService.events(new ServiceEvents(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
+        this(
+            util,
+            BurrowService.query(new ServiceQuery(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort())),
+            BurrowService.transact(new ServiceTransact(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort())),
+            BurrowService.events(new ServiceEvents(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()))
+        );
     }
 
     public ServiceSupplierBurrow(UtilBase<N> util, BurrowQuery burrowQuery, BurrowTransact burrowTransact, BurrowEvents burrowEvents) {

@@ -104,13 +104,17 @@ public class Node {
     /**
      * @param name The node name
      * @return a named configuration instance as specified in the {@code environments} section of file {@code Node.yaml}
-     * @throws IOException if file {@code Node.yaml} cannot be decoded
+     * @throws ExceptionInInitializerError if file {@code Node.yaml} cannot be decoded
      */
-    public static Node instance(String name) throws IOException {
-        Node defaultConf = getDefaultConf();
-        Node namedConf =  defaultConf.environments.stream().filter(o -> o.getName().equals(name)).findFirst().orElse(null);
-        ObjectMapperFactory.getYamlMapper().updateValue(defaultConf, namedConf);
-        return  defaultConf;
+    public static Node instance(String name) throws ExceptionInInitializerError {
+        try {
+            Node defaultConf = getDefaultConf();
+            Node namedConf =  defaultConf.environments.stream().filter(o -> o.getName().equals(name)).findFirst().orElse(null);
+            ObjectMapperFactory.getYamlMapper().updateValue(defaultConf, namedConf);
+            return  defaultConf;
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 
     private static Node getDefaultConf() throws IOException {
