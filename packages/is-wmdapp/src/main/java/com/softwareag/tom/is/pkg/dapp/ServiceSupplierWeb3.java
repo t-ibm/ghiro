@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierWeb3<N> extends ContractSupplierBase<N> implements ServiceSupplier<N,Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
+public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
+
     private Web3Service web3Service;
 
     ServiceSupplierWeb3(UtilBase<N> util) {
-        super(util);
-        web3Service = Web3Service.build(new ServiceHttp("http://" + util.node.getHost().getIp() + ':' + util.node.getHost().getWeb3().getPort()));
+        this(util, Web3Service.build(new ServiceHttp("http://" + util.node.getHost().getIp() + ':' + util.node.getHost().getWeb3().getPort())));
     }
 
     public ServiceSupplierWeb3(UtilBase<N> util, Web3Service web3Service) {

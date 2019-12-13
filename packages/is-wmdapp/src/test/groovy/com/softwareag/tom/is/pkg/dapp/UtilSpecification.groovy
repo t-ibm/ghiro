@@ -198,8 +198,8 @@ class UtilSpecification extends RuntimeBaseSpecification {
         NSName nsName = NSName.create('sample.SimpleStorage:log')
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        if (!Util.instance().isContractDeployed(nsName)) {
-            Util.instance().storeContractAddress(nsName, responseMock.contractAddress)
+        if (!util.isContractDeployed(nsName)) {
+            util.storeContractAddress(nsName, responseMock.contractAddress)
         }
 
         and: 'we attempt to get the log observable'
@@ -221,8 +221,8 @@ class UtilSpecification extends RuntimeBaseSpecification {
         NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
 
         when: 'the contract address is remembered; implying the contract was deployed'
-        if (!Util.instance().isContractDeployed(nsName)) {
-            Util.instance().storeContractAddress(nsName, responseMock.contractAddress)
+        if (!util.isContractDeployed(nsName)) {
+            util.storeContractAddress(nsName, responseMock.contractAddress)
         }
 
         and: 'we attempt to get the log observable'

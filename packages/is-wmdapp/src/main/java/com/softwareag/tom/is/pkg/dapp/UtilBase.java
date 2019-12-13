@@ -7,40 +7,16 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
-import com.softwareag.tom.conf.Node;
-import com.softwareag.tom.contract.ConfigLocationFileSystem;
-import com.softwareag.tom.contract.Contract;
-import com.softwareag.tom.contract.ContractRegistry;
-import com.softwareag.tom.contract.SolidityLocationFileSystem;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
  */
-public abstract class UtilBase<N> implements ContractSupplier<N> {
-    Node node;
-    private ContractRegistry contractRegistry;
-    private Map<String, Contract> contracts;
+public abstract class UtilBase<N> extends ContractSupplierBase<N> {
+
     public ServiceSupplierWeb3<N> web3;
     public ServiceSupplierBurrow<N> burrow;
 
-    /**
-     * The default constructor.
-     * @throws ExceptionInInitializerError if the node configuration is missing
-     */
     UtilBase(String nodeName) throws ExceptionInInitializerError {
-        try {
-            node = Node.instance(nodeName);
-            URI contractRegistryLocation = node.getContract().getRegistry().getLocationAsUri();
-            URI configLocation = node.getConfig().getLocationAsUri();
-            contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
-        }
+        super(nodeName);
     }
 
     public ServiceSupplierWeb3<N> web3() {
@@ -55,47 +31,5 @@ public abstract class UtilBase<N> implements ContractSupplier<N> {
             burrow = new ServiceSupplierBurrow<>(this);
         }
         return burrow;
-    }
-
-    /**
-     * @param name The contract's constructor, function, or event name
-     * @param contractAddress The contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public void storeContractAddress(N name, String contractAddress) throws IOException {
-        storeContractAddress(getContractUri(name), contractAddress);
-    }
-
-    /**
-     * @param uri The contract's local location
-     * @param contractAddress The contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public void storeContractAddress(String uri, String contractAddress) throws IOException {
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, new Object[]{uri, contractAddress});
-        contracts = contractRegistry.load();
-        contracts.put(uri, contracts.get(uri).setContractAddress(contractAddress));
-        contracts = contractRegistry.storeContractAddresses(contracts);
-    }
-
-    public Map<String,Contract> loadContracts() throws IOException {
-        contracts = contractRegistry.load();
-        return contracts;
-    }
-
-    /**
-     * @param deployedOnly If set to {@code true} returns only events from deployed contracts, otherwise returns all defined
-     * @return all contracts known by this machine node
-     * @throws IOException if loading of the contracts fails
-     */
-    Map<String,Contract> loadContracts(boolean deployedOnly) throws IOException {
-        contracts = contractRegistry.load();
-        return contracts.entrySet().stream().filter(o -> !deployedOnly || o.getValue().getContractAddress() != null).collect(
-            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
-        );
-    }
-
-    public Contract getContract(String uri) {
-        return contracts.get(uri);
     }
 }
