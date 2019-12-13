@@ -49,6 +49,7 @@ import static Util.SUFFIX_REP
  */
 class UtilSpecification extends RuntimeBaseSpecification {
 
+    @Shared Util util = Util.instance()
     @Shared Service web3 = Mock(Service)
     @Shared ResponseMock responseMock = new ResponseMock()
     @Shared BurrowQuery burrowQuery
@@ -192,10 +193,9 @@ class UtilSpecification extends RuntimeBaseSpecification {
         contract.get('address') == null
     }
 
-    def "test call log"(ServiceSupplier serviceProvider) {
+    @Unroll def "test call log #serviceSupplier.class.name"(ServiceSupplier serviceSupplier) {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:log')
-        Util.instance().serviceSupplier = serviceProvider
 
         when: 'the contract address is remembered; implying the contract was deployed'
         if (!Util.instance().isContractDeployed(nsName)) {
@@ -204,22 +204,21 @@ class UtilSpecification extends RuntimeBaseSpecification {
 
         and: 'we attempt to get the log observable'
         IData pipeline = IDataFactory.create()
-        Util.instance().call(nsName, pipeline)
+        serviceSupplier.call(nsName, pipeline)
 
         then: 'a valid instance is retrieved'
         pipeline == IDataFactory.create()
 
         where: 'the service provider is from the list of supported providers'
-        serviceProvider << [
-            new ServiceSupplierWeb3(Web3Service.build(web3)),
-            new ServiceSupplierBurrow(burrowQuery, burrowTransact, burrowEvents)
+        serviceSupplier << [
+            new ServiceSupplierWeb3(util, Web3Service.build(web3)),
+            new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
         ]
     }
 
-    @Unroll def 'test log event #serviceProvider.class.name'(List filterChanges, Object observer, ServiceSupplier serviceProvider) {
+    @Unroll def 'test log event #serviceSupplier.class.name'(List filterChanges, Object observer, ServiceSupplier serviceSupplier) {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
-        Util.instance().serviceSupplier = serviceProvider
 
         when: 'the contract address is remembered; implying the contract was deployed'
         if (!Util.instance().isContractDeployed(nsName)) {
@@ -227,10 +226,10 @@ class UtilSpecification extends RuntimeBaseSpecification {
         }
 
         and: 'we attempt to get the log observable'
-        Util.instance().getLogObservable(nsName, observer)
+        serviceSupplier.subscribe(nsName, observer)
 
         and: 'the first log event is being decoded'
-        Message msg = Util.instance().decodeLogEvent(nsName, filterChanges[0]) //TODO :: Generify
+        Message msg = serviceSupplier.decodeLogEvent(nsName, filterChanges[0]) //TODO :: Generify
 
         then: 'the resulting pipeline has the expected values'
         msg.getIData() == IDataFactory.create((Object[][])[
@@ -239,8 +238,8 @@ class UtilSpecification extends RuntimeBaseSpecification {
         ])
 
         where: 'the service provider is from the list of supported providers'
-        filterChanges                                   | observer                | serviceProvider
-        responseMock.getExpectedFilterChangesWeb3()     | Mock(Observer)          | new ServiceSupplierWeb3(Web3Service.build(web3, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())))
-        responseMock.getExpectedFilterChangesBurrow()   | Mock(StreamObserver)    | new ServiceSupplierBurrow(burrowQuery, burrowTransact, burrowEvents)
+        filterChanges                                   | observer                | serviceSupplier
+        responseMock.getExpectedFilterChangesWeb3()     | Mock(Observer)          | new ServiceSupplierWeb3(util, Web3Service.build(web3, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())))
+        responseMock.getExpectedFilterChangesBurrow()   | Mock(StreamObserver)    | new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
     }
 }

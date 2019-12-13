@@ -10,6 +10,7 @@ package com.softwareag.tom.is.pkg.dapp.trigger;
 import com.softwareag.tom.is.pkg.dapp.DAppLogger;
 import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
+import com.softwareag.tom.protocol.abi.Types;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException;
 import com.wm.app.b2b.server.dispatcher.exceptions.MessagingSubsystemException;
@@ -22,7 +23,7 @@ import rx.Subscription;
 
 import java.io.IOException;
 
-public class DAppListener<E> extends AbstractListener<E> {
+public class DAppListener extends AbstractListener<Types.FilterLogType> {
 
     public static final String IS_DAPP_CONNECTION = "IS_DAPP_CONNECTION";
 
@@ -48,7 +49,7 @@ public class DAppListener<E> extends AbstractListener<E> {
         }
 
         try {
-            Observer<E> observer = new Observer<E>() {
+            Observer<Types.FilterLogType> observer = new Observer<Types.FilterLogType>() {
 
                 @Override public void onCompleted() {
                     stopProcessing();
@@ -58,7 +59,7 @@ public class DAppListener<E> extends AbstractListener<E> {
                     DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_NOTIFICATION, throwable);
                 }
 
-                @Override public void onNext(E result) {
+                @Override public void onNext(Types.FilterLogType result) {
                     try {
                         _messageQueue.put(result);
                     } catch (InterruptedException e) {
@@ -81,7 +82,7 @@ public class DAppListener<E> extends AbstractListener<E> {
                     pauseProcessing();
                 }
             };
-            subscription = (Subscription) Util.instance().getLogObservable(_trigger.getNSName(), observer);
+            subscription = Util.instance().web3().subscribe(_trigger.getNSName(), observer);
         } catch (IOException e) {
             DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_INIT, e);
             _messageListenerRunning = false;
@@ -97,7 +98,7 @@ public class DAppListener<E> extends AbstractListener<E> {
      * trigger's retrieval is suspended then start the TriggerQueueConsumer in suspended mode.
      */
     @Override protected void initMessageDispatcher() {
-        DAppMessageDispatcher<E> messageDispatcher = new DAppMessageDispatcher<>("0", this);
+        DAppMessageDispatcher messageDispatcher = new DAppMessageDispatcher("0", this);
 
         if (_trigger.isProcessingSuspended()) {
             suspendProcessing();

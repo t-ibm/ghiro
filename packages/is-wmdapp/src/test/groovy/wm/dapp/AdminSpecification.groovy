@@ -7,6 +7,7 @@
  */
 package wm.dapp
 
+import com.softwareag.tom.is.pkg.dapp.ServiceSupplierWeb3
 import com.softwareag.tom.is.pkg.dapp.Util
 import com.wm.app.b2b.server.ServiceException
 import com.wm.app.b2b.server.dispatcher.wmmessaging.ConnectionAlias
@@ -126,7 +127,8 @@ class AdminSpecification extends Specification {
 
         and: 'the underlying implementation methods are mocked'
         Admin.util = Mock(Util)
-        admin.util.deployContract(uri) >> { address }
+        Admin.util.web3() >> { Mock(ServiceSupplierWeb3) }
+        admin.util.web3().deployContract(uri) >> { address }
         admin.util.storeContractAddress(uri, address) >> { }
 
         when: 'the service is invoked'
