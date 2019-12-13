@@ -8,6 +8,7 @@
 package com.softwareag.tom.is.pkg.dapp.trigger;
 
 import com.softwareag.tom.is.pkg.dapp.Util;
+import com.softwareag.tom.protocol.abi.Types;
 import com.wm.app.b2b.server.ProtocolInfoIf;
 import com.wm.app.b2b.server.dispatcher.AbstractExecutionTask;
 import com.wm.app.b2b.server.dispatcher.AbstractListener;
@@ -19,21 +20,20 @@ import com.wm.msg.IMessage;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public class DAppExecutionTask<E> extends AbstractExecutionTask<E> {
+public class DAppExecutionTask extends AbstractExecutionTask<Types.FilterLogType> {
 
     /**
      * Default constructor. Note, if the trigger has only one publishable document type associated with it we will already
      * know its name, otherwise we look it up.
      */
-    DAppExecutionTask(E consumerEvent, String pdtName, AbstractListener<E> listener) {
+    DAppExecutionTask(Types.FilterLogType consumerEvent, String pdtName, AbstractListener<Types.FilterLogType> listener) {
         super(consumerEvent, pdtName, listener);
     }
 
     @Override protected IMessage preprocess() throws MessagingCoderException {
         NSName nsName = NSName.create(_pdtName);
         try {
-            Util<E,?,?> util = Util.instance();
-            Message<E> msg = util.decodeLogEvent(nsName, _event);
+            Message<Types.FilterLogType> msg = Util.instance().web3().decodeLogEvent(nsName, _event);
             setup(msg);
             return msg;
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class DAppExecutionTask<E> extends AbstractExecutionTask<E> {
         }
     }
 
-    @Override protected ProtocolInfoIf getProtocolInfoIf(Message<E> message) {
+    @Override protected ProtocolInfoIf getProtocolInfoIf(Message<Types.FilterLogType> message) {
         //TODO :: Change DES to DApp
         return new WmMessagingProtocolInfoImpl(WmMessagingProtocolInfoImpl.SubProtocol.DES, IS_DAPP_CONNECTION, _trigger.getName(), _pdtName, message.getDeliveryCount(), null);
     }

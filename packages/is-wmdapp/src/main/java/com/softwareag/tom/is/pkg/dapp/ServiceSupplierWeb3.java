@@ -7,7 +7,6 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
-import com.softwareag.tom.conf.Node;
 import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.protocol.Web3Service;
 import com.softwareag.tom.protocol.abi.Types;
@@ -29,14 +28,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierWeb3 implements ServiceSupplier<Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
+public class ServiceSupplierWeb3<N> extends ContractSupplierBase<N> implements ServiceSupplier<N,Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
     private Web3Service web3Service;
 
-    ServiceSupplierWeb3(Node node) {
-        web3Service = Web3Service.build(new ServiceHttp("http://" + node.getHost().getIp() + ':' + node.getHost().getWeb3().getPort()));
+    ServiceSupplierWeb3(UtilBase<N> util) {
+        super(util);
+        web3Service = Web3Service.build(new ServiceHttp("http://" + util.node.getHost().getIp() + ':' + util.node.getHost().getWeb3().getPort()));
     }
 
-    public ServiceSupplierWeb3(Web3Service web3Service) {
+    public ServiceSupplierWeb3(UtilBase<N> util, Web3Service web3Service) {
+        super(util);
         this.web3Service = web3Service;
     }
 
@@ -97,7 +98,7 @@ public class ServiceSupplierWeb3 implements ServiceSupplier<Types.FilterLogType,
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
-        Util.decodeEventInput(Util.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
+        ServiceSupplier.decodeEventInput(ContractSupplier.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;
@@ -115,7 +116,7 @@ public class ServiceSupplierWeb3 implements ServiceSupplier<Types.FilterLogType,
 
     @Override public boolean isMatchingEvent(Contract contract, String eventName, Types.FilterLogType logEvent) {
         String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getTopic(0)));
-        String expected = Util.getEvent(contract, eventName).encode();
+        String expected = ContractSupplier.getEvent(contract, eventName).encode();
         return actual.equalsIgnoreCase(expected);
     }
 }

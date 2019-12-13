@@ -74,7 +74,7 @@ class DAppListenerSpecification extends ListenerBaseSpecification {
             println "<<< $response"
             response
         }
-        return new ServiceSupplierWeb3(Web3Service.build(web3))
+        return new ServiceSupplierWeb3(Util.instance(), Web3Service.build(web3))
     }
 }
 
@@ -116,7 +116,7 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
         // Remember the contract address; implies the contract was deployed
         Util.instance().storeContractAddress(pdt.getNSName(), responseMock.contractAddress)
         // Inject mock service into Util
-        Util.instance().serviceSupplier = getServiceSupplier()
+        Util.instance().web3 = getServiceSupplier() as ServiceSupplierWeb3
         // Inject the thread pool size ... we need at least 2 thread to process the incoming messages
         threadPool = ControlledTriggerSvcThreadPool.getInstance()
         threadPool.max = 2

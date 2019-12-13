@@ -61,7 +61,7 @@ class UtilSpecification extends Specification {
         triggerDispatcherStrategy.register(triggerOutputControl)
 
         when: println '(1) The contract gets deployed'
-        String contractAddress = Util.instance().deployContract(pdt.getNSName())
+        String contractAddress = Util.instance().web3().deployContract(pdt.getNSName())
 
         then: 'a valid response is received'
         contractAddress.size() == 42
@@ -79,7 +79,7 @@ class UtilSpecification extends Specification {
 
         when: println '(3) function "log" is executed 3 times'
         3.times {
-            Util.instance().call(logFuntion, IDataFactory.create())
+            Util.instance().web3().call(logFuntion, IDataFactory.create())
         }
         sleep(10000)
 

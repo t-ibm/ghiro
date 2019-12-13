@@ -10,7 +10,6 @@ import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.contract.abi.ContractInterface;
 import com.softwareag.tom.contract.abi.ParameterType;
 import com.softwareag.tom.is.pkg.dapp.trigger.Condition;
-import com.softwareag.tom.protocol.util.HexValue;
 import com.wm.app.b2b.broker.conv.Transformer;
 import com.wm.app.b2b.broker.conv.TypeCoderException;
 import com.wm.app.b2b.broker.sync.SyncException;
@@ -53,14 +52,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
 
-public class Util<E,O,S> extends UtilBase<NSName,E,O,S> {
+public class Util extends UtilBase<NSName> {
     static final String SUFFIX_REQ = "Req";
     static final String SUFFIX_DOC = "Doc";
     static final String SUFFIX_REP = "Rep";
@@ -86,43 +84,25 @@ public class Util<E,O,S> extends UtilBase<NSName,E,O,S> {
     /**
      * @return an instance as a singleton
      */
-    public static <E,O,S> Util<E,O,S> instance() {
+    public static Util instance() {
         if (instance == null) {
-            instance = new Util<>(pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
+            instance = new Util(pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         }
-        return instance; //TODO :: Generify
+        return instance;
     }
 
-    @Override String getContractUri(NSName nsName) {
+    @Override public String getContractUri(NSName nsName) {
         return nsName.getInterfaceName().toString().replace('.', '/');
     }
 
-    @Override String getFunctionUri(NSName nsName) {
+    @Override public String getFunctionUri(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
     }
 
-    @Override String getEventUri(NSName nsName) {
+    @Override public String getEventUri(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
-    }
-
-    /**
-     * @param nsName The contract's function ns name
-     * @param pipeline The input pipeline
-     */
-    public void call(NSName nsName, IData pipeline) throws IOException {
-        ContractInterface.Specification<?> function = getFunction(nsName);
-        decodeFunctionOutput(function, pipeline, call(nsName, encodeInput(function, pipeline)));
-    }
-
-    /**
-     * @param nsName The contract's function ns name
-     * @param pipeline The input pipeline
-     */
-    public void sendTransaction(NSName nsName, IData pipeline) throws IOException {
-        ContractInterface.Specification<?> function = getFunction(nsName);
-        sendTransaction(nsName, encodeInput(function, pipeline));
     }
 
     /**
@@ -299,81 +279,8 @@ public class Util<E,O,S> extends UtilBase<NSName,E,O,S> {
         trigger.setConditions(triggerConditions.toArray(c));
     }
 
-    private static <T> String encodeInput(ContractInterface.Specification<T> function, IData pipeline) {
-        IDataCursor pc = pipeline.getCursor();
-        List<T> values = new ArrayList<>();
-        List<? extends ContractInterface.Parameter<T>> inputParameters = function.getInputParameters();
-        for (ContractInterface.Parameter<T> parameter : inputParameters) {
-            ParameterType<T> parameterType = parameter.getType();
-            T value = parameterType.asType(IDataUtil.get(pc, parameter.getName()));
-            values.add(value);
-        }
-        return function.encode(values);
-    }
-
-    static <T> void decodeEventInput(ContractInterface.Specification<T> specification, IData pipeline, String data, List<String> topics) {
-        List<? extends ContractInterface.Parameter<T>> nonIndexedParameters = specification.getInputParameters(false);
-        List<T> nonIndexedValues = specification.decode(nonIndexedParameters, data);
-        decodeParameters(pipeline, nonIndexedParameters, nonIndexedValues);
-        List<? extends ContractInterface.Parameter<T>> indexedParameters = specification.getInputParameters(true);
-        List<T> indexedValues = new ArrayList<>();
-        for (int i = 0; i < indexedParameters.size(); i++) {
-            String input = HexValue.stripPrefix(topics.get(i + 1));
-            indexedValues.add(indexedParameters.get(i).decode(input));
-        }
-        decodeParameters(pipeline, indexedParameters, indexedValues);
-    }
-
-    private static <T> void decodeFunctionOutput(ContractInterface.Specification<T> specification, IData pipeline, String data) {
-        List<? extends ContractInterface.Parameter<T>> parameters = specification.getOutputParameters();
-        List<T> values = specification.decode(parameters, data);
-        decodeParameters(pipeline, parameters, values);
-    }
-
-    private static <T> void decodeParameters(IData pipeline, List<? extends ContractInterface.Parameter<T>> parameters, List<T> values) {
-        assert values.size() == parameters.size();
-        Iterator<? extends ContractInterface.Parameter<T>> parametersIterator = parameters.iterator();
-        Iterator<T> valuesIterator = values.iterator();
-        IDataCursor pc = pipeline.getCursor();
-        while (parametersIterator.hasNext() && valuesIterator.hasNext()) {
-            IDataUtil.put(pc, parametersIterator.next().getName(), valuesIterator.next());
-        }
-    }
-
     private static String getInterfaceName(String uri) {
         return uri.replace('/', '.');
-    }
-
-    /**
-     * @param nsName The contract's function name
-     * @return the contract's function specification
-     */
-    private ContractInterface.Specification<?> getFunction(NSName nsName) {
-        String uri = getContractUri(nsName);
-        String functionName = getFunctionUri(nsName);
-        return getFunction(getContract(uri), functionName);
-    }
-
-    /**
-     * @param contract The contract
-     * @param functionName The contract's function name
-     * @return the contract's function specification
-     */
-    private static ContractInterface.Specification<?> getFunction(Contract contract, String functionName) {
-        ContractInterface.Specification<?> function = contract.getAbi().getFunctions().stream().filter(o -> o.getName().equals(functionName)).findFirst().orElse(null);
-        assert function != null;
-        return function;
-    }
-
-    /**
-     * @param contract The contract
-     * @param eventName The contract's event name
-     * @return the contract's event specification
-     */
-    static ContractInterface.Specification<?> getEvent(Contract contract, String eventName) {
-        ContractInterface.Specification<?> event = contract.getAbi().getEvents().stream().filter(o -> o.getName().equals(eventName)).findFirst().orElse(null);
-        assert event != null;
-        return event;
     }
 
     private static FlowSvcImpl createFlowSvcImpl(NSName nsName, NSSignature nsSignature, FlowInvoke flowInvoke, NSServiceType serviceType) {

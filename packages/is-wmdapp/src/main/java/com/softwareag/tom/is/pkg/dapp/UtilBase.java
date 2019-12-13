@@ -12,7 +12,6 @@ import com.softwareag.tom.contract.ConfigLocationFileSystem;
 import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.contract.ContractRegistry;
 import com.softwareag.tom.contract.SolidityLocationFileSystem;
-import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,10 +21,12 @@ import java.util.stream.Collectors;
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
  */
-public abstract class UtilBase<N,E,O,S> {
+public abstract class UtilBase<N> implements ContractSupplier<N> {
+    Node node;
     private ContractRegistry contractRegistry;
     private Map<String, Contract> contracts;
-    public ServiceSupplier<E,O,S> serviceSupplier;
+    public ServiceSupplierWeb3<N> web3;
+    public ServiceSupplierBurrow<N> burrow;
 
     /**
      * The default constructor.
@@ -33,57 +34,27 @@ public abstract class UtilBase<N,E,O,S> {
      */
     UtilBase(String nodeName) throws ExceptionInInitializerError {
         try {
-            Node node = Node.instance(nodeName);
+            node = Node.instance(nodeName);
             URI contractRegistryLocation = node.getContract().getRegistry().getLocationAsUri();
             URI configLocation = node.getConfig().getLocationAsUri();
             contractRegistry = ContractRegistry.build(new SolidityLocationFileSystem(contractRegistryLocation), new ConfigLocationFileSystem(configLocation));
-            serviceSupplier = (ServiceSupplier<E,O,S>) new ServiceSupplierWeb3(node); //TODO :: Generify
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
-    /**
-     * @param name The contract's constructor, function, or event name
-     * @return the contract's URI
-     */
-    abstract String getContractUri(N name);
-
-    /**
-     * @param name The contract's function name
-     * @return the contract's function URI
-     */
-    abstract String getFunctionUri(N name);
-
-    /**
-     * @param name The contract's event name
-     * @return the contract's event URI
-     */
-    abstract String getEventUri(N name);
-
-    /**
-     * @param name The contract's constructor, function, or event name
-     * @return the contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public String deployContract(N name) throws IOException {
-        return deployContract(getContractUri(name));
+    public ServiceSupplierWeb3<N> web3() {
+        if (web3 == null) {
+            web3 = new ServiceSupplierWeb3<>(this);
+        }
+        return web3;
     }
 
-    /**
-     * @param uri The contract's local location
-     * @return the contract's address in the distributed ledger
-     * @throws IOException if loading/storing of the contract-address mapping fails
-     */
-    public String deployContract(String uri) throws IOException {
-        loadContracts();
-        Contract contract = getContract(uri);
-        if (contract.getContractAddress() != null) {
-            throw new IllegalStateException("Contract address not null; it seems the contract was already deployed!");
-        } else {
-            serviceSupplier.sendTransaction(contract, contract.getBinary());
+    public ServiceSupplierBurrow<N> burrow() {
+        if (burrow == null) {
+            burrow = new ServiceSupplierBurrow<>(this);
         }
-        return contract.getContractAddress();
+        return burrow;
     }
 
     /**
@@ -107,11 +78,7 @@ public abstract class UtilBase<N,E,O,S> {
         contracts = contractRegistry.storeContractAddresses(contracts);
     }
 
-    /**
-     * @return all contracts known by this machine node
-     * @throws IOException if loading of the contracts fails
-     */
-    Map<String,Contract> loadContracts() throws IOException {
+    public Map<String,Contract> loadContracts() throws IOException {
         contracts = contractRegistry.load();
         return contracts;
     }
@@ -127,74 +94,8 @@ public abstract class UtilBase<N,E,O,S> {
             Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
         );
     }
-    /**
-     * @param uri The contract's location
-     * @return the contract
-     */
-    Contract getContract(String uri) {
+
+    public Contract getContract(String uri) {
         return contracts.get(uri);
-    }
-
-    /**
-     * @param name The contract's event name
-     * @return the corresponding log observable
-     */
-    public S getLogObservable(N name, O observer) throws IOException {
-        String uri = getContractUri(name);
-        Contract contract = validateContract(uri);
-        S subscription = serviceSupplier.subscribe(contract, observer);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
-        return subscription;
-    }
-
-    /**
-     * @param name The contract's event ns name
-     * @return the data pipeline wrapped as a {@link Message}
-     */
-    public Message<E> decodeLogEvent(N name, E logEvent) {
-        String uri = getContractUri(name);
-        Contract contract = getContract(uri);
-        Message<E> message = serviceSupplier.decodeLogEvent(contract, getEventUri(name), logEvent);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, getEventUri(name), getContract(uri).getContractAddress()});
-        return message;
-    }
-
-    public boolean isMatchingEvent(N name, E logEvent) {
-        String uri = getContractUri(name);
-        Contract contract = getContract(uri);
-        return serviceSupplier.isMatchingEvent(contract, getEventUri(name), logEvent);
-    }
-
-    /**
-     * @param name The contract's function name
-     * @param data The request data
-     * @return the response's return value
-     */
-    String call(N name, String data) throws IOException {
-        String uri = getContractUri(name);
-        Contract contract = validateContract(uri);
-        String result = serviceSupplier.call(contract, data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(name), contract.getContractAddress()});
-        return result;
-    }
-
-    /**
-     * @param name The contract's function name
-     * @param data The request data
-     */
-    void sendTransaction(N name, String data) throws IOException {
-        String uri = getContractUri(name);
-        Contract contract = validateContract(uri);
-        serviceSupplier.sendTransaction(contract, data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(name), contract.getContractAddress()});
-    }
-
-    /**
-     * @param uri The contract's location
-     * @return the contract
-     * @throws IOException if the contract cannot be accessed
-     */
-    private Contract validateContract(String uri) throws IOException {
-        return serviceSupplier.validateContract(getContract(uri));
     }
 }

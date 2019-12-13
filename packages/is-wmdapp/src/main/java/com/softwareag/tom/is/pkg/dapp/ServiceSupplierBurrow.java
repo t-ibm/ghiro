@@ -7,7 +7,6 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
-import com.softwareag.tom.conf.Node;
 import com.softwareag.tom.contract.Contract;
 import com.softwareag.tom.protocol.BurrowService;
 import com.softwareag.tom.protocol.api.BurrowEvents;
@@ -35,18 +34,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierBurrow implements ServiceSupplier<RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
+public class ServiceSupplierBurrow<N> extends ContractSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
     private BurrowTransact burrowTransact;
     private BurrowQuery burrowQuery;
     private BurrowEvents burrowEvents;
 
-    ServiceSupplierBurrow(Node node) {
-        burrowQuery = BurrowService.query(new ServiceQuery(node.getHost().getIp(), node.getHost().getGRpc().getPort()));
-        burrowTransact = BurrowService.transact(new ServiceTransact(node.getHost().getIp(), node.getHost().getGRpc().getPort()));
-        burrowEvents = BurrowService.events(new ServiceEvents(node.getHost().getIp(), node.getHost().getGRpc().getPort()));
+    ServiceSupplierBurrow(UtilBase<N> util) {
+        super(util);
+        burrowQuery = BurrowService.query(new ServiceQuery(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
+        burrowTransact = BurrowService.transact(new ServiceTransact(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
+        burrowEvents = BurrowService.events(new ServiceEvents(util.node.getHost().getIp(), util.node.getHost().getGRpc().getPort()));
     }
 
-    public ServiceSupplierBurrow(BurrowQuery burrowQuery, BurrowTransact burrowTransact, BurrowEvents burrowEvents) {
+    public ServiceSupplierBurrow(UtilBase<N> util, BurrowQuery burrowQuery, BurrowTransact burrowTransact, BurrowEvents burrowEvents) {
+        super(util);
         this.burrowQuery = burrowQuery;
         this.burrowTransact = burrowTransact;
         this.burrowEvents = burrowEvents;
@@ -112,7 +113,7 @@ public class ServiceSupplierBurrow implements ServiceSupplier<RpcEvents.EventsRe
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
-        Util.decodeEventInput(Util.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
+        ServiceSupplier.decodeEventInput(ContractSupplier.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
         return new Message<RpcEvents.EventsResponse>() {
             {
                 _event = logEvent;
@@ -130,7 +131,7 @@ public class ServiceSupplierBurrow implements ServiceSupplier<RpcEvents.EventsRe
 
     @Override public boolean isMatchingEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {
         String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getEvents(0).getLog().getTopics(0)));
-        String expected = Util.getEvent(contract, eventName).encode();
+        String expected = ContractSupplier.getEvent(contract, eventName).encode();
         return actual.equalsIgnoreCase(expected);
     }
 }

@@ -7,6 +7,7 @@
  */
 package wm.dapp
 
+import com.softwareag.tom.is.pkg.dapp.ServiceSupplierWeb3
 import com.softwareag.tom.is.pkg.dapp.Util
 import com.wm.app.b2b.server.InvokeState
 import com.wm.app.b2b.server.ServiceException
@@ -49,6 +50,7 @@ class ContractSpecification extends Specification{
     def 'test positive call'() {
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
+        Contract.util.web3() >> Mock(ServiceSupplierWeb3)
 
         when: 'the service is invoked'
         contract.call(pipeline)
@@ -61,7 +63,8 @@ class ContractSpecification extends Specification{
     def 'test negative call'() {
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
-        Contract.util.call(_ as NSName, _ as IData) >> {
+        Contract.util.web3() >> Mock(ServiceSupplierWeb3)
+        Contract.util.web3().call(_ as NSName, _ as IData) >> {
             throw new IOException()
         }
 
@@ -76,6 +79,7 @@ class ContractSpecification extends Specification{
     def 'test positive send transaction'() {
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
+        Contract.util.web3() >> Mock(ServiceSupplierWeb3)
 
         when: 'the service is invoked'
         contract.sendTransaction(pipeline)
@@ -88,7 +92,8 @@ class ContractSpecification extends Specification{
     def 'test negative send transaction'() {
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
-        Contract.util.sendTransaction(_ as NSName, _ as IData) >> {
+        Contract.util.web3() >> Mock(ServiceSupplierWeb3)
+        Contract.util.web3().sendTransaction(_ as NSName, _ as IData) >> {
             throw new IOException()
         }
 
