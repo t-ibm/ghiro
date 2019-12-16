@@ -35,6 +35,8 @@ import com.wm.app.b2b.server.ns.Namespace
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
 import com.wm.lang.ns.NSTrigger
+import rx.Observer
+import rx.Subscription
 import spock.lang.Shared
 
 /**
@@ -83,7 +85,7 @@ class DAppListenerSpecification extends ListenerBaseSpecification {
  */
 abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
     @Shared ControlledTriggerSvcThreadPool threadPool
-    @Shared DAppListener listener
+    @Shared DAppListenerBase listener
     @Shared String pdtName
 
     @Shared ResponseMock responseMock = new ResponseMock()
@@ -142,10 +144,35 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
     }
 }
 
-class DAppListenerMock extends DAppListener {
+class DAppListenerMock extends DAppListenerBase<Types.FilterLogType> {
+
+    private Subscription subscription
+
     DAppListenerMock(Trigger trigger, ControlledTriggerSvcThreadPool threadPool) {
         super(trigger, threadPool)
     }
+
+    @Override void subscribe() throws IOException {
+        Observer<Types.FilterLogType> observer = [
+            onCompleted: {
+                stopProcessing()
+            },
+            onError    : { Throwable e ->
+                throw e
+            },
+            onNext     : { Types.FilterLogType result ->
+                _messageQueue.put(result);
+            }
+        ] as Observer<Types.FilterLogType>
+        subscription = Util.instance().web3().subscribe(_trigger.getNSName(), observer)
+    }
+
+    @Override void unsubscribe() {
+        if (subscription != null) {
+            subscription.unsubscribe()
+        }
+    }
+
     @Override protected void init() throws Exception {
         // Do not wait until IS is started
     }
