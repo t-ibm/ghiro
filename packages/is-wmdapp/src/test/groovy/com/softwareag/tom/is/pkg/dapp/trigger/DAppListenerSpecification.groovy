@@ -154,7 +154,7 @@ class DAppListenerMock extends DAppListener {
     }
 }
 
-class DAppExecutionTaskMock extends DAppExecutionTask {
+class DAppExecutionTaskMock extends DAppExecutionTask<Types.FilterLogType> {
     DAppExecutionTaskMock(Types.FilterLogType consumerEvent, String pdtName, AbstractListener<Types.FilterLogType> listener) throws CommException {
         super(consumerEvent, pdtName, listener)
     }

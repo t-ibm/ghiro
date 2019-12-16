@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListener.IS_DAPP_CONNECTION;
+import static com.softwareag.tom.is.pkg.dapp.trigger.DAppListenerBase.IS_DAPP_CONNECTION;
 
 public class Util extends UtilBase<NSName> {
     static final String SUFFIX_REQ = "Req";
