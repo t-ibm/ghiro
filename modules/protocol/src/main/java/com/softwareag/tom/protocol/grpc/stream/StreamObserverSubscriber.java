@@ -11,7 +11,7 @@ import com.softwareag.tom.protocol.grpc.ServiceEvents;
 
 public class StreamObserverSubscriber implements Subscription {
 
-    ServiceEvents service;
+    private ServiceEvents service;
 
     public StreamObserverSubscriber(ServiceEvents service) {
         this.service = service;
