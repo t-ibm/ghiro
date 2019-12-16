@@ -16,4 +16,5 @@ public interface Service<S extends AbstractStub<S>, B extends AbstractStub<B>> {
     S newStub();
     B newBlockingStub();
     void shutdown() throws InterruptedException;
+    boolean isShutdown();
 }

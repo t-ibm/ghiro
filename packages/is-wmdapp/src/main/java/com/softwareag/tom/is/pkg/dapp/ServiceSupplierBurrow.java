@@ -15,6 +15,8 @@ import com.softwareag.tom.protocol.api.BurrowTransact;
 import com.softwareag.tom.protocol.grpc.ServiceEvents;
 import com.softwareag.tom.protocol.grpc.ServiceQuery;
 import com.softwareag.tom.protocol.grpc.ServiceTransact;
+import com.softwareag.tom.protocol.grpc.stream.StreamObserverSubscriber;
+import com.softwareag.tom.protocol.grpc.stream.Subscription;
 import com.softwareag.tom.protocol.util.HexValue;
 import com.wm.app.b2b.server.dispatcher.Dispatcher;
 import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
@@ -34,7 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Object> {
+public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Subscription> {
 
     private BurrowTransact burrowTransact;
     private BurrowQuery burrowQuery;
@@ -97,7 +99,7 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements 
         }
     }
 
-    @Override public Object subscribe(Contract contract, StreamObserver<RpcEvents.EventsResponse> observer) {
+    @Override public Subscription subscribe(Contract contract, StreamObserver<RpcEvents.EventsResponse> observer) {
         String contractAddressUpperCase = HexValue.stripPrefix(contract.getContractAddress()).toUpperCase(); //TODO :: Fix contract address
         String query = String.format("EventType = 'LogEvent' AND Address = '%s'", contractAddressUpperCase);
         RpcEvents.BlocksRequest request = RpcEvents.BlocksRequest.newBuilder().setBlockRange(
@@ -106,7 +108,7 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements 
                 .setEnd(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.STREAM))
         ).setQuery(query).build();
         burrowEvents.getEvents(request, observer);
-        return null;
+        return new StreamObserverSubscriber(burrowEvents.getService());
     }
 
     @Override public Message<RpcEvents.EventsResponse> decodeLogEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {

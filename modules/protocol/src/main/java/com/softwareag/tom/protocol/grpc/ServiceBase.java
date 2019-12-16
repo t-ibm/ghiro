@@ -30,4 +30,8 @@ abstract class ServiceBase<S extends AbstractStub<S>, B extends AbstractStub<B>>
     @Override public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
+
+    @Override public boolean isShutdown() {
+        return channel.isShutdown() || channel.isTerminated();
+    }
 }
