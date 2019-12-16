@@ -11,7 +11,7 @@ import io.grpc.stub.StreamObserver;
 
 public interface Subscription {
     /**
-     * Stops the receipt of notifications on the {@link StreamObserver} that was registered when this subscription; this allows deregistering
+     * Stops the receipt of notifications on the {@link StreamObserver} that was registered with this subscription; this allows deregistering
      * a {@link StreamObserver} before it has finished receiving all events (i.e. before {@link StreamObserver#onCompleted()} is called).
      */
     void unsubscribe() throws InterruptedException;

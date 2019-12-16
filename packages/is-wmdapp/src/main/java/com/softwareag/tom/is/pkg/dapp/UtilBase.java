@@ -7,6 +7,10 @@
  */
 package com.softwareag.tom.is.pkg.dapp;
 
+import com.softwareag.tom.protocol.abi.Types;
+import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
+import org.hyperledger.burrow.rpc.RpcEvents;
+
 /**
  * @param <N> The contract's unique constructor, function, or event representation.
  */
@@ -31,5 +35,24 @@ public abstract class UtilBase<N> extends ContractSupplierBase<N> {
             burrow = new ServiceSupplierBurrow<>(this);
         }
         return burrow;
+    }
+
+
+    public <E> boolean isMatchingEvent(N name, E event) {
+        if (event instanceof  Types.FilterLogType) {
+            return this.web3().isMatchingEvent(name, (Types.FilterLogType)event);
+        } else if (event instanceof RpcEvents.EventsResponse) {
+            return this.burrow().isMatchingEvent(name, (RpcEvents.EventsResponse) event);
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked") public <E> Message<E> decodeLogEvent(N name, E event) {
+        if (event instanceof  Types.FilterLogType) {
+            return (Message<E>) this.web3().decodeLogEvent(name, (Types.FilterLogType)event);
+        } else if (event instanceof RpcEvents.EventsResponse) {
+            return (Message<E>) this.burrow().decodeLogEvent(name, (RpcEvents.EventsResponse) event);
+        }
+        return null;
     }
 }

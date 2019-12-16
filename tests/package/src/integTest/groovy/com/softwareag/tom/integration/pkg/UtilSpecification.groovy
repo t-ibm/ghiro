@@ -12,6 +12,7 @@ import com.softwareag.tom.is.pkg.dapp.trigger.DAppListener
 import com.wm.app.b2b.server.PackageManager
 import com.wm.app.b2b.server.ThreadManager
 import com.wm.app.b2b.server.TriggerFactory
+import com.wm.app.b2b.server.dispatcher.exceptions.CommException
 import com.wm.app.b2b.server.dispatcher.frameworks.DispatcherManager
 import com.wm.app.b2b.server.dispatcher.frameworks.DispatcherManagerHelper
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger
@@ -95,7 +96,7 @@ class UtilSpecification extends Specification {
 }
 
 class DAppListenerMock extends DAppListener {
-    DAppListenerMock(Trigger trigger, ControlledTriggerSvcThreadPool threadPool) {
+    DAppListenerMock(Trigger trigger, ControlledTriggerSvcThreadPool threadPool) throws CommException {
         super(trigger, threadPool)
     }
 
