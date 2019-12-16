@@ -229,7 +229,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
         serviceSupplier.subscribe(nsName, observer)
 
         and: 'the first log event is being decoded'
-        Message msg = serviceSupplier.decodeLogEvent(nsName, filterChanges[0]) //TODO :: Generify
+        Message msg = serviceSupplier.decodeLogEvent(nsName, filterChanges[0])
 
         then: 'the resulting pipeline has the expected values'
         msg.getIData() == IDataFactory.create((Object[][])[
