@@ -46,6 +46,6 @@ abstract class RuntimeBaseSpecification extends UtilBaseSpecification {
             connectionAlias
         }
         // Set runtime configuration
-        Util.instance().rt = runtimeConfiguration
+        util.rt = runtimeConfiguration
     }
 }

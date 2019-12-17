@@ -64,7 +64,7 @@ public class Util extends UtilBase<NSName> {
     static final String SUFFIX_REP = "Rep";
 
     private static Util instance;
-    public RuntimeConfiguration rt;
+    RuntimeConfiguration rt;
 
     private static Package pkgWmDApp = PackageManager.getPackage("WmDApp");
     private static Package pkgWmDAppContract = PackageManager.getPackage("WmDAppContract");
