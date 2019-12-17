@@ -27,7 +27,7 @@ import spock.lang.Specification
 
 import java.util.concurrent.Executors
 
-class UtilBaseSpecification extends Specification {
+abstract class UtilBaseSpecification extends Specification {
 
     @Shared ResponseMock responseMock = new ResponseMock()
     @Shared Util util = Util.instance()
