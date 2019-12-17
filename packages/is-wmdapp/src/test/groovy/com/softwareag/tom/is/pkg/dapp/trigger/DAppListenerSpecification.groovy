@@ -8,10 +8,7 @@
 package com.softwareag.tom.is.pkg.dapp.trigger
 
 import com.softwareag.tom.is.pkg.dapp.RuntimeBaseSpecification
-import com.softwareag.tom.is.pkg.dapp.ServiceSupplierBurrow
-import com.softwareag.tom.is.pkg.dapp.ServiceSupplierWeb3
 import com.softwareag.tom.is.pkg.dapp.Util
-import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.abi.Types
 import com.wm.app.b2b.server.FlowSvcImpl
 import com.wm.app.b2b.server.NodeMaster
@@ -99,12 +96,8 @@ abstract class ListenerBaseSpecification extends RuntimeBaseSpecification {
     @Shared AbstractListener listener
     @Shared ControlledTriggerSvcThreadPool threadPool
 
-    @Shared Util util = Util.instance()
-
     @Override def setupSpec() {
         setupTrigger()
-        util.web3 = new ServiceSupplierWeb3(util, Web3Service.build(web3))
-        util.burrow = new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
         // Inject the thread pool size ... we need at least 2 thread to process the incoming messages
         threadPool = ControlledTriggerSvcThreadPool.getInstance()
         threadPool.max = 2

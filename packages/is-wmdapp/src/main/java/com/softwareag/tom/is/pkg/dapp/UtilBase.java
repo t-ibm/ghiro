@@ -16,8 +16,8 @@ import org.hyperledger.burrow.rpc.RpcEvents;
  */
 public abstract class UtilBase<N> extends ContractSupplierBase<N> {
 
-    public ServiceSupplierWeb3<N> web3;
-    public ServiceSupplierBurrow<N> burrow;
+    ServiceSupplierWeb3<N> web3;
+    ServiceSupplierBurrow<N> burrow;
 
     UtilBase(String nodeName) throws ExceptionInInitializerError {
         super(nodeName);

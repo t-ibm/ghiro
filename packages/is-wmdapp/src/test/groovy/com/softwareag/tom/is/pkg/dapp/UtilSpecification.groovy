@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
-import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.util.HexValue
 import com.softwareag.util.IDataMap
 import com.wm.app.b2b.server.FlowSvcImpl
@@ -22,10 +21,7 @@ import com.wm.lang.ns.NSSignature
 import com.wm.lang.ns.NSTrigger
 import io.grpc.stub.StreamObserver
 import rx.Observer
-import spock.lang.Shared
 import spock.lang.Unroll
-
-import java.util.concurrent.Executors
 
 import static Util.SUFFIX_REQ
 import static Util.SUFFIX_DOC
@@ -36,8 +32,6 @@ import static Util.SUFFIX_REP
  * @author tglaeser
  */
 class UtilSpecification extends RuntimeBaseSpecification {
-
-    @Shared Util util = Util.instance()
 
     def "test contract function to ns node conversion"() {
         given: 'the contracts can be retrieved from the contract registry'
@@ -153,12 +147,12 @@ class UtilSpecification extends RuntimeBaseSpecification {
 
         where: 'the service provider is from the list of supported providers'
         serviceSupplier << [
-            new ServiceSupplierWeb3(util, Web3Service.build(web3)),
-            new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
+            util.web3(),
+            util.burrow()
         ]
     }
 
-    @Unroll def 'test log event #serviceSupplier.class.name'(List filterChanges, Object observer, ServiceSupplier serviceSupplier) {
+    @Unroll def 'test log event #serviceSupplier.class.name'(ServiceSupplier serviceSupplier, Object observer, List filterChanges) {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
 
@@ -180,8 +174,8 @@ class UtilSpecification extends RuntimeBaseSpecification {
         ])
 
         where: 'the service provider is from the list of supported providers'
-        filterChanges                                   | observer                | serviceSupplier
-        responseMock.getExpectedFilterChangesWeb3()     | Mock(Observer)          | new ServiceSupplierWeb3(util, Web3Service.build(web3, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())))
-        responseMock.getExpectedFilterChangesBurrow()   | Mock(StreamObserver)    | new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
+        serviceSupplier | observer                | filterChanges
+        util.web3()     | Mock(Observer)          | responseMock.getExpectedFilterChangesWeb3()
+        util.burrow()   | Mock(StreamObserver)    | responseMock.getExpectedFilterChangesBurrow()
     }
 }

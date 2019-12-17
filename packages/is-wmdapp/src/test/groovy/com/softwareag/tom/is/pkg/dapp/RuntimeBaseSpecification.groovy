@@ -18,7 +18,7 @@ import com.wm.lang.ns.NSRecord
 /**
  * A base specification providing common IS messaging support.
  */
-class RuntimeBaseSpecification extends SupplierSpecification {
+class RuntimeBaseSpecification extends UtilBaseSpecification {
     def setupSpec() {
         // Inject IS package store into IS package
         Package pkg = Mock(Package)

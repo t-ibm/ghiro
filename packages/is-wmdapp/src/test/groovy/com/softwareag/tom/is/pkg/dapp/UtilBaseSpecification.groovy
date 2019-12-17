@@ -7,6 +7,7 @@
  */
 package com.softwareag.tom.is.pkg.dapp
 
+import com.softwareag.tom.protocol.Web3Service
 import com.softwareag.tom.protocol.api.BurrowEvents
 import com.softwareag.tom.protocol.api.BurrowQuery
 import com.softwareag.tom.protocol.api.BurrowTransact
@@ -24,13 +25,12 @@ import org.hyperledger.burrow.txs.Payload
 import spock.lang.Shared
 import spock.lang.Specification
 
-class SupplierSpecification extends Specification {
+import java.util.concurrent.Executors
+
+class UtilBaseSpecification extends Specification {
 
     @Shared ResponseMock responseMock = new ResponseMock()
-    @Shared Service web3
-    @Shared BurrowQuery burrowQuery
-    @Shared BurrowTransact burrowTransact
-    @Shared BurrowEvents burrowEvents
+    @Shared Util util = Util.instance()
 
     def setupSpec() {
         setupJsonRpc()
@@ -39,25 +39,26 @@ class SupplierSpecification extends Specification {
 
     def setupJsonRpc() {
         // JSON-RPC
-        web3 = Mock(Service)
-        web3.send(_ as Request, _ as Class) >> { Request request, Class c ->
+        Service service = Mock(Service)
+        service.send(_ as Request, _ as Class) >> { Request request, Class c ->
             println ">>> $request"
             Response response = responseMock.getResponse(request)
             println "<<< $response"
             response
         }
+        util.web3 = new ServiceSupplierWeb3(util, Web3Service.build(service, 1000, Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())))
     }
 
     def setupGRpc() {
         // gRPC
-        burrowQuery = Mock(BurrowQuery)
+        BurrowQuery burrowQuery = Mock(BurrowQuery)
         burrowQuery.getAccount(_ as RpcQuery.GetAccountParam) >> { RpcQuery.GetAccountParam request ->
             println ">>> $request"
             Acm.Account response = Acm.Account.newBuilder().setEVMCode(HexValue.toByteString('0x0000')).build() //TODO
             println "<<< $response"
             response
         }
-        burrowTransact = Mock(BurrowTransact)
+        BurrowTransact burrowTransact = Mock(BurrowTransact)
         burrowTransact.callTx(_ as Payload.CallTx) >> { Payload.CallTx request ->
             println ">>> $request"
             Exec.Result result = Exec.Result.newBuilder().setReturn(HexValue.copyFrom('')).build()
@@ -65,7 +66,7 @@ class SupplierSpecification extends Specification {
             println "<<< $response"
             response
         }
-        burrowEvents = Mock(BurrowEvents)
+        BurrowEvents burrowEvents = Mock(BurrowEvents)
         burrowEvents.getEvents(_ as RpcEvents.BlocksRequest, _ as StreamObserver<RpcEvents.EventsResponse>) >> { RpcEvents.BlocksRequest request, StreamObserver<RpcEvents.EventsResponse> observer ->
             println ">>> $request"
             long height = 108
@@ -82,5 +83,6 @@ class SupplierSpecification extends Specification {
                 height++
             }
         }
+        util.burrow = new ServiceSupplierBurrow(util, burrowQuery, burrowTransact, burrowEvents)
     }
 }
