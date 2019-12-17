@@ -14,12 +14,11 @@ import com.wm.app.b2b.server.dispatcher.wmmessaging.RuntimeConfiguration
 import com.wm.app.b2b.server.ns.Namespace
 import com.wm.lang.ns.NSName
 import com.wm.lang.ns.NSRecord
-import spock.lang.Specification
 
 /**
  * A base specification providing common IS messaging support.
  */
-class RuntimeBaseSpecification extends Specification {
+class RuntimeBaseSpecification extends SupplierSpecification {
     def setupSpec() {
         // Inject IS package store into IS package
         Package pkg = Mock(Package)
