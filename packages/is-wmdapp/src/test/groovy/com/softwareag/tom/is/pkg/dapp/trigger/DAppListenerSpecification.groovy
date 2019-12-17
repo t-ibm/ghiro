@@ -36,6 +36,7 @@ import org.hyperledger.burrow.rpc.RpcEvents
 import rx.Observer
 import rx.Subscription
 import spock.lang.Shared
+import spock.lang.Unroll
 
 /**
  * System under specification: {@link DAppListener}.
@@ -43,34 +44,22 @@ import spock.lang.Shared
  */
 class DAppListenerSpecification extends ListenerBaseSpecification {
 
-    def "test log filter observable Web3"() {
-        given: 'the listener had some time to startup'
-        this.listener = new DAppListenerWeb3(this.trigger, this.threadPool)
+    def "test negative start listener"() {
+        when: 'the listener is not properly configured'
+        this.listener = new DAppListener(this.trigger, this.threadPool)
         this.threadPool.runTarget(this.listener)
-        sleep(1000)
 
-        expect: 'the listener was successfully started'
-        this.listener.running
-
-        and: 'some messages were received'
-        this.listener.queueSize > 0
-
-        when: 'the listener will be stopped'
-        this.listener.stop()
-
-        then: 'the listener state changed accordingly'
-        this.listener.stopped
-
-        when: 'the received messages are now getting processed'
-        this.processMessage()
-
-        then: 'all messages were consumed'
+        then: 'the listener failed to start'
+        !this.listener.running
         this.listener.queueSize == 0
+
+        and: 'no exception has been thrown'
+        notThrown(Exception)
     }
 
-    def "test log filter observable Burrow"() {
+    @Unroll def "test log filter observable #dappListener.class.name"() {
         given: 'the listener had some time to startup'
-        this.listener = new DAppListenerBurrow(this.trigger, this.threadPool)
+        this.listener = dappListener
         this.threadPool.runTarget(this.listener)
         sleep(1000)
 
@@ -91,6 +80,12 @@ class DAppListenerSpecification extends ListenerBaseSpecification {
 
         then: 'all messages were consumed'
         this.listener.queueSize == 0
+
+        where:
+        dappListener << [
+            new DAppListenerWeb3(this.trigger, this.threadPool),
+            new DAppListenerBurrow(this.trigger, this.threadPool),
+        ]
     }
 }
 
