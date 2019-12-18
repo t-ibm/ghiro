@@ -16,6 +16,6 @@ import com.softwareag.tom.protocol.jsonrpc.response.ResponseEthNewFilter;
  */
 public class RequestEthNewBlockFilter extends Request<ParamsEvent, ResponseEthNewFilter> {
     public RequestEthNewBlockFilter(Service jsonRpcService) {
-        super(jsonRpcService, "burrow.eventSubscribe", new ParamsEvent("NewBlock"));
+        super(jsonRpcService, "eth_newBlockFilter", new ParamsEvent("NewBlock"));
     }
 }

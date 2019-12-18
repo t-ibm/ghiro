@@ -22,6 +22,6 @@ public class RequestEthUninstallFilter extends Request<ParamsFilter, ResponseEth
     }
 
     public RequestEthUninstallFilter(Service jsonRpcService, ByteString filterId) {
-        super(jsonRpcService, "burrow.eventUnsubscribe", new ParamsFilter(filterId));
+        super(jsonRpcService, "eth_uninstallFilter", new ParamsFilter(filterId));
     }
 }
