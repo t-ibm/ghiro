@@ -21,6 +21,6 @@ public class RequestEthNewFilter extends Request<ParamsEvent, ResponseEthNewFilt
     }
 
     public RequestEthNewFilter(Service jsonRpcService, ByteString address) {
-        super(jsonRpcService, "burrow.eventSubscribe", new ParamsEvent(address));
+        super(jsonRpcService, "eth_newFilter", new ParamsEvent(address));
     }
 }

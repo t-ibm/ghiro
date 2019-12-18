@@ -21,6 +21,6 @@ public class RequestEthGetFilterChanges extends Request<ParamsFilter, ResponseEt
     }
 
     public RequestEthGetFilterChanges(Service jsonRpcService, ByteString filterId) {
-        super(jsonRpcService, "burrow.eventPoll", new ParamsFilter(filterId));
+        super(jsonRpcService, "eth_getFilterChanges", new ParamsFilter(filterId));
     }
 }

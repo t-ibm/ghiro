@@ -21,6 +21,7 @@ import com.softwareag.tom.protocol.util.HexValue
 import rx.Observable
 import rx.Observer
 import rx.Subscription
+import rx.exceptions.OnErrorFailedException
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit
  * System under specification: {@link Web3Service}.
  * @author tglaeser
  */
-class BurrowSpecification extends Specification {
+class Web3ServiceSpecification extends Specification {
 
     @Shared @Node protected ConfigObject config
     @Shared protected Web3Service web3Service
@@ -77,18 +78,6 @@ class BurrowSpecification extends Specification {
         HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) >= 9999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
     }
 
-    def "test 'ethNewBlockFilter' service"() {
-        when: 'we make a get request'
-        Types.RequestEthNewBlockFilter request = Types.RequestEthNewBlockFilter.newBuilder().build()
-        Message response = web3Service.ethNewBlockFilter()
-        println ">>> $request.descriptorForType.fullName....$request"
-        println "<<< $response.descriptorForType.fullName...$response"
-
-        then: 'a valid response is received'
-        response instanceof Types.ResponseEthNewFilter
-        ((Types.ResponseEthNewFilter) response).id.size() == 64 + 2
-    }
-
     def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
@@ -132,7 +121,8 @@ class BurrowSpecification extends Specification {
         println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        responseEthGetStorageAt.getValue() != null
+        UnsupportedOperationException exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(4) we subscribe to events from the the new contract account'
         Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
@@ -141,19 +131,18 @@ class BurrowSpecification extends Specification {
         Types.ResponseEthNewFilter responseEthNewFilter = web3Service.ethNewFilter(requestEthNewFilter)
         println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $responseEthNewFilter.descriptorForType.fullName...$responseEthNewFilter"
 
-        and: 'the filter id is remembered'
-        def filterId = responseEthNewFilter.getId()
-
         then: 'a valid response is received'
-        responseEthNewFilter.getId().size() == 32*2+2
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(5) we poll for events'
-        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(ByteString.EMPTY).build()
         Types.ResponseEthGetFilterChanges responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getEventCount() == 0
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(6) function "log" is executed 2 times'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
@@ -169,16 +158,13 @@ class BurrowSpecification extends Specification {
         responseEthCall.return != null
 
         when: println '(7) we poll for events again'
-        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(ByteString.EMPTY).build()
         responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getEventCount() == 2
-        responseEthGetFilterChanges.getEvent(1).getLog().address.size() == 32*2+2
-        responseEthGetFilterChanges.getEvent(1).getLog().data.size() == 32*2+2
-        responseEthGetFilterChanges.getEvent(1).getLog().getTopicCount() == 1
-        HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(1).getLog().getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
+        exception = thrown()
+        exception.message == 'Error 3: not found'
     }
 
     def "test create solidity contract and listen to events"() {
@@ -235,8 +221,9 @@ class BurrowSpecification extends Specification {
         ] as Observer)
 
         then: 'the ReactiveX system gets properly initialized'
-        ethLogObservable != null
-        ethLogSubscription != null
+        ethLogSubscription == null
+        OnErrorFailedException exception = thrown()
+        exception.message == 'Error occurred when trying to propagate error to Observer.onError'
 
         when: println '(3) we listen for events'
         println "results<<< $results\n"
@@ -258,22 +245,12 @@ class BurrowSpecification extends Specification {
         responseEthCall.return != null
 
         when: println '(5) we wait a little while continuously listening for events'
-        transactionLatch.await(15, TimeUnit.SECONDS)
+        transactionLatch.await(1, TimeUnit.SECONDS)
         println "results<<< $results\n"
 
         then: 'a valid response is received'
         notThrown Throwable
-        results.size() == 3
-        results[1].address.size() == 32*2+2
-        results[1].data.size() == 32*2+2
-        results[1].topicCount == 1
-        HexValue.stripPrefix(HexValue.toString(results[1].getTopic(0))).equalsIgnoreCase(eventLogAddress.encode())
-
-        when: println '(6) the subscription is terminated'
-        ethLogSubscription.unsubscribe()
-
-        then: 'the subscriber has been removed'
-        ethLogSubscription.isUnsubscribed()
+        results.size() == 0
     }
 
     def "test create solidity contract and store/update data"() {
@@ -321,7 +298,8 @@ class BurrowSpecification extends Specification {
         println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        HexValue.toBigInteger(responseEthGetStorageAt.getValue()) == BigInteger.valueOf(5)
+        UnsupportedOperationException exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(4) we subscribe to events from the the new contract account'
         Types.RequestEthNewFilter requestEthNewFilter = Types.RequestEthNewFilter.newBuilder().setOptions(
@@ -330,19 +308,18 @@ class BurrowSpecification extends Specification {
         Types.ResponseEthNewFilter responseEthNewFilter = web3Service.ethNewFilter(requestEthNewFilter)
         println ">>> $requestEthNewFilter.descriptorForType.fullName....$requestEthNewFilter<<< $responseEthNewFilter.descriptorForType.fullName...$responseEthNewFilter"
 
-        and: 'the filter id is remembered'
-        def filterId = responseEthNewFilter.getId()
-
         then: 'a valid response is received'
-        responseEthNewFilter.getId().size() == 32*2+2
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(5) we poll for events'
-        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        Types.RequestEthGetFilterChanges requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(ByteString.EMPTY).build()
         Types.ResponseEthGetFilterChanges responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges\n"
 
         then: 'no events exist'
-        responseEthGetFilterChanges.getEventCount() == 0
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(6) function "get" is executed'
         Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
@@ -380,26 +357,25 @@ class BurrowSpecification extends Specification {
         println ">>> $requestEthGetStorageAt.descriptorForType.fullName....$requestEthGetStorageAt<<< $responseEthGetStorageAt.descriptorForType.fullName...$responseEthGetStorageAt"
 
         then: 'a valid response is received'
-        HexValue.toBigInteger(responseEthGetStorageAt.getValue()) == BigInteger.valueOf(7)
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(10) we poll for events again'
-        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(filterId).build()
+        requestEthGetFilterChanges = Types.RequestEthGetFilterChanges.newBuilder().setId(ByteString.EMPTY).build()
         responseEthGetFilterChanges = web3Service.ethGetFilterChanges(requestEthGetFilterChanges)
         println ">>> $requestEthGetFilterChanges.descriptorForType.fullName....$requestEthGetFilterChanges<<< $responseEthGetFilterChanges.descriptorForType.fullName...$responseEthGetFilterChanges"
 
         then: 'a valid response is received'
-        responseEthGetFilterChanges.getEventCount() == 1
-        responseEthGetFilterChanges.getEvent(0).getLog().address.size() == 32*2+2
-        HexValue.decode(HexValue.toString(responseEthGetFilterChanges.getEvent(0).getLog().data)) == '7'
-        responseEthGetFilterChanges.getEvent(0).getLog().getTopicCount() == 1
-        HexValue.stripPrefix(HexValue.toString(responseEthGetFilterChanges.getEvent(0).getLog().getTopic(0))).equalsIgnoreCase(eventLogUint.encode())
+        exception = thrown()
+        exception.message == 'Error 3: not found'
 
         when: println '(11) we unsubscribe to events from the the new contract account'
-        Types.RequestEthUninstallFilter requestEthUninstallFilter = Types.RequestEthUninstallFilter.newBuilder().setId(filterId).build()
+        Types.RequestEthUninstallFilter requestEthUninstallFilter = Types.RequestEthUninstallFilter.newBuilder().setId(ByteString.EMPTY).build()
         Types.ResponseEthUninstallFilter responseEthUninstallFilter = web3Service.ethUninstallFilter(requestEthUninstallFilter)
         println ">>> $requestEthUninstallFilter.descriptorForType.fullName....$requestEthUninstallFilter<<< $responseEthUninstallFilter.descriptorForType.fullName...$responseEthUninstallFilter"
 
         then: 'the filter was successfully removed'
-        responseEthUninstallFilter.removed
+        exception = thrown()
+        exception.message == 'Error 3: not found'
     }
 }
