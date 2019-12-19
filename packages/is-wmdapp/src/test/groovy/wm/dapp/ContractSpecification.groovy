@@ -64,7 +64,7 @@ class ContractSpecification extends Specification{
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
         Contract.util.web3() >> Mock(ServiceSupplierWeb3)
-        Contract.util.web3().call(_ as NSName, _ as IData) >> {
+        Contract.util.web3().runContract(_ as NSName, _ as IData, false) >> {
             throw new IOException()
         }
 
@@ -93,7 +93,7 @@ class ContractSpecification extends Specification{
         given: 'the underlying implementation methods are mocked'
         Contract.util = Mock(Util)
         Contract.util.web3() >> Mock(ServiceSupplierWeb3)
-        Contract.util.web3().sendTransaction(_ as NSName, _ as IData) >> {
+        Contract.util.web3().runContract(_ as NSName, _ as IData, true) >> {
             throw new IOException()
         }
 
