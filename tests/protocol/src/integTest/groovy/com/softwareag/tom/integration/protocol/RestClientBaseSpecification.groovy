@@ -20,7 +20,7 @@ import spock.lang.Specification
  * A base specification providing support for common REST client handling.
  */
 abstract class RestClientBaseSpecification extends Specification {
-    protected static final Logger logger = LoggerFactory.getLogger(BurrowSpecification.class)
+    protected static final Logger logger = LoggerFactory.getLogger(RestClientBaseSpecification.class)
 
     @Shared @Node protected ConfigObject config
     @Shared protected RESTClient client

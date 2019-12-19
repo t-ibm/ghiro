@@ -19,7 +19,7 @@ import groovyx.net.http.RESTClient
  * System under specification: Burrow Web3 endpoints.
  * @author tglaeser
  */
-class BurrowWeb3Specification extends RestClientBaseSpecification {
+class Web3ProtocolSpecification extends RestClientBaseSpecification {
 
     def setup() {
         given: 'a REST client'
@@ -84,6 +84,25 @@ class BurrowWeb3Specification extends RestClientBaseSpecification {
         resp.data.result.txs == []
     }
 
+    def "test 'eth_newBlockFilter' and 'eth_getFilterChanges'"() {
+        given: 'a valid JSON-RPC request'
+        def request = ['id': '1', 'jsonrpc': '2.0', 'method': 'eth_newBlockFilter', 'params': []]
+
+        when: 'the request is send'
+        resp = send request
+
+        then: 'a valid response is received' //TODO :: Not implemented yet by Burrow
+        resp.data.error.code == -32603
+        resp.data.error.message == 'Error 3: not found'
+
+        when: 'we poll for events'
+        request = ['id': '2', 'jsonrpc': '2.0', 'method': 'eth_getFilterChanges', 'params': ['0x16']]
+        resp = send request
+
+        then: 'a valid response is received' //TODO :: Not implemented yet by Burrow
+        resp.data.error.code == -32603
+        resp.data.error.message == 'Error 3: not found'
+    }
     def "test create solidity contract and call event via rpc"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
