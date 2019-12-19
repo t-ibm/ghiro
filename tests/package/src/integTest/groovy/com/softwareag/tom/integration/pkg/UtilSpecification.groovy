@@ -62,7 +62,7 @@ class UtilSpecification extends Specification {
         triggerDispatcherStrategy.register(triggerOutputControl)
 
         when: println '(1) The contract gets deployed'
-        String contractAddress = Util.instance().web3().deployContract(pdt.getNSName())
+        String contractAddress = Util.instance().burrow().deployContract(pdt.getNSName())
 
         then: 'a valid response is received'
         contractAddress.size() == 42
@@ -72,22 +72,27 @@ class UtilSpecification extends Specification {
         ControlledTriggerSvcThreadPool threadPool = ControlledTriggerSvcThreadPool.getInstance()
         DAppListener listener = new DAppListenerMock(trigger, threadPool)
         threadPool.runTarget(listener)
-        sleep(1000)
+        sleep(2000)
 
         then: 'the ReactiveX system gets properly initialized'
         listener.running
         listener.getQueueSize() == 0
 
-        when: println '(3) function "log" is executed 3 times'
+        when: println '(3) function "log" is executed 3 times via "burrow.call"'
         3.times {
-            Util.instance().web3().call(logFuntion, IDataFactory.create())
+            Util.instance().burrow().call(logFuntion, IDataFactory.create()) // Note that proprietary burrow#call ...
+        }
+
+        and: println '(4) function "log" is executed 2 times via "web3.sendTransaction"'
+        2.times {
+            Util.instance().web3().sendTransaction(logFuntion, IDataFactory.create()) // ... is equivalent to standard web3#sendTransaction
         }
         sleep(10000)
 
         then: 'a valid response is received'
-        listener.getQueueSize() == 2 //TODO :: Seems we are missing the first event
+        listener.getQueueSize() == 4 //TODO :: Seems we are missing the first event
 
-        when: println '(4) the subscription is terminated'
+        when: println '(5) the subscription is terminated'
         listener.stop()
 
         then: 'the subscriber has been removed'

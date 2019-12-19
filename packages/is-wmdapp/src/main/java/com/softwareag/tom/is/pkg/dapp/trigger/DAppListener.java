@@ -10,16 +10,16 @@ package com.softwareag.tom.is.pkg.dapp.trigger;
 import com.softwareag.tom.is.pkg.dapp.DAppLogger;
 import com.softwareag.tom.is.pkg.dapp.DAppMsgBundle;
 import com.softwareag.tom.is.pkg.dapp.Util;
-import com.softwareag.tom.protocol.abi.Types;
+import com.softwareag.tom.protocol.grpc.stream.Subscription;
 import com.wm.app.b2b.server.dispatcher.exceptions.CommException;
 import com.wm.app.b2b.server.dispatcher.trigger.Trigger;
 import com.wm.app.b2b.server.dispatcher.trigger.control.ControlledTriggerSvcThreadPool;
-import rx.Observer;
-import rx.Subscription;
+import io.grpc.stub.StreamObserver;
+import org.hyperledger.burrow.rpc.RpcEvents;
 
 import java.io.IOException;
 
-public class DAppListener extends DAppListenerBase<Types.FilterLogType> {
+public class DAppListener extends DAppListenerBase<RpcEvents.EventsResponse> {
 
     private Subscription subscription;
 
@@ -28,7 +28,7 @@ public class DAppListener extends DAppListenerBase<Types.FilterLogType> {
     }
 
     @Override void subscribe() throws IOException {
-        Observer<Types.FilterLogType> observer = new Observer<Types.FilterLogType>() {
+        StreamObserver<RpcEvents.EventsResponse> observer = new StreamObserver<RpcEvents.EventsResponse>() {
 
             @Override public void onCompleted() {
                 stopProcessing();
@@ -38,7 +38,7 @@ public class DAppListener extends DAppListenerBase<Types.FilterLogType> {
                 DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_NOTIFICATION, throwable);
             }
 
-            @Override public void onNext(Types.FilterLogType result) {
+            @Override public void onNext(RpcEvents.EventsResponse result) {
                 try {
                     _messageQueue.put(result);
                 } catch (InterruptedException e) {
@@ -61,12 +61,16 @@ public class DAppListener extends DAppListenerBase<Types.FilterLogType> {
                 pauseProcessing();
             }
         };
-        subscription = Util.instance().web3().subscribe(_trigger.getNSName(), observer);
+        subscription = Util.instance().burrow().subscribe(_trigger.getNSName(), observer);
     }
 
     @Override public void unsubscribe() {
         if (subscription != null) {
-            subscription.unsubscribe();
+            try {
+                subscription.unsubscribe();
+            } catch (InterruptedException e) {
+                DAppLogger.logError(DAppMsgBundle.DAPP_ERROR_UNSUBSCRIBE, e);
+            }
         }
     }
 }

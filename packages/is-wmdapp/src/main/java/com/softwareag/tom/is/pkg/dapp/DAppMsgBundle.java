@@ -24,9 +24,10 @@ public class DAppMsgBundle extends MessageBundle {
     public static final Message DAPP_ERROR_SERVICE_ADMIN = addMessage("ISP.0060.9001", "Admin service error: {0}: {1}");
     public static final Message DAPP_ERROR_SERVICE_CONTRACT = addMessage("ISP.0060.9002", "Contract service error: {0}: {1}");
     public static final Message DAPP_ERROR_INIT = addMessage("ISP.0060.9003", "Error during initialization: {0}");
-    public static final Message DAPP_ERROR_NOTIFICATION = addMessage("ISP.0060.9004", "Received error notification from observable: {0}");
-    public static final Message DAPP_ERROR_PUT = addMessage("ISP.0060.9005", "Unable to add received result to message queue: {0}");
-    public static final Message DAPP_ERROR_TRIGGEREXECUTION = addMessage("ISP.0060.9006", "Trigger {0} was unable to process message: Unable to start execution task: {1}");
+    public static final Message DAPP_ERROR_UNSUBSCRIBE = addMessage("ISP.0060.9004", "Error during unsubscribe: {0}");
+    public static final Message DAPP_ERROR_NOTIFICATION = addMessage("ISP.0060.9005", "Received error notification from observable: {0}");
+    public static final Message DAPP_ERROR_PUT = addMessage("ISP.0060.9006", "Unable to add received result to message queue: {0}");
+    public static final Message DAPP_ERROR_TRIGGEREXECUTION = addMessage("ISP.0060.9007", "Trigger {0} was unable to process message: Unable to start execution task: {1}");
 
     private static Message addMessage(String id, String text) {
         return messages.addMessage(id, text);
