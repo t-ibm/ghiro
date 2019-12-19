@@ -86,7 +86,7 @@ class BurrowServiceSpecification extends Specification {
         HexValue.toString(response.getAddress().toByteArray()) == address
         response.getPermissions().getBase().getPerms() == 0
         response.getPermissions().getBase().getSetBit() == 0
-        response.getBalance() == 20
+        response.getBalance() >= 20
     }
 
     def "test sync 'burrow.query.ListAccounts' service"() {
