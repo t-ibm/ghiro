@@ -13,8 +13,8 @@ public class ParamsAddressDataTx extends ParamsAddressData {
     @JsonProperty("gasPrice") private String gasPrice;
     @JsonProperty("gas") private String gas;
 
-    public ParamsAddressDataTx(String to, String data, long gasPrice, long gas) {
-        super(to, data);
+    public ParamsAddressDataTx(String to, String data, long value, long gasPrice, long gas) {
+        super(to, data, value);
         setPrivKey();
         this.gasPrice = HexValue.toString(BigInteger.valueOf(gasPrice));
         this.gas = HexValue.toString(BigInteger.valueOf(gas));
@@ -36,7 +36,7 @@ public class ParamsAddressDataTx extends ParamsAddressData {
     }
 
     @Override public String toString() {
-        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\",\"from\":\"" + from + "\",\"gasPrice\":\"" + gasPrice + "\",\"gas\":\"" + gas + "\"}";
+        return "{\"to\":\"" + to + "\",\"data\":\"" + data + "\",\"value\":\"" + value + "\",\"from\":\"" + from + "\",\"gasPrice\":\"" + gasPrice + "\",\"gas\":\"" + gas + "\"}";
     }
 
     @Override public boolean equals(Object o) {

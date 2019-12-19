@@ -78,6 +78,35 @@ class Web3ServiceSpecification extends Specification {
         HexValue.toBigInteger(((Types.ResponseEthGetBalance) response).getBalance() as ByteString) >= 9999999999999 * Math.pow(10, 18) // 1 ETH = 10^18 Wei
     }
 
+    def "test send payment"() {
+        given: 'a caller with Send permission and the address for the account to be created'
+        String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
+        String callee = '0x06dbb282d7d83654f19ee8fffc105a9e29b1d2f5'
+
+        when: 'we make a send transaction request'
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
+            Types.TxType.newBuilder().setFrom(HexValue.toByteString(caller)).setTo(HexValue.toByteString(callee)).setValue(HexValue.toByteString(20)).build()
+        ).build()
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+        println ">>> $requestEthSendTransaction.descriptorForType.fullName....$requestEthSendTransaction<<< $responseEthSendTransaction.descriptorForType.fullName...$responseEthSendTransaction"
+
+        and: 'the transaction receipt gets requested'
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+        println ">>> $requestEthGetTransactionReceipt.descriptorForType.fullName....$requestEthGetTransactionReceipt<<< $responseEthGetTransactionReceipt.descriptorForType.fullName...$responseEthGetTransactionReceipt"
+
+        then: 'a valid response is received'
+        responseEthGetTransactionReceipt.getTxReceipt() != null
+
+        when: 'we check for the new balance'
+        Types.RequestEthGetBalance requestEthGetBalance = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(callee)).build()
+        Types.ResponseEthGetBalance responseEthGetBalance = web3Service.ethGetBalance(requestEthGetBalance)
+        println ">>> $requestEthGetBalance.descriptorForType.fullName....$requestEthGetBalance<<< $responseEthGetBalance.descriptorForType.fullName...$responseEthGetBalance"
+
+        then: 'a valid response is received'
+        HexValue.toBigInteger(responseEthGetBalance.getBalance() as ByteString) >= 14 * Math.pow(10, 18) //TODO :: Should be 20 instead, not 14
+    }
+
     def "test create solidity contract and call event services"() {
         given: 'a valid Solidity contract'
         Map  contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
