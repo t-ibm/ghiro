@@ -129,7 +129,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
         contract.get('address') == null
     }
 
-    @Unroll def "test call log #serviceSupplier.class.name"(ServiceSupplier serviceSupplier) {
+    @Unroll def "test call log #serviceSupplier.class.name"(ServiceSupplierBase serviceSupplier) {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:log')
 
@@ -152,7 +152,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
         ]
     }
 
-    @Unroll def 'test log event #serviceSupplier.class.name'(ServiceSupplier serviceSupplier, Object observer, List filterChanges) {
+    @Unroll def 'test log event #serviceSupplier.class.name'(ServiceSupplierBase serviceSupplier, Object observer, List filterChanges) {
         given: 'the needed instances and handling of service layer communications'
         NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
 

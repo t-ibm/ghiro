@@ -32,11 +32,12 @@ import org.hyperledger.burrow.rpc.RpcEvents;
 import org.hyperledger.burrow.rpc.RpcQuery;
 import org.hyperledger.burrow.txs.Payload;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Subscription> {
+public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Subscription> {
 
     private BurrowTransact burrowTransact;
     private BurrowQuery burrowQuery;
@@ -56,6 +57,14 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements 
         this.burrowQuery = burrowQuery;
         this.burrowTransact = burrowTransact;
         this.burrowEvents = burrowEvents;
+    }
+
+    @Override public void runContract(N name, IData pipeline, boolean transactional) throws IOException {
+        call(name, pipeline);
+    }
+
+    @Override public void sendPayment(N name, IData pipeline) throws IOException {
+        sendTransaction(name, pipeline);
     }
 
     @Override public String call(Contract contract, String data) {
@@ -118,7 +127,7 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N> implements 
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
-        ServiceSupplier.decodeEventInput(ContractSupplier.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
+        decodeEventInput(ContractSupplier.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
         return new Message<RpcEvents.EventsResponse>() {
             {
                 _event = logEvent;

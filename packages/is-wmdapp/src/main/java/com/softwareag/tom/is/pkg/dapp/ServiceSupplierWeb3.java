@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N> implements ServiceSupplier<N,Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
+public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N,Types.FilterLogType, Observer<Types.FilterLogType>,Subscription> {
 
     private Web3Service web3Service;
 
@@ -39,6 +39,18 @@ public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N> implements Se
     public ServiceSupplierWeb3(UtilBase<N> util, Web3Service web3Service) {
         super(util);
         this.web3Service = web3Service;
+    }
+
+    @Override public void runContract(N name, IData pipeline, boolean transactional) throws IOException {
+        if (transactional) {
+            sendTransaction(name, pipeline);
+        } else {
+            call(name, pipeline);
+        }
+    }
+
+    @Override public void sendPayment(N name, IData pipeline) throws IOException {
+        sendTransaction(name, pipeline);
     }
 
     @Override public String call(Contract contract, String data) throws IOException {
@@ -98,7 +110,7 @@ public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N> implements Se
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
-        ServiceSupplier.decodeEventInput(ContractSupplier.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
+        decodeEventInput(ContractSupplier.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;

@@ -32,7 +32,7 @@ public final class Contract {
         // @sigtype java 3.5
         NSName nsName = NSName.create(invokeState.getFlowState().current().getFlowRoot().getNSName());
         try {
-            util.web3().call(nsName, pipeline);
+            util.web3().runContract(nsName, pipeline, false);
         } catch (IOException e) {
             throw new ServiceException(e);
         }
@@ -50,7 +50,7 @@ public final class Contract {
         // @sigtype java 3.5
         NSName nsName = NSName.create(invokeState.getFlowState().current().getFlowRoot().getNSName());
         try {
-            util.web3().sendTransaction(nsName, pipeline);
+            util.web3().runContract(nsName, pipeline, true);
         } catch (IOException e) {
             throw new ServiceException(e);
         }
