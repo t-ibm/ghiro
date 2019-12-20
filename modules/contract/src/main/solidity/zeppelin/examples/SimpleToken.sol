@@ -10,8 +10,8 @@ import "../token/ERC20/ERC20Detailed.sol";
  * `ERC20` functions.
  */
 contract SimpleToken is ERC20, ERC20Detailed {
-    uint8 public constant DECIMALS = 18;
-    uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(DECIMALS));
+    uint8 private constant DECIMALS = 18;
+    uint256 private constant INITIAL_SUPPLY = 10000 * (10 ** uint256(DECIMALS));
 
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
