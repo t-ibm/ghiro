@@ -25,7 +25,7 @@ ext {
             version : '3.9.0',
         ],
         is : [
-            version : '10.4.0+',
+            version : '10.7.0+',
             rootDir : isRootDir,
         ]
     ]
