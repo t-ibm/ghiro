@@ -36,7 +36,7 @@ class ContractSpecification extends Specification{
         FlowElement flowRoot = Mock(FlowElement); flowRoot.getNSName() >> { NSName.create('sample.util.Console:log') }
         FlowElement flowElement = Mock(FlowElement); flowElement.getFlowRoot() >> { flowRoot }
         FlowState flowState = Mock(FlowState); flowState.current() >> { flowElement }
-        Contract.invokeState = Mock(InvokeState); Contract.invokeState.getFlowState() >> { flowState }
+        InvokeState invokeState = GroovySpy(InvokeState, global:false) as InvokeState; invokeState.getFlowState() >> { flowState }
     }
 
     /**
