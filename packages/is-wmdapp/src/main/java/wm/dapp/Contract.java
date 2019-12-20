@@ -18,7 +18,6 @@ import java.io.IOException;
 
 public final class Contract {
     static Util util = Util.instance();
-    static InvokeState invokeState = InvokeState.getCurrentState();
     Contract() {}
     /**
      * Calls the contract. To be used by stateless EVM contracts.
@@ -30,7 +29,7 @@ public final class Contract {
         // --- <<IS-START(call)>> ---
         // @subtype unknown
         // @sigtype java 3.5
-        NSName nsName = NSName.create(invokeState.getFlowState().current().getFlowRoot().getNSName());
+        NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
         try {
             util.web3().runContract(nsName, pipeline, false);
         } catch (IOException e) {
@@ -48,7 +47,7 @@ public final class Contract {
     public static void sendTransaction(IData pipeline) throws ServiceException {
         // --- <<IS-START(sendTransaction)>> ---
         // @sigtype java 3.5
-        NSName nsName = NSName.create(invokeState.getFlowState().current().getFlowRoot().getNSName());
+        NSName nsName = NSName.create(InvokeState.getCurrentState().getFlowState().current().getFlowRoot().getNSName());
         try {
             util.web3().runContract(nsName, pipeline, true);
         } catch (IOException e) {
