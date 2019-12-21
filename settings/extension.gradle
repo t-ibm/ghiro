@@ -48,9 +48,9 @@ sag.module.is = [
         "com.softwareag.mom.is:is-client:$project.sag.is.version",
         "com.softwareag.mom.is:is-server:$project.sag.is.version@jar",
         "com.softwareag.g11n:g11n-utils:10.2+",
+        'com.entrust:entrust-toolkit:8.0.+',
     ],
     runtime : [
-        'com.entrust:entrust-toolkit:8.0.+',
         'com.softwareag.ext.org.apache.axis2:axis2-kernel:1.6.2+',
         "com.softwareag.mom.is:is-graphql-client:$project.sag.is.version",
         "com.softwareag.sc:sc-audit:$project.sag.is.version",
