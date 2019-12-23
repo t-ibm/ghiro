@@ -23,17 +23,17 @@ import com.wm.data.IDataUtil;
     public static void sendTo(IData pipeline) throws ServiceException {
         // --- <<B2B-START(sendTo)>> ---
         // @sigtype java 3.5
-        // [i] field:0:required payee
+        // [i] field:0:required spender
         // [i] field:0:required amount
         IDataCursor cursor = pipeline.getCursor();
-        String payee = IDataUtil.getString(cursor,"payee");
+        String spender = IDataUtil.getString(cursor,"spender");
         String amount = IDataUtil.getString(cursor,"amount");
         Object[][] input = {
-                { "payee", HexValueBase.toBigInteger(payee) },
+                { "spender", HexValueBase.toBigInteger(spender) },
                 { "amount", HexValueBase.toBigInteger(amount) },
         };
         try {
-            IData output = Service.doInvoke("zeppelin.examples.SimpleSavingsWallet", "sendToReq", IDataFactory.create(input));
+            IData output = Service.doInvoke("zeppelin.examples.SimpleToken", "approveReq", IDataFactory.create(input));
             IDataUtil.merge(pipeline, output);
         } catch (ServiceException e) {
             throw e;
