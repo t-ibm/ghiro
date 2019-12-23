@@ -103,7 +103,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
         String response = call(contract,data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(name), contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionUri(name), contract.getContractAddress());
         return  response;
     }
 
@@ -127,7 +127,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
         sendTransaction(contract, data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, new Object[]{uri, getFunctionUri(name), contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionUri(name), contract.getContractAddress());
     }
 
     /**
@@ -149,7 +149,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
         S subscription = subscribe(contract, observer);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, new Object[]{uri, contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_OBSERVABLE_LOG, uri, contract.getContractAddress());
         return  subscription;
     }
 
@@ -163,7 +163,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         Contract contract = getContract(uri);
         String eventName = getEventUri(name);
         Message<E> message = decodeLogEvent(contract, eventName, logEvent);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, new Object[]{uri, eventName, contract.getContractAddress()});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, uri, eventName, contract.getContractAddress());
         return message;
     }
 
