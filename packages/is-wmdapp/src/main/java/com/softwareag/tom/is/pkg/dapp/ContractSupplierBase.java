@@ -75,7 +75,7 @@ public abstract class ContractSupplierBase<N> implements ContractSupplier<N> {
      * @throws IOException if loading/storing of the contract-address mapping fails
      */
     public void storeContractAddress(String uri, String contractAddress) throws IOException {
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, new Object[]{uri, contractAddress});
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_DEPLOY, uri, contractAddress);
         contracts = contractRegistry.load();
         contracts.put(uri, contracts.get(uri).setContractAddress(contractAddress));
         contracts = contractRegistry.storeContractAddresses(contracts);

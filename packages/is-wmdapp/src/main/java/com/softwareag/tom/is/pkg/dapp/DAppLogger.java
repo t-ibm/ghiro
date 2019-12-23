@@ -14,19 +14,19 @@ public final class DAppLogger {
     private DAppLogger() {}
 
     // Debug
-    public static void logDebug(Message message) { message.logAsDebug(message); }
-    public static void logDebug(Message message, Object param) { message.logAsDebug(message, param); }
-    public static void logDebug(Message message, Object[] params) { message.logAsDebug(message, params); }
+    public static void logDebug(Message message, Object... params) {
+        message.logAsDebug(params);
+    }
 
     // Info
-    public static void logInfo(Message message) { message.logtAsInfo(message); }
-    public static void logInfo(Message message, Object param) { message.logtAsInfo(message, param); }
-    public static void logInfo(Message message, Object[] params) { message.logtAsInfo(message, params); }
+    public static void logInfo(Message message, Object... params) {
+        message.logtAsInfo(params);
+    }
 
     // Warning
-    public static void logWarning(Message message) { message.logAsWarn(); }
-    public static void logWarning(Message message, Object param) { message.logAsWarn(param); }
-    public static void logWarning(Message message, Object[] params) { message.logAsWarn(params); }
+    public static void logWarning(Message message, Object... params) {
+        message.logAsWarn(params);
+    }
 
     // Error
     public static void logError(Message message, Throwable e) {

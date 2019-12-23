@@ -340,7 +340,7 @@ public class Util extends UtilBase<NSName> {
 
     private static void mkdirs(NSName nsName) {
         if (pkgWmDAppContract != null && !pkgWmDAppContract.getStore().getNodePath(nsName).mkdirs()) {
-            DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, new Object[]{"" + nsName});
+            DAppLogger.logDebug(DAppMsgBundle.DAPP_SERVICES_MKDIRS, "" + nsName);
         }
     }
 
