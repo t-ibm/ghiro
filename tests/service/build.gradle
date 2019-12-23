@@ -5,7 +5,6 @@ dependencies {
         project(path:":modules:$project.rootProject.name-contract", configuration:'runtimeElements'),
         project(path:":modules:$project.rootProject.name-protocol", configuration:'runtimeElements'),
         project.sag.module.protobuf,
-        project.sag.module.grpc.implementation,
     )
     integTestRuntimeOnly(
         project.sag.module.httpcomponents,

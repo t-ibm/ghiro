@@ -61,10 +61,20 @@ sag.module.is = [
 ]
 sag.module.grpc = [
     implementation : [
-        "io.grpc:grpc-protobuf:$project.sag.grpc.version",
-        "io.grpc:grpc-stub:$project.sag.grpc.version",
+        "com.google.guava:guava:26.0-android@jar",
+        "io.grpc:grpc-protobuf:$project.sag.grpc.version@jar",
+        "io.grpc:grpc-api:$project.sag.grpc.version@jar",
+        "io.grpc:grpc-stub:$project.sag.grpc.version@jar",
     ],
-    runtime : "io.grpc:grpc-netty-shaded:$project.sag.grpc.version",
+    runtime : [
+        "io.grpc:grpc-context:$project.sag.grpc.version@jar",
+        "io.grpc:grpc-core:$project.sag.grpc.version@jar",
+        "io.grpc:grpc-netty-shaded:$project.sag.grpc.version@jar",
+        "io.grpc:grpc-protobuf-lite:$project.sag.grpc.version@jar",
+        "io.opencensus:opencensus-api:0.21.0@jar",
+        "io.opencensus:opencensus-contrib-grpc-metrics:0.21.0@jar",
+        "io.perfmark:perfmark-api:0.17.0@jar",
+    ]
 ]
 sag.module.jackson = [
     'com.fasterxml.jackson.core:jackson-annotations:2.9.2@jar',

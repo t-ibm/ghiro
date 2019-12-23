@@ -20,10 +20,10 @@ dependencies {
     implementation(
         project(path:":modules:$project.rootProject.name-core", configuration:'runtimeElements'),
         project.sag.module.rx,
+        project.sag.module.grpc.implementation,
     )
     compileOnly(
         project.sag.module.httpcomponents,
-        project.sag.module.grpc.implementation,
         project.sag.module.jackson,
         project.sag.module.log.api,
         project.sag.module.protobuf,
