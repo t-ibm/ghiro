@@ -38,7 +38,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
         Map<String, FlowSvcImpl> functions = util.getFunctions(false)
 
         expect: 'to retrieve a populated map of ns nodes'
-        functions.size() == 6
+        functions.size() == 40
 
         when: 'a particular ns node is retrieved'
         String functionName = 'sample.util.Console:uintToBytes'
@@ -71,7 +71,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
         Map<String,Event> events = util.getEvents(false)
 
         expect: 'to retrieve a populated map of ns nodes'
-        events.size() == 4
+        events.size() == 12
 
         when: 'a particular entry is retrieved'
         Event event = events.get('sample.util.Console:LogAddress')
@@ -119,10 +119,10 @@ class UtilSpecification extends RuntimeBaseSpecification {
         IData[] contractAddresses = util.getContractAddresses()
 
         expect: 'to retrieve a populated list of contract address mappings'
-        contractAddresses.length == 2
+        contractAddresses.length == 7
 
         when: 'a particular item is retrieved from the list'
-        IDataMap contract = new IDataMap(contractAddresses[0])
+        IDataMap contract = new IDataMap(contractAddresses[1])
 
         then: 'the values are as expected'
         contract.get('uri') == 'sample/util/Console'
