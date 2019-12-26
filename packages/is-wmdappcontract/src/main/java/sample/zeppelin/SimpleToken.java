@@ -16,21 +16,21 @@ import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 // --- <<B2B-END-IMPORTS>> ---
 
-@SuppressWarnings("unused") public final class SimpleSavingsWallet {
+@SuppressWarnings("unused") public final class SimpleToken {
     // --- <<IS-START-SHARED>> ---
     // --- <<IS-END-SHARED>> ---
-    private SimpleSavingsWallet() {}
-    public static void sendTo(IData pipeline) throws ServiceException {
-        // --- <<B2B-START(sendTo)>> ---
+    private SimpleToken() {}
+    public static void approve(IData pipeline) throws ServiceException {
+        // --- <<B2B-START(approve)>> ---
         // @sigtype java 3.5
         // [i] field:0:required spender
-        // [i] field:0:required amount
+        // [i] field:0:required value
         IDataCursor cursor = pipeline.getCursor();
         String spender = IDataUtil.getString(cursor,"spender");
-        String amount = IDataUtil.getString(cursor,"amount");
+        String value = IDataUtil.getString(cursor,"value");
         Object[][] input = {
                 { "spender", HexValueBase.toBigInteger(spender) },
-                { "amount", HexValueBase.toBigInteger(amount) },
+                { "value", HexValueBase.toBigInteger(value) },
         };
         try {
             IData output = Service.doInvoke("zeppelin.examples.SimpleToken", "approveReq", IDataFactory.create(input));
