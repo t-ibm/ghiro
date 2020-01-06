@@ -24,19 +24,26 @@ public class BurrowServiceQuery extends BurrowServiceBase<ServiceQuery> implemen
         super(gRpcService);
     }
 
-    @Override public Acm.Account getAccount(RpcQuery.GetAccountParam req) {
-        return gRpcService.newBlockingStub().getAccount(req);
+    @Override public Acm.Account getAccount(RpcQuery.GetAccountParam request) {
+        Acm.Account response = gRpcService.newBlockingStub().getAccount(request);
+        log(request, response);
+        return response;
     }
 
-    @Override public Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam req) {
-        return gRpcService.newBlockingStub().listAccounts(req);
+    @Override public Iterator<Acm.Account> listAccounts(RpcQuery.ListAccountsParam request) {
+        Iterator<Acm.Account> response = gRpcService.newBlockingStub().listAccounts(request);
+        log(request, Acm.Account.getDescriptor(), response);
+        return response;
     }
 
-    @Override public void listAccounts(RpcQuery.ListAccountsParam req, StreamObserver<Acm.Account> observer) {
-        gRpcService.newStub().listAccounts(req, observer);
+    @Override public void listAccounts(RpcQuery.ListAccountsParam request, StreamObserver<Acm.Account> observer) {
+        log(request, Acm.Account.getDescriptor(), observer);
+        gRpcService.newStub().listAccounts(request, observer);
     }
 
-    @Override public RpcQuery.StorageValue getStorage(RpcQuery.GetStorageParam req) {
-        return gRpcService.newBlockingStub().getStorage(req);
+    @Override public RpcQuery.StorageValue getStorage(RpcQuery.GetStorageParam request) {
+        RpcQuery.StorageValue response = gRpcService.newBlockingStub().getStorage(request);
+        log(request, response);
+        return response;
     }
 }

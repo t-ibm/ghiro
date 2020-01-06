@@ -21,7 +21,8 @@ public class BurrowServiceEvents extends BurrowServiceBase<ServiceEvents> implem
         super(gRpcService);
     }
 
-    @Override public void getEvents(RpcEvents.BlocksRequest req, StreamObserver<RpcEvents.EventsResponse> observer) {
-        gRpcService.newStub().events(req, observer);
+    @Override public void getEvents(RpcEvents.BlocksRequest request, StreamObserver<RpcEvents.EventsResponse> observer) {
+        log(request, RpcEvents.EventsResponse.getDescriptor(), observer);
+        gRpcService.newStub().events(request, observer);
     }
 }

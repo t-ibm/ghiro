@@ -66,8 +66,6 @@ class BurrowServiceSpecification extends Specification {
         when: 'we send a request'
         Payload.SendTx request = Payload.SendTx.newBuilder().addInputs(txInput).addOutputs(txOutput).build()
         Exec.TxExecution response = burrowTransact.sendTx(request)
-        println ">>> $request.descriptorForType.fullName....$request"
-        println "<<< $response.descriptorForType.fullName...$response"
 
         then: 'a valid response is received'
         response.receipt.txType == 1
@@ -79,8 +77,6 @@ class BurrowServiceSpecification extends Specification {
         String address = "0x06dbb282d7d83654f19ee8fffc105a9e29b1d2f5"
         RpcQuery.GetAccountParam request = RpcQuery.GetAccountParam.newBuilder().setAddress(HexValue.copyFrom(address)).build()
         Acm.Account response = burrowQuery.getAccount(request)
-        println ">>> $request.descriptorForType.fullName....$request"
-        println "<<< $response.descriptorForType.fullName...$response"
 
         then: 'a valid response is received'
         HexValue.toString(response.getAddress().toByteArray()) == address
@@ -94,17 +90,17 @@ class BurrowServiceSpecification extends Specification {
         String query = 'Balance > 10'
         RpcQuery.ListAccountsParam request = RpcQuery.ListAccountsParam.newBuilder().setQuery(query).build()
         Iterator<Acm.Account> response = burrowQuery.listAccounts(request)
-        println ">>> $request.descriptorForType.fullName....$request"
-        List<Acm.Account> accounts = response.collect { println "<<< $it.descriptorForType.fullName...$it" }
+        List<Acm.Account> results = response.collect()
+        println "results <<< $results\n"
 
         then: 'a valid response is received'
-        accounts.size() == 4
+        results.size() == 4
     }
 
     def "test async 'burrow.query.ListAccounts' service"() {
         given: 'a stream observer'
         List<String> addresses = ['0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19', '0xf7f6574303cf1a29bb3402f21f60e130bc0b3fbe']
-        List<Acm.Account> actual = []
+        List<Acm.Account> results = []
         CountDownLatch stream = new CountDownLatch(addresses.size())
         CountDownLatch done = new CountDownLatch(1)
         StreamObserver<Acm.Account> observer = [
@@ -115,7 +111,7 @@ class BurrowServiceSpecification extends Specification {
                 throw e
             },
             onNext     : { Acm.Account result ->
-                actual.add(result)
+                results.add(result)
                 stream.countDown()
             }
         ] as StreamObserver<Acm.Account>
@@ -124,16 +120,15 @@ class BurrowServiceSpecification extends Specification {
         String query = 'Balance > 1000000'
         RpcQuery.ListAccountsParam request = RpcQuery.ListAccountsParam.newBuilder().setQuery(query).build()
         burrowQuery.listAccounts(request, observer)
-        println ">>> $request.descriptorForType.fullName....$request"
 
         and: 'the stream is received'
         stream.await(1, TimeUnit.SECONDS)
         done.await(1, TimeUnit.SECONDS)
+        println "results <<< $results\n"
 
         then: 'the stream match the expectation'
-        actual.iterator().collect { println "<<< $it.descriptorForType.fullName...$it" }
         notThrown Throwable
-        actual.eachWithIndex { account, index ->
+        results.eachWithIndex { account, index ->
             HexValue.toString(account.address) == addresses.get(index)
         }
     }
@@ -155,9 +150,7 @@ class BurrowServiceSpecification extends Specification {
         String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
         Payload.TxInput txInput = Payload.TxInput.newBuilder().setAddress(HexValue.copyFrom(caller)).setAmount(20).build()
         Payload.CallTx requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(contract.binary)).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         Exec.TxExecution responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         and: 'the contract address is remembered'
         contractAddress = HexValue.toString(responseTxExecution.receipt.contractAddress.toByteArray())
@@ -169,17 +162,13 @@ class BurrowServiceSpecification extends Specification {
         when: println '(2) the newly created contract account is verified'
         RpcQuery.GetAccountParam requestGetAccountParam = RpcQuery.GetAccountParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
         Acm.Account responseAccount = burrowQuery.getAccount(requestGetAccountParam)
-        println ">>> $requestGetAccountParam.descriptorForType.fullName....$requestGetAccountParam"
-        println "<<< $responseAccount.descriptorForType.fullName...$responseAccount"
 
         then: 'a valid response is received'
         responseAccount.getEVMCode() != null //TODO :: Compare value instead
 
         when: println '(3) the storage of the contract is retrieved'
         RpcQuery.GetStorageParam requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
-        RpcQuery.StorageValue responseStorageValue = burrowQuery.getStorage()
-        println ">>> $requestGetStorageParam.descriptorForType.fullName....$requestGetStorageParam"
-        println "<<< $responseStorageValue.descriptorForType.fullName...$responseStorageValue"
+        RpcQuery.StorageValue responseStorageValue = burrowQuery.getStorage(requestGetStorageParam)
 
         then: 'a valid response is received'
         responseStorageValue.getValue().size() == 0 //TODO
@@ -202,9 +191,7 @@ class BurrowServiceSpecification extends Specification {
         String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
         Payload.TxInput txInput = Payload.TxInput.newBuilder().setAddress(HexValue.copyFrom(caller)).setAmount(20).build()
         Payload.CallTx requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(contract.binary)).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         Exec.TxExecution responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         and: 'the contract address is remembered'
         contractAddress = HexValue.toString(responseTxExecution.receipt.contractAddress.toByteArray())
@@ -239,7 +226,6 @@ class BurrowServiceSpecification extends Specification {
                 .setEnd(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.STREAM))
         ).setQuery(query).build()
         burrowEvents.getEvents(request, observer)
-        println ">>> $request.descriptorForType.fullName....$request"
 
         then: 'the event system gets properly initialized'
         stream != null
@@ -255,10 +241,8 @@ class BurrowServiceSpecification extends Specification {
 
         when: println '(4) function "log" is executed 3 times'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionLog.encode())).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         3.times {
             responseTxExecution = burrowTransact.callTx(requestCallTx)
-            println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
         }
 
         then: 'a valid response is received'
@@ -296,9 +280,7 @@ class BurrowServiceSpecification extends Specification {
         String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
         Payload.TxInput txInput = Payload.TxInput.newBuilder().setAddress(HexValue.copyFrom(caller)).setAmount(20).build()
         Payload.CallTx requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(contract.binary)).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         Exec.TxExecution responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         and: 'the contract address is remembered'
         contractAddress = HexValue.toString(responseTxExecution.receipt.contractAddress.toByteArray())
@@ -310,55 +292,43 @@ class BurrowServiceSpecification extends Specification {
         when: println '(2) the newly created contract account is verified'
         RpcQuery.GetAccountParam requestGetAccountParam = RpcQuery.GetAccountParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
         Acm.Account responseAccount = burrowQuery.getAccount(requestGetAccountParam)
-        println ">>> $requestGetAccountParam.descriptorForType.fullName....$requestGetAccountParam"
-        println "<<< $responseAccount.descriptorForType.fullName...$responseAccount"
 
         then: 'a valid response is received'
         responseAccount.getEVMCode() != null
 
         when: println '(3) the storage of the contract is retrieved'
         RpcQuery.GetStorageParam requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
-        RpcQuery.StorageValue responseStorageValue = burrowQuery.getStorage()
-        println ">>> $requestGetStorageParam.descriptorForType.fullName....$requestGetStorageParam"
-        println "<<< $responseStorageValue.descriptorForType.fullName...$responseStorageValue"
+        RpcQuery.StorageValue responseStorageValue = burrowQuery.getStorage(requestGetStorageParam)
 
         then: 'a valid response is received'
-        responseStorageValue.getValue().size() == 0 //TODO
+        HexValue.asBigInteger(responseStorageValue.value) == 5
 
         when: println '(4) function "get" is executed'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionGet.encode())).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         then: 'a valid response is received'
         HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(5)
 
         when: println '(5) function "set" is executed'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionSet.encode([BigInteger.valueOf(7)]))).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         then: 'a valid response is received'
         responseTxExecution.result.gasUsed == 257
 
         when: println '(6) function "get" is executed again'
         requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(functionGet.encode())).build()
-        println ">>> $requestCallTx.descriptorForType.fullName....$requestCallTx"
         responseTxExecution = burrowTransact.callTx(requestCallTx)
-        println "<<< $responseTxExecution.descriptorForType.fullName...$responseTxExecution"
 
         then: 'a valid response is received'
         HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(7)
 
         when: println '(7) the storage of the contract is retrieved'
         requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
-        responseStorageValue = burrowQuery.getStorage()
-        println ">>> $requestGetStorageParam.descriptorForType.fullName....$requestGetStorageParam"
-        println "<<< $responseStorageValue.descriptorForType.fullName...$responseStorageValue"
+        responseStorageValue = burrowQuery.getStorage(requestGetStorageParam)
 
         then: 'a valid response is received'
-        responseStorageValue.getValue().size() == 0 //TODO
+        HexValue.asBigInteger(responseStorageValue.value) == 7
     }
 }
