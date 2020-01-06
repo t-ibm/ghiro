@@ -29,8 +29,9 @@ Providing a type-system for smart contracts.
 
 A contract interface essentially declares a set of specifications that allows to interact with the contract. Those
 specifications are of type `constructor`, `function`, or `event`. Beyond other properties, a function specification is composed
-of `inputParameters` and `outputParameters` whereas constructor and event specifications are composed of `inputParameters` only.
-For the complete set of declared properties see the [Ethereum Contract ABI specification](https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI).
+of `inputParameters` and `outputParameters` whereas constructor and event specifications are composed of `inputParameters` only;
+see the [Ethereum Contract ABI specification](https://solidity.readthedocs.io/en/develop/abi-spec.html) which uses [RLP](https://github.com/ethereum/wiki/wiki/RLP)
+to serialize objects .
 
 For a Java application to interact with the contract, aka Ethereum Decentralized Application (DApp), a type-system mapping
 is needed. See file [ParameterTypeJava.java](./src/main/java/com/softwareag/tom/contract/abi/util/ParameterTypeJava.java) for the current implementation status.
