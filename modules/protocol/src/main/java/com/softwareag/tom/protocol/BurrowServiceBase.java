@@ -12,7 +12,7 @@ import com.softwareag.tom.protocol.grpc.Service;
 /**
  * Burrow base services over gRPC implementation.
  */
-public class BurrowServiceBase<T extends Service> implements BurrowService<T> {
+public class BurrowServiceBase<T extends Service> extends MessageBase implements BurrowService<T> {
 
     final T gRpcService;
 
