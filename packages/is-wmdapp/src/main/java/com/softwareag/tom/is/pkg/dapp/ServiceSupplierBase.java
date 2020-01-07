@@ -88,7 +88,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
      * @param pipeline The input pipeline
      * @throws IOException if the contract cannot be accessed
      */
-    void call(N name, IData pipeline) throws IOException {
+    public void call(N name, IData pipeline) throws IOException {
         String uri = getContractUri(name);
         String functionName = getFunctionUri(name);
         decodeFunctionOutput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline, call(name, encodeInput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline)));
@@ -112,7 +112,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
      * @param pipeline The input pipeline
      * @throws IOException if the contract cannot be accessed
      */
-    void sendTransaction(N name, IData pipeline) throws IOException {
+    public void sendTransaction(N name, IData pipeline) throws IOException {
         String uri = getContractUri(name);
         String functionName = getFunctionUri(name);
         sendTransaction(name, encodeInput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline));
