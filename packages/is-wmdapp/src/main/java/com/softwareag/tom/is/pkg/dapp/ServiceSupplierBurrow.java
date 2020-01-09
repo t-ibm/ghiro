@@ -126,7 +126,7 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N,RpcEvents.Ev
         String uuid = "" + logEvent.getEvents(0).getHeader().getHeight();
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
-        List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(HexValue::toString).collect(Collectors.toList());
+        List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(t -> HexValue.toString(t.toByteArray())).collect(Collectors.toList());
         decodeEventInput(ContractSupplier.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
         return new Message<RpcEvents.EventsResponse>() {
             {
