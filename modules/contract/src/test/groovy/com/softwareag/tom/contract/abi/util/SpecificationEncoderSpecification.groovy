@@ -164,17 +164,17 @@ class SpecificationEncoderSpecification extends Specification {
         ]
         signature << [
             'sendTo(uint160,uint256)',
-            'sendTo(uint160,uint256)',
+            'sendTo(address,uint256)',
         ]
         id << [
             'f57c30b2',
-            'f57c30b2',
+            '9e1a00aa',
         ]
         result << [
             'f57c30b2'
                 + '000000000000000000000000ffffffffffffffffffffffffffffffffffffffff'
                 + '000000000000000000000000000000000000000000000000000000000000002a',
-            'f57c30b2'
+            '9e1a00aa'
                 + '000000000000000000000000ffffffffffffffffffffffffffffffffffffffff'
                 + '000000000000000000000000000000000000000000000000000000000000002a',
         ]
@@ -190,16 +190,16 @@ class SpecificationEncoderSpecification extends Specification {
 
         where: 'the specification items are from the Console contract'
         source << [
-            '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"address"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
             '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"uint160"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
+            '{"anonymous":false,"inputs":[{"indexed":true,"name":"payee","type":"address"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"balance","type":"uint256"}],"name":"Sent","type":"event"}',
         ]
         signature << [
-            'Sent(address,uint256,uint256)',
             'Sent(uint160,uint256,uint256)',
+            'Sent(address,uint256,uint256)',
         ]
         id << [
-            '6356739d963da01dc3533acba7203430fcc14f2175d48a8dd0973d7db49c785e',
             '318900a757c479f66836672cd876f43b1a3fd4161a8710f20b9b4c108ed84968',
+            '6356739d963da01dc3533acba7203430fcc14f2175d48a8dd0973d7db49c785e',
         ]
     }
 }
