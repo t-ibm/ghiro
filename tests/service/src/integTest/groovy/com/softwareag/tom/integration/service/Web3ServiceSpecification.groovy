@@ -369,4 +369,67 @@ class Web3ServiceSpecification extends Specification {
         exception = thrown()
         exception.message == 'Error 3: not found'
     }
+
+    def "test create solidity contract and exchange token"() {
+        given: 'a valid Solidity contract'
+        Map contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
+        Contract contract = contracts['zeppelin/examples/SimpleToken']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification functionApprove = functions.get(1)
+        assert functionApprove.name == 'approve'
+        ContractInterface.Specification functionTransfer = functions.get(9)
+        assert functionTransfer.name == 'transfer'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventTransfer = events.get(0)
+        assert eventTransfer.name == 'Transfer'
+        ContractInterface.Specification eventApproval = events.get(1)
+        assert eventApproval.name == 'Approval'
+
+        String contractAddress
+
+        when: println '(1) contract "zeppelin/examples/SimpleToken" gets deployed'
+        Types.RequestEthSendTransaction requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
+            Types.TxType.newBuilder().setData(HexValue.toByteString(contract.binary)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
+        ).build()
+        Types.ResponseEthSendTransaction responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+
+        and: 'the contract address is remembered'
+        Types.RequestEthGetTransactionReceipt requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        Types.ResponseEthGetTransactionReceipt responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+        contractAddress = HexValue.toString(responseEthGetTransactionReceipt.getTxReceipt().contractAddress)
+
+        then: 'a valid response is received'
+        responseEthGetTransactionReceipt.getTxReceipt() != null
+
+        when: println '(2) the newly created contract account is verified'
+        Types.RequestEthGetBalance requestEthGetBalance = Types.RequestEthGetBalance.newBuilder().setAddress(HexValue.toByteString(contractAddress)).build()
+        Types.ResponseEthGetBalance responseEthGetBalance = web3Service.ethGetBalance(requestEthGetBalance)
+
+        then: 'a valid response is received'
+        responseEthGetBalance.getBalance() == HexValue.toByteString(0)
+
+        when: println '(3) function "approve" is executed'
+        String spender = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
+        String data = functionApprove.encode([HexValue.toBigInteger(spender), BigInteger.valueOf(42)])
+        Types.RequestEthCall requestEthCall = Types.RequestEthCall.newBuilder().setTx(
+            Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(data)).build()
+        ).build()
+        Types.ResponseEthCall responseEthCall = web3Service.ethCall(requestEthCall)
+
+        then: 'a valid response is received'
+        HexValue.toBigInteger(responseEthCall.getReturn()) == BigInteger.valueOf(1)
+
+        when: println '(4) function "transfer" is executed'
+        requestEthSendTransaction = Types.RequestEthSendTransaction.newBuilder().setTx(
+            Types.TxType.newBuilder().setTo(HexValue.toByteString(contractAddress)).setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(contract.gasLimit)).setGasPrice(HexValue.toByteString(contract.gasPrice)).build()
+        ).build()
+        responseEthSendTransaction = web3Service.ethSendTransaction(requestEthSendTransaction)
+
+        and: 'the transaction receipt gets requested'
+        requestEthGetTransactionReceipt = Types.RequestEthGetTransactionReceipt.newBuilder().setHash(responseEthSendTransaction.getHash()).build()
+        responseEthGetTransactionReceipt = web3Service.ethGetTransactionReceipt(requestEthGetTransactionReceipt)
+
+        then: 'a valid response is received'
+        HexValue.toBigInteger(responseEthGetTransactionReceipt.getTxReceipt().gasUsed) == 338
+    }
 }

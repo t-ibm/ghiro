@@ -331,4 +331,131 @@ class BurrowServiceSpecification extends Specification {
         then: 'a valid response is received'
         HexValue.asBigInteger(responseStorageValue.value) == 7
     }
+
+    def "test create solidity contract and exchange token"() {
+        given: 'a valid Solidity contract'
+        Map contracts = ContractRegistry.build(new SolidityLocationFileSystem(config.node.contract.registry.location as URI), new ConfigLocationFileSystem(config.node.config.location as URI)).load()
+        Contract contract = contracts['zeppelin/examples/SimpleToken']
+        List functions = contract.abi.functions as List<ContractInterface.Specification>
+        ContractInterface.Specification functionApprove = functions.get(1)
+        assert functionApprove.name == 'approve'
+        ContractInterface.Specification functionTransfer = functions.get(9)
+        assert functionTransfer.name == 'transfer'
+        List events = contract.abi.events as List<ContractInterface.Specification>
+        ContractInterface.Specification eventTransfer = events.get(0)
+        assert eventTransfer.name == 'Transfer'
+        ContractInterface.Specification eventApproval = events.get(1)
+        assert eventApproval.name == 'Approval'
+
+        String contractAddress
+
+        when: println '(1) contract "zeppelin/examples/SimpleToken" gets deployed'
+        String caller = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
+        Payload.TxInput txInput = Payload.TxInput.newBuilder().setAddress(HexValue.copyFrom(caller)).setAmount(20).build()
+        Payload.CallTx requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(contract.binary)).build()
+        Exec.TxExecution responseTxExecution = burrowTransact.callTx(requestCallTx)
+
+        and: 'the contract address is remembered'
+        contractAddress = HexValue.toString(responseTxExecution.receipt.contractAddress.toByteArray())
+
+        then: 'a valid response is received'
+        contractAddress.size() == 42
+        responseTxExecution.result.gasUsed == 709
+
+        when: println '(2) we register for events with the new contract account'
+        List<RpcEvents.EventsResponse> results = []
+        CountDownLatch stream = new CountDownLatch(3)
+        CountDownLatch done = new CountDownLatch(1)
+        StreamObserver<RpcEvents.EventsResponse> observer = [
+            onCompleted: {
+                done.countDown()
+            },
+            onError    : { Throwable e ->
+                throw e
+            },
+            onNext     : { RpcEvents.EventsResponse eventsResponse ->
+                results.add(eventsResponse)
+                stream.countDown()
+            }
+        ] as StreamObserver<RpcEvents.EventsResponse>
+
+        and: 'subscribe to events'
+        String contractAddressUpperCase = HexValue.stripPrefix(contractAddress).toUpperCase() //TODO :: Fix contract address
+        String query = "EventType = 'LogEvent' AND Address = '$contractAddressUpperCase'"
+        RpcEvents.BlocksRequest request = RpcEvents.BlocksRequest.newBuilder().setBlockRange(
+            RpcEvents.BlockRange.newBuilder()
+                .setStart(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.LATEST))
+                .setEnd(RpcEvents.Bound.newBuilder().setType(RpcEvents.Bound.BoundType.STREAM))
+        ).setQuery(query).build()
+        burrowEvents.getEvents(request, observer)
+
+        then: 'the event system gets properly initialized'
+        stream != null
+        done != null
+
+        when: println '(3) we listen for events'
+        stream.await(1, TimeUnit.SECONDS)
+        done.await(1, TimeUnit.SECONDS)
+        println "results <<< $results\n"
+
+        then: 'a valid response is received'
+        results.size() == 1
+
+        when: println '(4) the newly created contract account is verified'
+        RpcQuery.GetAccountParam requestGetAccountParam = RpcQuery.GetAccountParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
+        Acm.Account responseAccount = burrowQuery.getAccount(requestGetAccountParam)
+
+        then: 'a valid response is received'
+        responseAccount.getEVMCode() != null
+
+        when: println '(5) the storage of the contract is retrieved'
+        RpcQuery.GetStorageParam requestGetStorageParam = RpcQuery.GetStorageParam.newBuilder().setAddress(HexValue.copyFrom(contractAddress)).build()
+        RpcQuery.StorageValue responseStorageValue = burrowQuery.getStorage(requestGetStorageParam)
+
+        then: 'a valid response is received'
+        HexValue.asBigInteger(responseStorageValue.value) == 0 //TODO :: Seems to be right, but how can I retrieve the initial balance
+
+        when: println '(6) function "approve" is executed'
+        String spender = '0x9505e4785ff66e23d8b1ecb47a1e49aa01d81c19'
+        String data = functionApprove.encode([HexValue.toBigInteger(spender), BigInteger.valueOf(42)])
+        requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(data)).build()
+        responseTxExecution = burrowTransact.callTx(requestCallTx)
+
+        then: 'a valid response is received'
+        responseTxExecution.result.gasUsed == 338
+        HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(1)
+
+        when: println '(7) function "transfer" is executed'
+        requestCallTx = Payload.CallTx.newBuilder().setInput(txInput).setAddress(HexValue.copyFrom(contractAddress)).setGasLimit(contract.gasLimit.longValue()).setGasPrice(contract.gasPrice.longValue()).setFee(20).setData(HexValue.copyFrom(data)).build()
+        responseTxExecution = burrowTransact.callTx(requestCallTx)
+
+        then: 'a valid response is received'
+        responseTxExecution.result.gasUsed == 338
+        HexValue.asBigInteger(responseTxExecution.result.return) == BigInteger.valueOf(1)
+
+        when: println '(8) we wait a little while continuously listening for events'
+        stream.await(15, TimeUnit.SECONDS)
+        done.await(1, TimeUnit.SECONDS)
+        println "results <<< $results\n"
+
+        then: 'a valid response is received'
+        notThrown Throwable
+        results.size() == 3
+        results.each { it.getEvents(0).log.topicsCount == 3 }
+        // Deploy
+        HexValue.toString(results[0].getEvents(0).log.address.toByteArray()) == contractAddress
+        HexValue.asBigInteger(results[0].getEvents(0).log.data) == BigInteger.valueOf(10).pow(22)
+        HexValue.toString(results[0].getEvents(0).log.getTopics(1).toByteArray()) == '0x0000000000000000000000000000000000000000000000000000000000000000'
+        HexValue.toString(results[0].getEvents(0).log.getTopics(2).toByteArray()) == '0x000000000000000000000000' + HexValue.stripPrefix(caller)
+        // Approve
+        HexValue.toString(results[1].getEvents(0).log.address.toByteArray()) == contractAddress
+        HexValue.asBigInteger(results[1].getEvents(0).log.data) == BigInteger.valueOf(42)
+        HexValue.toString(results[1].getEvents(0).log.getTopics(1).toByteArray()) == '0x000000000000000000000000' + HexValue.stripPrefix(caller)
+        HexValue.toString(results[1].getEvents(0).log.getTopics(2).toByteArray()) == '0x000000000000000000000000' + HexValue.stripPrefix(caller)
+        // Transfer
+        HexValue.toString(results[2].getEvents(0).log.address.toByteArray()) == contractAddress
+        HexValue.asBigInteger(results[2].getEvents(0).log.data) == BigInteger.valueOf(42)
+        HexValue.toString(results[2].getEvents(0).log.getTopics(1).toByteArray()) == '0x000000000000000000000000' + HexValue.stripPrefix(caller)
+        HexValue.toString(results[2].getEvents(0).log.getTopics(2).toByteArray()) == '0x000000000000000000000000' + HexValue.stripPrefix(caller)
+    }
 }
