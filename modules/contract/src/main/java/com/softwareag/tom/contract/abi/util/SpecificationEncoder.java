@@ -61,7 +61,7 @@ public final class SpecificationEncoder {
     }
 
     static <T> String getFunctionSignature(ContractInterface.Specification<T> specification) {
-        String params = specification.getInputParameters().stream().map(p -> String.valueOf(p.getType().getName().equals("address") ? "uint160" : p.getType().getName())).collect(Collectors.joining(","));
+        String params = specification.getInputParameters().stream().map(p -> String.valueOf(p.getType().getName())).collect(Collectors.joining(","));
         return specification.getName() + "(" + params + ")";
     }
 
