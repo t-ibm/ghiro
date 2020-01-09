@@ -22,7 +22,7 @@ ext {
             version : '1.24.0',
         ],
         protobuf : [
-            version : '3.9.0',
+            version : '3.6.0',
         ],
         is : [
             version : '10.7.0+',
