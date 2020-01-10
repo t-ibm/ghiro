@@ -154,7 +154,7 @@ class UtilSpecification extends RuntimeBaseSpecification {
 
     @Unroll def 'test log event #serviceSupplier.class.name'(ServiceSupplierBase serviceSupplier, Object observer, List filterChanges) {
         given: 'the needed instances and handling of service layer communications'
-        NSName nsName = NSName.create('sample.SimpleStorage:LogAddress')
+        NSName nsName = NSName.create("sample.SimpleStorage:LogAddress$SUFFIX_DOC")
 
         when: 'the contract address is remembered; implying the contract was deployed'
         if (!util.isContractDeployed(nsName)) {

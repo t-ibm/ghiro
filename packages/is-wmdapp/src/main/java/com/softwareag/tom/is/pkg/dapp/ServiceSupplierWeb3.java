@@ -17,6 +17,7 @@ import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
+import com.wm.lang.ns.NSName;
 import com.wm.msg.Header;
 import com.wm.util.Values;
 import rx.Observable;
@@ -103,19 +104,19 @@ public class ServiceSupplierWeb3<N> extends ServiceSupplierBase<N,Types.FilterLo
         return ethLogObservable.subscribe(observer);
     }
 
-    @Override public Message<Types.FilterLogType> decodeLogEvent(Contract contract, String eventName, Types.FilterLogType logEvent) {
+    @Override public Message<Types.FilterLogType> decodeLogEvent(Contract contract, N name, Types.FilterLogType logEvent) {
         IData pipeline = IDataFactory.create();
         IData envelope = IDataFactory.create();
         String uuid = "" + HexValue.toBigInteger(logEvent.getBlockNumber());
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
-        decodeEventInput(ContractSupplier.getEvent(contract, eventName), pipeline, HexValue.toString(logEvent.getData()), topics);
+        decodeEventInput(ContractSupplier.getEvent(contract, getEventName(name)), pipeline, HexValue.toString(logEvent.getData()), topics);
         return new Message<Types.FilterLogType>() {
             {
                 _event = logEvent;
                 _msgID = uuid;
-                _type = eventName;
+                _type = ((NSName)name).getFullName(); //TODO :: Obviously, this class is not generic with respect to parameter <N> ... un-generify it
                 _data = pipeline;
             }
 
