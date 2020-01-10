@@ -23,6 +23,7 @@ import com.wm.app.b2b.server.dispatcher.wmmessaging.Message;
 import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
+import com.wm.lang.ns.NSName;
 import com.wm.msg.Header;
 import com.wm.util.Values;
 import io.grpc.stub.StreamObserver;
@@ -120,19 +121,19 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N,RpcEvents.Ev
         return new StreamObserverSubscriber(burrowEvents.getService());
     }
 
-    @Override public Message<RpcEvents.EventsResponse> decodeLogEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {
+    @Override public Message<RpcEvents.EventsResponse> decodeLogEvent(Contract contract, N name, RpcEvents.EventsResponse logEvent) {
         IData pipeline = IDataFactory.create();
         IData envelope = IDataFactory.create();
         String uuid = "" + logEvent.getEvents(0).getHeader().getHeight();
         IDataUtil.put(envelope.getCursor(),"uuid", uuid);
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(t -> HexValue.toString(t.toByteArray())).collect(Collectors.toList());
-        decodeEventInput(ContractSupplier.getEvent(contract,eventName), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
+        decodeEventInput(ContractSupplier.getEvent(contract, getEventName(name)), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
         return new Message<RpcEvents.EventsResponse>() {
             {
                 _event = logEvent;
                 _msgID = uuid;
-                _type = eventName;
+                _type = ((NSName)name).getFullName(); //TODO :: Obviously, this class is not generic with respect to parameter <N> ... un-generify it
                 _data = pipeline;
             }
 
@@ -144,7 +145,7 @@ public class ServiceSupplierBurrow<N> extends ServiceSupplierBase<N,RpcEvents.Ev
     }
 
     @Override public boolean isMatchingEvent(Contract contract, String eventName, RpcEvents.EventsResponse logEvent) {
-        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getEvents(0).getLog().getTopics(0)));
+        String actual = HexValue.stripPrefix(HexValue.toString(logEvent.getEvents(0).getLog().getTopics(0).toByteArray()));
         String expected = ContractSupplier.getEvent(contract, eventName).encode();
         return actual.equalsIgnoreCase(expected);
     }

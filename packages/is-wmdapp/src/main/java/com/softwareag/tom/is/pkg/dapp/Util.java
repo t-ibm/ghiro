@@ -95,12 +95,12 @@ public class Util extends UtilBase<NSName> {
         return nsName.getInterfaceName().toString().replace('.', '/');
     }
 
-    @Override public String getFunctionUri(NSName nsName) {
+    @Override public String getFunctionName(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_REQ) ? name.substring(0, name.length() - SUFFIX_REQ.length()) : name;
     }
 
-    @Override public String getEventUri(NSName nsName) {
+    @Override public String getEventName(NSName nsName) {
         String name = nsName.getNodeName().toString();
         return name.endsWith(SUFFIX_DOC) ? name.substring(0, name.length() - SUFFIX_DOC.length()) : name;
     }
@@ -199,7 +199,7 @@ public class Util extends UtilBase<NSName> {
                 FlowMap fm = FlowGenUtil.getFlowMap();
                 FlowMapSet fms = FlowGenUtil.getFlowMapSet("message", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Processing event");
                 fm.addNode(fms);
-                fms = FlowGenUtil.getFlowMapSet("function", NSField.FIELD_STRING, NSField.DIM_SCALAR, eventName);
+                fms = FlowGenUtil.getFlowMapSet("function", NSField.FIELD_STRING, NSField.DIM_SCALAR, getContractUri(triggerNsName) + '#' + event.getName());
                 fm.addNode(fms);
                 fms = FlowGenUtil.getFlowMapSet("level", NSField.FIELD_STRING, NSField.DIM_SCALAR, "Info");
                 fm.addNode(fms);

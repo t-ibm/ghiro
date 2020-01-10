@@ -31,8 +31,8 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
     }
 
     @Override public String getContractUri(N name) { return util.getContractUri(name); }
-    @Override public String getFunctionUri(N name) { return util.getFunctionUri(name); }
-    @Override public String getEventUri(N name) { return util.getEventUri(name); }
+    @Override public String getFunctionName(N name) { return util.getFunctionName(name); }
+    @Override public String getEventName(N name) { return util.getEventName(name); }
 
     @Override public Contract getContract(String uri) {
         return util.getContract(uri);
@@ -90,7 +90,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
      */
     public void call(N name, IData pipeline) throws IOException {
         String uri = getContractUri(name);
-        String functionName = getFunctionUri(name);
+        String functionName = getFunctionName(name);
         decodeFunctionOutput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline, call(name, encodeInput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline)));
     }
     /**
@@ -103,7 +103,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
         String response = call(contract,data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionUri(name), contract.getContractAddress());
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionName(name), contract.getContractAddress());
         return  response;
     }
 
@@ -114,7 +114,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
      */
     public void sendTransaction(N name, IData pipeline) throws IOException {
         String uri = getContractUri(name);
-        String functionName = getFunctionUri(name);
+        String functionName = getFunctionName(name);
         sendTransaction(name, encodeInput(ContractSupplier.getFunction(getContract(uri), functionName), pipeline));
     }
 
@@ -127,7 +127,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
         String uri = getContractUri(name);
         Contract contract = validateContract(uri);
         sendTransaction(contract, data);
-        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionUri(name), contract.getContractAddress());
+        DAppLogger.logInfo(DAppMsgBundle.DAPP_CONTRACT_CALL, uri, getFunctionName(name), contract.getContractAddress());
     }
 
     /**
@@ -161,8 +161,8 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
     public Message<E> decodeLogEvent(N name, E logEvent) {
         String uri = getContractUri(name);
         Contract contract = getContract(uri);
-        String eventName = getEventUri(name);
-        Message<E> message = decodeLogEvent(contract, eventName, logEvent);
+        String eventName = getEventName(name);
+        Message<E> message = decodeLogEvent(contract, name, logEvent);
         DAppLogger.logInfo(DAppMsgBundle.DAPP_EVENT_LOG, uri, eventName, contract.getContractAddress());
         return message;
     }
@@ -175,7 +175,7 @@ public abstract class ServiceSupplierBase<N,E,O,S> implements ServiceSupplier<N,
     boolean isMatchingEvent(N name, E logEvent) {
         String uri = getContractUri(name);
         Contract contract = getContract(uri);
-        String eventName = getEventUri(name);
+        String eventName = getEventName(name);
         return isMatchingEvent(contract, eventName, logEvent);
     }
 

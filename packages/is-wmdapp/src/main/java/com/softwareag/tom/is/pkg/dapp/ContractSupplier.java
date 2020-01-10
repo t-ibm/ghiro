@@ -16,22 +16,22 @@ import java.util.Map;
 public interface ContractSupplier<N> {
 
     /**
-     * @param name The contract's constructor, function, or event name
+     * @param name The fully-qualified contract's constructor, function, or event name
      * @return the contract's URI
      */
     String getContractUri(N name);
 
     /**
-     * @param name The contract's function name
-     * @return the contract's function URI
+     * @param name The fully-qualified contract's function name
+     * @return the contract's function name
      */
-    String getFunctionUri(N name);
+    String getFunctionName(N name);
 
     /**
-     * @param name The contract's event name
-     * @return the contract's event URI
+     * @param name The fully-qualified contract's event name
+     * @return the contract's event name
      */
-    String getEventUri(N name);
+    String getEventName(N name);
 
     /**
      * @param uri The contract's location

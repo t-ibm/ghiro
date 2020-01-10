@@ -49,11 +49,11 @@ interface ServiceSupplier<N,E,O,S> extends ContractSupplier<N> {
 
     /**
      * @param contract The contract
-     * @param eventName The contract's event name
+     * @param name The contract's event name
      * @param logEvent The received log event
      * @return the log event as a {@link Message}
      */
-    Message<E> decodeLogEvent(Contract contract, String eventName, E logEvent);
+    Message<E> decodeLogEvent(Contract contract, N name, E logEvent);
 
     /**
      * @param contract The contract
