@@ -64,6 +64,8 @@ public class Util extends UtilBase<NSName> {
     static final String SUFFIX_REP = "Rep";
 
     private static Util instance;
+    private ServiceSupplierWeb3 web3;
+    private ServiceSupplierBurrow burrow;
     RuntimeConfiguration rt;
 
     private static Package pkgWmDApp = PackageManager.getPackage("WmDApp");
@@ -89,6 +91,20 @@ public class Util extends UtilBase<NSName> {
             instance = new Util(pkgWmDApp == null ? "default" : String.valueOf(pkgWmDApp.getManifest().getProperty("node")));
         }
         return instance;
+    }
+
+    @Override public ServiceSupplierWeb3Base<NSName> web3() {
+        if (web3 == null) {
+            web3 = new ServiceSupplierWeb3(this);
+        }
+        return web3;
+    }
+
+    @Override public ServiceSupplierBurrowBase<NSName> burrow() {
+        if (burrow == null) {
+            burrow = new ServiceSupplierBurrow(this);
+        }
+        return burrow;
     }
 
     @Override public String getContractUri(NSName nsName) {

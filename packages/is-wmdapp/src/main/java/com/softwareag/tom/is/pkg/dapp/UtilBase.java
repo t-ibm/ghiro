@@ -16,27 +16,19 @@ import org.hyperledger.burrow.rpc.RpcEvents;
  */
 public abstract class UtilBase<N> extends ContractSupplierBase<N> {
 
-    ServiceSupplierWeb3<N> web3;
-    ServiceSupplierBurrow<N> burrow;
-
     UtilBase(String nodeName) throws ExceptionInInitializerError {
         super(nodeName);
     }
 
-    public ServiceSupplierWeb3<N> web3() {
-        if (web3 == null) {
-            web3 = new ServiceSupplierWeb3<>(this);
-        }
-        return web3;
-    }
+    /**
+     * @return a Web3 instance
+     */
+    abstract ServiceSupplierWeb3Base<N> web3();
 
-    public ServiceSupplierBurrow<N> burrow() {
-        if (burrow == null) {
-            burrow = new ServiceSupplierBurrow<>(this);
-        }
-        return burrow;
-    }
-
+    /**
+     * @return a Burrow instance
+     */
+    abstract ServiceSupplierBurrowBase<N> burrow();
 
     public <E> boolean isMatchingEvent(N name, E event) {
         if (event instanceof  Types.FilterLogType) {
