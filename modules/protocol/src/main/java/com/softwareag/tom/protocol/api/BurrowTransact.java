@@ -16,6 +16,18 @@ import org.hyperledger.burrow.txs.Payload;
  * The transact portion of the Burrow gRPC API. See the protocol buffers IDL file <a href="https://github.com/hyperledger/burrow/blob/master/protobuf/rpctransact.proto">rpctransact.proto</a> for more info.
  */
 public interface BurrowTransact extends BurrowService<ServiceTransact> {
-    Exec.TxExecution sendTx(Payload.SendTx req);
-    Exec.TxExecution callTx(Payload.CallTx req);
+
+    /**
+     * Formulate a {@code Payload.SendTx} transaction signed server-side and wait for it to be included in a block, retrieving response.
+     * @param request The request object
+     * @return the response
+     */
+    Exec.TxExecution sendTx(Payload.SendTx request);
+
+    /**
+     * Formulate a {@code Payload.CallTx} transaction signed server-side and wait for it to be included in a block, retrieving response.
+     * @param request The request object
+     * @return the response
+     */
+    Exec.TxExecution callTx(Payload.CallTx request);
 }

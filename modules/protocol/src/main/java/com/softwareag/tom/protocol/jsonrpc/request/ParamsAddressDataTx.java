@@ -41,7 +41,8 @@ public class ParamsAddressDataTx extends ParamsAddressData {
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ParamsAddressDataTx)) return false;
+        if (o == null) return false;
+        if (!o.getClass().equals(this.getClass())) return false;
         if (!super.equals(o)) return false;
 
         ParamsAddressDataTx that = (ParamsAddressDataTx) o;

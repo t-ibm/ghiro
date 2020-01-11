@@ -20,11 +20,11 @@ abstract class ServiceBase<S extends AbstractStub<S>, B extends AbstractStub<B>>
     final ManagedChannel channel;
 
     private ServiceBase(ManagedChannelBuilder<?> channelBuilder) {
-        channel = channelBuilder.build();
+        channel = channelBuilder.usePlaintext().build();
     }
 
     ServiceBase(String host, int port) {
-        this(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
+        this(ManagedChannelBuilder.forAddress(host, port));
     }
 
     @Override public void shutdown() throws InterruptedException {
