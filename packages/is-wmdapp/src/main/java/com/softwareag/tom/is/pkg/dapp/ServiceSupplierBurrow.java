@@ -18,8 +18,6 @@ import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSName;
-import com.wm.msg.Header;
-import com.wm.util.Values;
 import org.hyperledger.burrow.rpc.RpcEvents;
 
 import java.util.List;
@@ -43,18 +41,6 @@ public class ServiceSupplierBurrow extends ServiceSupplierBurrowBase<NSName> {
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getEvents(0).getLog().getTopicsList().stream().map(t -> HexValue.toString(t.toByteArray())).collect(Collectors.toList());
         decodeEventInput(ContractSupplier.getEvent(contract, getEventName(name)), pipeline, HexValue.toString(logEvent.getEvents(0).getLog().getData().toByteArray()), topics);
-        return new Message<RpcEvents.EventsResponse>() {
-            {
-                _event = logEvent;
-                _msgID = uuid;
-                _type = name.getFullName();
-                _data = pipeline;
-            }
-
-            @Override public Header getHeader(String name) { return null; }
-            @Override public Header[] getHeaders() { return new Header[0]; }
-            @Override public void setData(Object o) { _data = (IData)o; }
-            @Override public Values getValues() { return Values.use(_data); }
-        };
+        return new EventMessage<>(uuid, name, logEvent, pipeline);
     }
 }

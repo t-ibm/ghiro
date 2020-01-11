@@ -17,8 +17,6 @@ import com.wm.data.IData;
 import com.wm.data.IDataFactory;
 import com.wm.data.IDataUtil;
 import com.wm.lang.ns.NSName;
-import com.wm.msg.Header;
-import com.wm.util.Values;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,18 +39,6 @@ public class ServiceSupplierWeb3 extends ServiceSupplierWeb3Base<NSName> {
         IDataUtil.put(pipeline.getCursor(), Dispatcher.ENVELOPE_KEY, envelope);
         List<String> topics = logEvent.getTopicList().stream().map(HexValue::toString).collect(Collectors.toList());
         decodeEventInput(ContractSupplier.getEvent(contract, getEventName(name)), pipeline, HexValue.toString(logEvent.getData()), topics);
-        return new Message<Types.FilterLogType>() {
-            {
-                _event = logEvent;
-                _msgID = uuid;
-                _type = name.getFullName();
-                _data = pipeline;
-            }
-
-            @Override public Header getHeader(String name) { return null; }
-            @Override public Header[] getHeaders() { return new Header[0]; }
-            @Override public void setData(Object o) { _data = (IData)o; }
-            @Override public Values getValues() { return Values.use(_data); }
-        };
+        return new EventMessage<>(uuid, name, logEvent, pipeline);
     }
 }
