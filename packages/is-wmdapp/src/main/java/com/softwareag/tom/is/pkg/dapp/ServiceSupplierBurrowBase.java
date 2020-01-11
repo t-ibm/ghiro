@@ -27,6 +27,7 @@ import org.hyperledger.burrow.rpc.RpcQuery;
 import org.hyperledger.burrow.txs.Payload;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 
 public abstract class ServiceSupplierBurrowBase<N> extends ServiceSupplierBase<N,RpcEvents.EventsResponse,StreamObserver<RpcEvents.EventsResponse>,Subscription> {
@@ -101,7 +102,7 @@ public abstract class ServiceSupplierBurrowBase<N> extends ServiceSupplierBase<N
     }
 
     @Override public Subscription subscribe(Contract contract, StreamObserver<RpcEvents.EventsResponse> observer) {
-        String contractAddressUpperCase = HexValue.stripPrefix(contract.getContractAddress()).toUpperCase(); //TODO :: Fix contract address
+        String contractAddressUpperCase = HexValue.stripPrefix(contract.getContractAddress()).toUpperCase(Locale.US); //TODO :: Fix contract address
         String query = String.format("EventType = 'LogEvent' AND Address = '%s'", contractAddressUpperCase);
         RpcEvents.BlocksRequest request = RpcEvents.BlocksRequest.newBuilder().setBlockRange(
             RpcEvents.BlockRange.newBuilder()

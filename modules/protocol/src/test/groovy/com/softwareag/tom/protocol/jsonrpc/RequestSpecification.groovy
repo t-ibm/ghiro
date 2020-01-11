@@ -139,7 +139,7 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_sendTransaction"() {
         given: 'a text fixture'
         String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        String data = '606060'
+        String data = '0x606060'
         long value = 0
         long fee = 12
         long gasLimit = 223
@@ -164,14 +164,15 @@ class RequestSpecification extends RequestBaseSpecification {
     def "test eth_call"() {
         given: 'a text fixture'
         String address = '33F71BB66F8994DD099C0E360007D4DEAE11BFFE'
-        String data = '606060'
+        String data = '0x606060'
+        long value = 0
         long fee = 12
         long gasLimit = 223
-        ParamsAddress<ParamsAddressDataTx> params = new ParamsAddress(new ParamsAddressDataTx(address, data, 0, fee, gasLimit), 'latest')
+        ParamsAddress<ParamsAddressDataTx> params = new ParamsAddress(new ParamsAddressDataTx(address, data, value, fee, gasLimit), 'latest')
 
         when: 'a valid request type is created'
         RequestEthCall request = new RequestEthCall(serviceHttp, Types.RequestEthCall.newBuilder().setTx(
-                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).setGas(HexValue.toByteString(gasLimit)).setGasPrice(HexValue.toByteString(fee)).build()
+                Types.TxType.newBuilder().setTo(HexValue.toByteString(address)).setData(HexValue.toByteString(data)).setValue(HexValue.toByteString(value)).setGas(HexValue.toByteString(gasLimit)).setGasPrice(HexValue.toByteString(fee)).build()
         ).build()) {}
 
         then: 'the expected request object is created'

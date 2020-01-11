@@ -15,7 +15,7 @@ public class ParamsAddressData {
     @JsonProperty("data") String data;
     @JsonProperty("value") String value;
 
-    public ParamsAddressData(String address, String data, long value) {
+    ParamsAddressData(String address, String data, long value) {
         this.to = address;
         this.data = data;
         this.value = HexValue.toString(BigInteger.valueOf(value));
@@ -23,8 +23,8 @@ public class ParamsAddressData {
 
     ParamsAddressData(Types.TxType tx) {
         this.to = ParamsAddress.validate(tx.getTo());
-        this.data = HexValue.stripPrefix(tx.getData());
-        this.value = HexValue.stripPrefix(tx.getValue());
+        this.data = HexValue.toString(tx.getData());
+        this.value = HexValue.toString(tx.getValue());
     }
 
     @Override public String toString() {
@@ -33,17 +33,21 @@ public class ParamsAddressData {
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ParamsAddressData)) return false;
+        if (o == null) return false;
+        if (!o.getClass().equals(this.getClass())) return false;
 
         ParamsAddressData that = (ParamsAddressData) o;
 
         if (!to.equals(that.to)) return false;
-        return data.equals(that.data);
+        if (data != null ? !data.equals(that.data) : that.data != null) return false;
+        return value != null ? value.equals(that.value) : that.value == null;
+
     }
 
     @Override public int hashCode() {
         int result = to.hashCode();
-        result = 31 * result + data.hashCode();
+        result = 31 * result + (data != null ? data.hashCode() : 0);
+        result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
 }

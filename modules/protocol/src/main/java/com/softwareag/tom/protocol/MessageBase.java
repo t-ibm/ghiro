@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
  */
 abstract class MessageBase {
     private static final Logger logger = LoggerFactory.getLogger(MessageBase.class);
+
+    MessageBase() {}
+
     /**
      * Logs the request and response messages.
      * @param request The request message

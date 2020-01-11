@@ -16,5 +16,11 @@ import org.hyperledger.burrow.rpc.RpcEvents;
  * The query portion of the Burrow gRPC API. See the protocol buffers IDL file <a href="https://github.com/hyperledger/burrow/blob/master/protobuf/rpcevents.proto">rpcquery.proto</a> for more info.
  */
 public interface BurrowEvents extends BurrowService<ServiceEvents> {
-    void getEvents(RpcEvents.BlocksRequest req, StreamObserver<RpcEvents.EventsResponse> observer);
+
+    /**
+     * Request events via a non-blocking client-server gRPC.
+     * @param request The request object
+     * @param observer The observer to registered to listen for responses
+     */
+    void getEvents(RpcEvents.BlocksRequest request, StreamObserver<RpcEvents.EventsResponse> observer);
 }

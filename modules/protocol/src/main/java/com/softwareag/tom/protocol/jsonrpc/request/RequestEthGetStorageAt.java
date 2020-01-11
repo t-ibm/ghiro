@@ -6,7 +6,6 @@
  */
 package com.softwareag.tom.protocol.jsonrpc.request;
 
-import com.google.protobuf.ByteString;
 import com.softwareag.tom.protocol.abi.Types;
 import com.softwareag.tom.protocol.jsonrpc.Request;
 import com.softwareag.tom.protocol.jsonrpc.Service;

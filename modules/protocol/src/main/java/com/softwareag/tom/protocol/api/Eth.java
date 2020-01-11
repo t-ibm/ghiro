@@ -16,43 +16,43 @@ import java.io.IOException;
 interface Eth {
     /**
      * Method {@code eth_getBalance}.
-     * @param req A request object containing the address to check for balance as well as a parameter of type {@link Types.BlockHeightType}
+     * @param request A request object containing the address to check for balance as well as a parameter of type {@link Types.BlockHeightType}
      * @return the integer of the current balance in wei
      * @throws IOException in case of an error
      */
-    Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance req) throws IOException;
+    Types.ResponseEthGetBalance ethGetBalance(Types.RequestEthGetBalance request) throws IOException;
 
     /**
      * Method {@code eth_getStorageAt}.
-     * @param req A request object containing the address and position in storage as well as a parameter of type {@link Types.BlockHeightType}
+     * @param request A request object containing the address and position in storage as well as a parameter of type {@link Types.BlockHeightType}
      * @return the value from a storage position at a given address
      * @throws IOException in case of an error
      */
-    Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt req) throws IOException;
+    Types.ResponseEthGetStorageAt ethGetStorageAt(Types.RequestEthGetStorageAt request) throws IOException;
 
     /**
      * Method {@code eth_sendTransaction}.
-     * @param req A request object containing the transaction object of type {@link Types.TxType}
+     * @param request A request object containing the transaction object of type {@link Types.TxType}
      * @return the transaction hash, or the zero hash if the transaction is not yet available
      * @throws IOException in case of an error
      */
-    Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction req) throws IOException;
+    Types.ResponseEthSendTransaction ethSendTransaction(Types.RequestEthSendTransaction request) throws IOException;
 
     /**
      * Method {@code eth_call}.
-     * @param req A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.BlockHeightType}
+     * @param request A request object containing the transaction object of type {@link Types.TxType} as well as a parameter of type {@link Types.BlockHeightType}
      * @return the return value of executed contract
      * @throws IOException in case of an error
      */
-    Types.ResponseEthCall ethCall(Types.RequestEthCall req) throws IOException;
+    Types.ResponseEthCall ethCall(Types.RequestEthCall request) throws IOException;
 
     /**
      * Method {@code eth_newFilter}.
-     * @param req A request object containing the filter object of type {@link Types.FilterOptionType}
+     * @param request A request object containing the filter object of type {@link Types.FilterOptionType}
      * @return the filter id
      * @throws IOException in case of an error
      */
-    Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter req) throws IOException;
+    Types.ResponseEthNewFilter ethNewFilter(Types.RequestEthNewFilter request) throws IOException;
 
     /**
      * Method {@code eth_newBlockFilter}.
@@ -63,24 +63,25 @@ interface Eth {
 
     /**
      * Method {@code eth_uninstallFilter}.
-     * @param req The filter id
+     * @param request The filter id
      * @return {@code true} if the filter was successfully uninstalled, {@code false} otherwise
      * @throws IOException in case of an error
      */
-    Types.ResponseEthUninstallFilter ethUninstallFilter(Types.RequestEthUninstallFilter req) throws IOException;
+    Types.ResponseEthUninstallFilter ethUninstallFilter(Types.RequestEthUninstallFilter request) throws IOException;
 
     /**
      * Method {@code eth_getFilterChanges}.
-     * @param req A request object containing the filter id
+     * @param request A request object containing the filter id
      * @return a list of objects of type {@link Types.FilterLogType}
      * @throws IOException in case of an error
      */
-    Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges req) throws IOException;
+    Types.ResponseEthGetFilterChanges ethGetFilterChanges(Types.RequestEthGetFilterChanges request) throws IOException;
 
     /**
      * Method {@code eth_getTransactionReceipt}.
-     * @param req A request object containing the hash of a transaction
+     * @param request A request object containing the hash of a transaction
      * @return an object of type {@link Types.TxReceiptType}
+     * @throws IOException in case of an error
      */
-    Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt req) throws IOException;
+    Types.ResponseEthGetTransactionReceipt ethGetTransactionReceipt(Types.RequestEthGetTransactionReceipt request) throws IOException;
 }
