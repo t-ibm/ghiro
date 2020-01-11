@@ -87,7 +87,7 @@ sonarqube.properties {
             'sonar.issuesReport.console.enable' : 'true',
             'sonar.coverage.jacoco.xmlReportPaths' : project.tasks.jacocoMergeReport.reports.xml.destination,
             'sonar.analysis.mode' : project.gradle.startParameter.offline ? 'preview' : 'publish',
-            'sonar.exclusions' : "**/com/softwareag/tom/protocol/abi/**",
+            'sonar.exclusions' : ['**/com/softwareag/tom/protocol/abi/**', '**/com/google/protobuf/**', '**/com/tendermint/**',  '**/org/hyperledger/burrow/**'],
     )
 }
 /*
