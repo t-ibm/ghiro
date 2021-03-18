@@ -1,7 +1,7 @@
 # Ghiro
 A minimal viable product implementing a Transaction Oriented Middleware approach.
 
-[![Build Status](http://us-builds.ame.ad.sag/buildStatus/icon?job=GHIRO_master)](http://us-builds.ame.ad.sag/job/GHIRO_master/)
+[![Build Status](https://us-builds.ame.ad.sag/buildStatus/icon?job=GHIRO_master)](https://us-builds.ame.ad.sag/job/GHIRO_master/)
 [![Quality Gate](http://bas.eur.ad.sag:9000/api/project_badges/measure?project=com.softwareag.tom.ghiro:ghiro&metric=alert_status)](http://bas.eur.ad.sag:9000/dashboard?id=com.softwareag.tom.ghiro:ghiro)
 
 #### Sub-Systems
