@@ -41,7 +41,7 @@ To check, run `javac -version`
 
 #### Get the Sources
 ```
-$ git clone http://irepo.eur.ad.sag/scm/tom/ghiro
+$ git clone git@github.softwareag.com:tglaeser/ghiro.git
 $ cd ./ghiro
 ```
 
